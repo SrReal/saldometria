@@ -1,0 +1,88 @@
+﻿
+> frontend@0.0.0 lint
+> eslint .
+
+npm : 
+En línea: 1 Carácter: 
+1
++ npm run lint 2>&1 | 
+Out-File -Encoding 
+utf8 
+frontend_errors_2.txt
++ ~~~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (:String) [   
+ ], RemoteExceptio    
+n
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+Oops! Something went 
+wrong! :(
+
+ESLint: 9.39.2
+
+ESLint couldn't find 
+a configuration file. 
+To set up a 
+configuration file 
+for this project, 
+please run:
+
+    npm init 
+@eslint/config@latest
+
+ESLint looked for 
+configuration files 
+in D:\DATOS\PROYECTOS\
+SaldoMetria\saldrometr
+ia\frontend and its 
+ancestors. If it 
+found none, it then 
+looked in your home 
+directory.
+
+If you think you 
+already have a 
+configuration file or 
+if you need more 
+help, please stop by 
+the ESLint Discord 
+server: https://eslint
+.org/chat
+
+(node:4640) 
+ESLintRCWarning: You 
+are using an eslintrc 
+configuration file, 
+which is deprecated 
+and support will be 
+removed in v10.0.0. 
+Please migrate to an 
+eslint.config.js 
+file. See https://esli
+nt.org/docs/latest/use
+/configure/migration-g
+uide for details. An 
+eslintrc 
+configuration file is 
+used because you have 
+the ESLINT_USE_FLAT_CO
+NFIG environment 
+variable set to 
+false. If you want to 
+use an 
+eslint.config.js 
+file, remove the 
+environment variable. 
+If you want to find 
+the location of the 
+eslintrc 
+configuration file, 
+use the --debug flag.
+(Use `node 
+--trace-warnings ...` 
+to show where the 
+warning was created)

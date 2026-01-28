@@ -1,0 +1,64 @@
+﻿
+> frontend@0.0.0 lint
+> eslint .
+
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\components\BudgetManager.jsx
+  13:12  warning  'loading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                       no-unused-vars
+  22:8   warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\components\BudgetProgress.jsx
+  18:8  warning  React Hook useEffect has a missing dependency: 'fetchStatus'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\components\RecurringExpenses.jsx
+  18:8  warning  React Hook useEffect has a missing dependency: 'fetchRecurring'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\context\AuthContext.jsx
+  16:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  14 |
+  15 |         if (token && storedUser) {
+> 16 |             setUser(JSON.parse(storedUser));
+     |             ^^^^^^^ Avoid calling setState() directly within an effect
+  17 |         }
+  18 |         setLoading(false);
+  19 |     }, []);  react-hooks/set-state-in-effect
+  68:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react-refresh/only-export-components
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\context\EntityContext.jsx
+  11:15  warning  'saved' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                           no-unused-vars
+  25:8   warning  React Hook useEffect has a missing dependency: 'fetchEntities'. Either include it or remove the dependency array                react-hooks/exhaustive-deps
+  72:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\pages\Calendar.jsx
+  25:8  warning  React Hook useEffect has a missing dependency: 'fetchEvents'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\pages\Dashboard.jsx
+    4:29  warning  'addMonths' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                               no-unused-vars
+   37:8   warning  React Hook useEffect has a missing dependency: 'fetchStats'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  236:15  error    Unexpected constant truthiness on the left-hand side of a `&&` expression                                      no-constant-binary-expression
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\pages\Entities.jsx
+  1:20  warning  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\pages\Goals.jsx
+  30:8   warning  React Hook useEffect has a missing dependency: 'fetchGoals'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  71:18  warning  'error' is defined but never used                                                                              no-unused-vars
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\pages\Rules.jsx
+  27:8  warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\pages\Settings.jsx
+  25:8  warning  React Hook useEffect has a missing dependency: 'fetchCategories'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\frontend\src\pages\Transactions.jsx
+  38:8  warning  React Hook useEffect has missing dependencies: 'fetchAccounts', 'fetchCategories', and 'fetchTransactions'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Ô£û 19 problems (2 errors, 17 warnings)
+

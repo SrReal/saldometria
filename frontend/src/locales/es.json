@@ -1,0 +1,221 @@
+{
+    "common": {
+        "loading": "Cargando...",
+        "loadingStats": "Actualizando datos...",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "actions": "Acciones",
+        "signIn": "Iniciar Sesión",
+        "signOut": "Cerrar Sesión",
+        "signUp": "Registrarse",
+        "email": "Correo",
+        "password": "Contraseña",
+        "welcomeBack": "Bienvenido de nuevo",
+        "createAccount": "Crea tu cuenta",
+        "noAccount": "¿No tienes cuenta?",
+        "hasAccount": "¿Ya tienes cuenta?",
+        "accumulated": "Acumulado"
+    },
+    "nav": {
+        "dashboard": "Panel Principal",
+        "transactions": "Transacciones",
+        "calendar": "Calendario",
+        "goals": "Objetivos",
+        "entities": "Entidades",
+        "settings": "Configuración",
+        "selectEntity": "Seleccionar Entidad",
+        "manageEntities": "Gestionar Entidades",
+        "rules": "Reglas",
+        "profile": "Perfil"
+    },
+    "dashboard": {
+        "title": "Panel Principal",
+        "overview": "Resumen de {{entity}}",
+        "totalBalance": "Balance Total",
+        "monthlyIncome": "Ingresos Mensuales",
+        "monthlyExpenses": "Gastos Mensuales",
+        "vsLastMonth": "vs mes anterior",
+        "expensesByCategory": "Gastos por Categoría",
+        "incomeByCategory": "Ingresos por Categoría",
+        "noExpenses": "No hay gastos en este periodo",
+        "noIncome": "No hay ingresos en este periodo",
+        "forecast": {
+            "title": "Protección de Fin de Mes",
+            "burnRate": "Gasto Medio Diario (90d)",
+            "daysLeft": "Días Restantes",
+            "projectedBalance": "Saldo Proyectado"
+        },
+        "filters": {
+            "thisMonth": "Este mes",
+            "prevMonth": "Mes anterior",
+            "q1": "1er Trimestre (Q1)",
+            "q2": "2do Trimestre (Q2)",
+            "q3": "3er Trimestre (Q3)",
+            "q4": "4to Trimestre (Q4)",
+            "year": "Año completo"
+        },
+        "recurring": {
+            "title": "Próximos Cargos",
+            "avgAmount": "Ø {{amount}}",
+            "dueIn": "Vence en {{days}} días",
+            "dueToday": "Vence hoy",
+            "overdue": "Vencido hace {{days}} días",
+            "noRecurring": "No se detectaron suscripciones."
+        },
+        "budgets": {
+            "title": "Presupuestos",
+            "left": "Quedan {{amount}}",
+            "overBy": "Excedido por {{amount}}",
+            "noBudgets": "No hay presupuestos activos."
+        }
+    },
+    "entities": {
+        "title": "Entidades",
+        "subtitle": "Gestiona tus perfiles personales y de negocio",
+        "newEntity": "Nueva Entidad",
+        "personal": "Personal",
+        "business": "Negocio",
+        "active": "Activa",
+        "entityName": "Nombre de Entidad",
+        "deleteConfirm": "¿Estás seguro? Esto eliminará todos los datos asociados.",
+        "accounts": "Cuentas",
+        "manageAccounts": "Gestionar Cuentas",
+        "addAccount": "Añadir Cuenta",
+        "accountName": "Nombre de Cuenta",
+        "accountType": "Tipo de Cuenta",
+        "balance": "Saldo"
+    },
+    "transactions": {
+        "title": "Transacciones",
+        "subtitle": "Gestiona ingresos y gastos",
+        "addTransaction": "Añadir Transacción",
+        "filter": "Filtrar",
+        "filters": {
+            "allAccounts": "Todas las cuentas",
+            "allCategories": "Todas las categorías",
+            "allTypes": "Todos los tipos",
+            "uncategorized": "Sin categoría",
+            "startDate": "Desde",
+            "endDate": "Hasta",
+            "apply": "Aplicar Filtros",
+            "clear": "Limpiar",
+            "type": "Tipo"
+        },
+        "income": "Ingreso",
+        "expense": "Gasto",
+        "date": "Fecha",
+        "amount": "Cantidad",
+        "description": "Descripción",
+        "category": "Categoría",
+        "uncategorized": "Sin categoría",
+        "saveTransaction": "Guardar Transacción",
+        "noTransactions": "No hay transacciones. Añade una para empezar.",
+        "import": "Importar Excel",
+        "importModal": {
+            "title": "Importar Transacciones Bancarias",
+            "selectAccount": "Seleccionar Cuenta",
+            "chooseAccount": "-- Elige Cuenta --",
+            "bankFormat": "Formato del Banco",
+            "file": "Archivo",
+            "cancel": "Cancelar",
+            "submit": "Importar Archivo",
+            "success": "Importadas {{count}} transacciones",
+            "error": "Error en la importación: "
+        },
+        "table": {
+            "date": "Fecha",
+            "description": "Descripción",
+            "account": "Cuenta",
+            "category": "Categoría",
+            "amount": "Cantidad",
+            "selected": "Seleccionados: {{count}}",
+            "bulkActions": {
+                "assignCategory": "Asignar Categoría",
+                "delete": "Eliminar Seleccionados",
+                "cancel": "Cancelar Selección"
+            }
+        }
+    },
+    "settings": {
+        "title": "Gestión de Categorías",
+        "subtitle": "Personaliza cómo organizas tus finanzas",
+        "newCategory": "Nueva Categoría",
+        "form": {
+            "name": "Nombre",
+            "placeholder": "Ej: Netflix, Gimnasio...",
+            "type": "Tipo de movimiento",
+            "color": "Color de etiqueta",
+            "preview": "Vista previa:",
+            "create": "Crear Categoría"
+        },
+        "budgets": {
+            "title": "Límites de Gasto",
+            "subtitle": "Define cuánto quieres gastar al mes por categoría",
+            "confirmDelete": "¿Borrar este presupuesto?"
+        },
+        "sections": {
+            "expense": "Gastos",
+            "income": "Ingresos",
+            "noExpense": "No hay categorías de gastos",
+            "noIncome": "No hay categorías de ingresos"
+        },
+        "confirm": {
+            "delete": "¿Seguro que quieres borrar esta categoría?"
+        }
+    },
+    "rules": {
+        "title": "Reglas de Categorización",
+        "subtitle": "Automatiza la clasificación de tus movimientos",
+        "applyRetroactive": "Aplicar a todo el historial",
+        "form": {
+            "patternLabel": "Si la descripción contiene...",
+            "editPatternLabel": "Editar patrón",
+            "placeholder": "Ej: MERCADONA, NETFLIX, NOMINA...",
+            "typeLabel": "Tipo",
+            "assignCategory": "Asignar categoría",
+            "select": "Seleccionar...",
+            "cancel": "Cancelar",
+            "create": "Crear Regla",
+            "update": "Actualizar"
+        },
+        "list": {
+            "empty": "No hay reglas creadas. ¡Crea la primera para ahorrar tiempo!",
+            "deletedCategory": "Categoría borrada"
+        },
+        "confirm": {
+            "delete": "¿Seguro que quieres borrar esta regla?",
+            "retroactive": "Esto revisará TODAS tus transacciones pasadas y les asignará categorías según estas reglas. Las que ya tengan categoría diferente SE SOBREESCRIBIRÁN. ¿Continuar?"
+        },
+        "alert": {
+            "retroactiveSuccess": "¡Hecho! Se han categorizado {{count}} transacciones.",
+            "retroactiveError": "Hubo un error aplicando las reglas"
+        }
+    },
+    "calendar": {
+        "title": "Calendario Financiero",
+        "selectDay": "Selecciona un día"
+    },
+    "goals": {
+        "title": "Objetivos de Ahorro",
+        "subtitle": "Define tus metas financieras",
+        "newGoal": "Nuevo Objetivo",
+        "create": "Crear Objetivo",
+        "edit": "Editar Objetivo",
+        "saved": "Ahorrado",
+        "target": "Objetivo"
+    },
+    "profile": {
+        "title": "Perfil de Usuario",
+        "subtitle": "Gestiona la configuración de tu cuenta",
+        "personalInfo": "Información Personal",
+        "security": "Seguridad",
+        "currentPassword": "Contraseña Actual",
+        "newPassword": "Nueva Contraseña",
+        "confirmPassword": "Confirmar Contraseña",
+        "passwordNote": "Déjalo en blanco para mantener la contraseña actual.",
+        "passwordsDoNotMatch": "Las contraseñas no coinciden",
+        "success": "Perfil actualizado correctamente"
+    }
+}

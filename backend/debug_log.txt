@@ -1,0 +1,12 @@
+--- DEBUG AGGREGATION LOOKUP ---
+Using Entity: Personal
+Testing Range: 2025-12-01 to 2025-12-31
+Debug Error (STACK): Error
+    at Query.run (D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\backend\node_modules\sequelize\lib\dialects\mysql\query.js:52:25)
+    at D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\backend\node_modules\sequelize\lib\sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async MySQLQueryInterface.select (D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\backend\node_modules\sequelize\lib\dialects\abstract\query-interface.js:407:12)
+    at async Transaction.findAll (D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\backend\node_modules\sequelize\lib\model.js:1140:21)
+    at async run (D:\DATOS\PROYECTOS\SaldoMetria\saldrometria\backend\scripts\debug_stats.js:29:27)
+Original SQL Error: Unknown column 'category.color' in 'field list'
+SQL: SELECT `Transaction`.`categoryId`, SUM(`amount`) AS `total`, `category`.`id` AS `category.id`, `category`.`name` AS `category.name`, `category`.`color` AS `category.color` FROM `transactions` AS `Transaction` LEFT OUTER JOIN `categories` AS `category` ON `Transaction`.`categoryId` = `category`.`id` WHERE `Transaction`.`entityId` = 1 AND `Transaction`.`type` = 'EXPENSE' AND (`Transaction`.`date` >= '2025-12-01' AND `Transaction`.`date` <= '2025-12-31') AND `Transaction`.`status` = 'COMPLETED' GROUP BY `categoryId`, `category`.`id`, `category`.`name`, `category`.`color` ORDER BY total DESC;

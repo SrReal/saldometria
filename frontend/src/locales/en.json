@@ -1,0 +1,225 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "loadingStats": "Updating data...",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "actions": "Actions",
+        "signIn": "Sign In",
+        "signOut": "Sign Out",
+        "signUp": "Sign Up",
+        "email": "Email",
+        "password": "Password",
+        "welcomeBack": "Welcome back",
+        "createAccount": "Create your account",
+        "noAccount": "Don't have an account?",
+        "hasAccount": "Already have an account?",
+        "accumulated": "Accumulated"
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "transactions": "Transactions",
+        "calendar": "Calendar",
+        "goals": "Goals",
+        "entities": "Entities",
+        "settings": "Settings",
+        "selectEntity": "Select Entity",
+        "manageEntities": "Manage Entities",
+        "rules": "Rules",
+        "profile": "Profile"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "overview": "Overview for {{entity}}",
+        "totalBalance": "Total Balance",
+        "monthlyIncome": "Monthly Income",
+        "monthlyExpenses": "Monthly Expenses",
+        "vsLastMonth": "vs last month",
+        "expensesByCategory": "Expenses by Category",
+        "incomeByCategory": "Income by Category",
+        "noExpenses": "No expenses in this period",
+        "noIncome": "No income in this period",
+        "forecast": {
+            "title": "End of Month Protection",
+            "burnRate": "Daily Burn Rate (90d)",
+            "daysLeft": "Days Left",
+            "projectedBalance": "Projected Balance"
+        },
+        "filters": {
+            "thisMonth": "This Month",
+            "prevMonth": "Last Month",
+            "q1": "1st Quarter (Q1)",
+            "q2": "2nd Quarter (Q2)",
+            "q3": "3rd Quarter (Q3)",
+            "q4": "4th Quarter (Q4)",
+            "year": "Full Year"
+        },
+        "recurring": {
+            "title": "Upcoming Bills",
+            "avgAmount": "Ø {{amount}}",
+            "dueIn": "Due in {{days}} days",
+            "dueToday": "Due today",
+            "overdue": "Overdue by {{days}} days",
+            "noRecurring": "No subscriptions detected."
+        },
+        "budgets": {
+            "title": "Budgets",
+            "left": "{{amount}} left",
+            "overBy": "Over by {{amount}}",
+            "noBudgets": "No active budgets."
+        }
+    },
+    "entities": {
+        "title": "Entities",
+        "subtitle": "Manage your personal and business profiles",
+        "newEntity": "New Entity",
+        "personal": "Personal",
+        "business": "Business",
+        "active": "Active",
+        "entityName": "Entity Name",
+        "deleteConfirm": "Are you sure? This will delete all associated data.",
+        "accounts": "Accounts",
+        "manageAccounts": "Manage Accounts",
+        "addAccount": "Add Account",
+        "accountName": "Account Name",
+        "accountType": "Account Type",
+        "balance": "Balance"
+    },
+    "transactions": {
+        "title": "Transactions",
+        "subtitle": "Manage income and expenses",
+        "addTransaction": "Add Transaction",
+        "filter": "Filter",
+        "filters": {
+            "allAccounts": "All Accounts",
+            "allCategories": "All Categories",
+            "allTypes": "All Types",
+            "uncategorized": "Uncategorized",
+            "startDate": "From",
+            "endDate": "To",
+            "apply": "Apply Filters",
+            "clear": "Clear",
+            "type": "Type"
+        },
+        "income": "Income",
+        "expense": "Expense",
+        "date": "Date",
+        "amount": "Amount",
+        "description": "Description",
+        "category": "Category",
+        "uncategorized": "Uncategorized",
+        "saveTransaction": "Save Transaction",
+        "noTransactions": "No transactions found. Add one to get started.",
+        "import": "Import Excel",
+        "importModal": {
+            "title": "Import Bank Transactions",
+            "selectAccount": "Select Account",
+            "chooseAccount": "-- Choose Account --",
+            "bankFormat": "Bank Format",
+            "file": "File",
+            "cancel": "Cancel",
+            "submit": "Import File",
+            "success": "Imported {{count}} transactions",
+            "error": "Import failed: "
+        },
+        "table": {
+            "date": "Date",
+            "description": "Description",
+            "account": "Account",
+            "category": "Category",
+            "amount": "Amount",
+            "selected": "Selected: {{count}}",
+            "bulkActions": {
+                "assignCategory": "Assign Category",
+                "delete": "Delete Selected",
+                "cancel": "Cancel Selection"
+            }
+        }
+    },
+    "settings": {
+        "title": "Category Management",
+        "subtitle": "Customize how you organize your finances",
+        "newCategory": "New Category",
+        "form": {
+            "name": "Name",
+            "placeholder": "E.g. Netflix, Gym...",
+            "type": "Transaction type",
+            "color": "Label color",
+            "preview": "Preview:",
+            "create": "Create Category"
+        },
+        "budgets": {
+            "title": "Spending Limits",
+            "subtitle": "Define your monthly spending limits per category",
+            "confirmDelete": "Delete this budget?"
+        },
+        "actions": {
+            "save": "Save Rules",
+            "add": "New Rule"
+        },
+        "sections": {
+            "expense": "Expenses",
+            "income": "Income",
+            "noExpense": "No expense categories",
+            "noIncome": "No income categories"
+        },
+        "confirm": {
+            "delete": "Are you sure you want to delete this category?"
+        }
+    },
+    "rules": {
+        "title": "Categorization Rules",
+        "subtitle": "Automate your transaction classification",
+        "applyRetroactive": "Apply to history",
+        "form": {
+            "patternLabel": "If description contains...",
+            "editPatternLabel": "Edit pattern",
+            "placeholder": "E.g. NETFLIX, SALARY...",
+            "typeLabel": "Type",
+            "assignCategory": "Assign category",
+            "select": "Select...",
+            "cancel": "Cancel",
+            "create": "Create Rule",
+            "update": "Update"
+        },
+        "list": {
+            "empty": "No rules created yet. Create the first one to save time!",
+            "deletedCategory": "Deleted Category"
+        },
+        "confirm": {
+            "delete": "Are you sure you want to delete this rule?",
+            "retroactive": "This will check ALL your past transactions and assign categories based on these rules. Existing categories WILL BE OVERWRITTEN. Continue?"
+        },
+        "alert": {
+            "retroactiveSuccess": "Done! {{count}} transactions have been categorized.",
+            "retroactiveError": "There was an error applying the rules"
+        }
+    },
+    "calendar": {
+        "title": "Financial Calendar",
+        "selectDay": "Select a day"
+    },
+    "goals": {
+        "title": "Savings Goals",
+        "subtitle": "Define your financial targets",
+        "newGoal": "New Goal",
+        "create": "Create Goal",
+        "edit": "Edit Goal",
+        "saved": "Saved",
+        "target": "Target"
+    },
+    "profile": {
+        "title": "User Profile",
+        "subtitle": "Manage your account settings",
+        "personalInfo": "Personal Information",
+        "security": "Security",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "passwordNote": "Leave blank to keep current password.",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "success": "Profile updated successfully"
+    }
+}
