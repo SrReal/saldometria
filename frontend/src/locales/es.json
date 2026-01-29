@@ -28,6 +28,7 @@
         "selectEntity": "Seleccionar Entidad",
         "manageEntities": "Gestionar Entidades",
         "rules": "Reglas",
+        "analytics": "Análisis",
         "profile": "Perfil"
     },
     "dashboard": {
@@ -134,7 +135,11 @@
             "bulkActions": {
                 "assignCategory": "Asignar Categoría",
                 "delete": "Eliminar Seleccionados",
-                "cancel": "Cancelar Selección"
+                "cancel": "Cancelar Selección",
+                "success": "Acción completada en {{count}} elementos",
+                "selectAll": "Seleccionar todo",
+                "deselectAll": "Deseleccionar todo",
+                "error": "Error en acción masiva"
             }
         }
     },
@@ -168,7 +173,6 @@
     "rules": {
         "title": "Reglas de Categorización",
         "subtitle": "Automatiza la clasificación de tus movimientos",
-        "applyRetroactive": "Aplicar a todo el historial",
         "form": {
             "patternLabel": "Si la descripción contiene...",
             "editPatternLabel": "Editar patrón",
@@ -184,13 +188,18 @@
             "empty": "No hay reglas creadas. ¡Crea la primera para ahorrar tiempo!",
             "deletedCategory": "Categoría borrada"
         },
+        "applyRetroactive": "Aplicar reglas a histórico",
+        "applyAI": "Categorización inteligente (IA)",
         "confirm": {
             "delete": "¿Seguro que quieres borrar esta regla?",
-            "retroactive": "Esto revisará TODAS tus transacciones pasadas y les asignará categorías según estas reglas. Las que ya tengan categoría diferente SE SOBREESCRIBIRÁN. ¿Continuar?"
+            "retroactive": "Esto revisará TODAS tus transacciones pasadas y les asignará categorías según estas reglas. Las que ya tengan categoría diferente SE SOBREESCRIBIRÁN. ¿Continuar?",
+            "ai": "¿Quieres usar la Inteligencia Artificial (Groq) para clasificar transacciones recientes sin categoría?"
         },
         "alert": {
             "retroactiveSuccess": "¡Hecho! Se han categorizado {{count}} transacciones.",
-            "retroactiveError": "Hubo un error aplicando las reglas"
+            "retroactiveError": "Hubo un error aplicando las reglas",
+            "aiSuccess": "IA ha clasificado {{count}} transacciones con éxito",
+            "aiError": "Error en la categorización por IA (revisa el API Key)"
         }
     },
     "calendar": {
@@ -217,5 +226,30 @@
         "passwordNote": "Déjalo en blanco para mantener la contraseña actual.",
         "passwordsDoNotMatch": "Las contraseñas no coinciden",
         "success": "Perfil actualizado correctamente"
+    },
+    "analytics": {
+        "title": "Análisis Financiero",
+        "subtitle": "Visión detallada de tu evolución",
+        "filters": {
+            "dateRange": "Rango de Fechas",
+            "accounts": "Cuentas",
+            "thisYear": "Este Año",
+            "last6Months": "Últimos 6 Meses",
+            "allHistory": "Todo el historial",
+            "custom": "Personalizado",
+            "from": "Desde",
+            "to": "Hasta",
+            "allAccounts": "Todas"
+        },
+        "kpis": {
+            "totalIncome": "Ingresos Totales",
+            "totalExpense": "Gastos Totales",
+            "netSavings": "Ahorro Neto"
+        },
+        "charts": {
+            "monthlyEvolution": "Evolución Mensual",
+            "categoryBreakdown": "Gastos por Categoría",
+            "noData": "No hay datos para este periodo"
+        }
     }
 }

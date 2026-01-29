@@ -11,12 +11,15 @@ import { Rules } from './pages/Rules';
 import { Settings } from './pages/Settings';
 import { Calendar } from './pages/Calendar';
 import { Goals } from './pages/Goals';
+import { Analytics } from './pages/Analytics';
 import { Profile } from './pages/Profile';
+
+import { FullScreenLoader } from './components/FullScreenLoader';
 
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-blue-400">Loading...</div>;
+  if (loading) return <FullScreenLoader />;
 
   return user ? (
     <EntityProvider>
@@ -44,6 +47,7 @@ function App() {
           <Route path="/rules" element={<Rules />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/goals" element={<Goals />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
         </Route>

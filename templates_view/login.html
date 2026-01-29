@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>FinanceHub Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#fb8609",
+                        "background-light": "#ffffff",
+                        "background-dark": "#1a1a1a",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Custom subtle shadow for the card to lift it off the white background cleanly */
+        .login-card-shadow {
+            box-shadow: 0 20px 40px -5px rgba(251, 134, 9, 0.08), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display flex flex-col min-h-screen">
+    <!-- Main Container -->
+    <div
+        class="relative flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8 overflow-hidden w-full h-full">
+        <!-- Subtle Ambient Background Effects (To break pure sterility while keeping it white) -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+            <div class="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[140px]"></div>
+            <div class="absolute bottom-[-15%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]">
+            </div>
+        </div>
+        <div class="w-full max-w-[440px] flex flex-col gap-8 z-10">
+            <!-- Login Card -->
+            <div
+                class="bg-white rounded-2xl border border-slate-100 login-card-shadow p-8 sm:p-10 flex flex-col gap-6 relative">
+                <!-- Brand / Header Section -->
+                <div class="flex flex-col items-center gap-5 text-center">
+                    <!-- Logo -->
+                    <div class="flex items-center gap-3 text-primary">
+                        <div
+                            class="flex items-center justify-center p-2.5 bg-primary/10 rounded-xl ring-1 ring-primary/20">
+                            <span
+                                class="material-symbols-outlined text-[28px] leading-none">account_balance_wallet</span>
+                        </div>
+                        <span class="text-2xl font-bold tracking-tight text-[#181511]">FinanceHub</span>
+                    </div>
+                    <div class="flex flex-col gap-1.5 mt-2">
+                        <h1 class="text-[#181511] tracking-tight text-[28px] font-bold leading-tight">Welcome Back</h1>
+                        <p class="text-slate-500 text-base font-medium leading-relaxed">Please enter your details to
+                            sign in.</p>
+                    </div>
+                </div>
+                <!-- Form Section -->
+                <form action="#" class="flex flex-col gap-5 mt-2" method="POST" onsubmit="event.preventDefault();">
+                    <!-- Email Input -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[#181511] text-sm font-semibold leading-normal ml-0.5" for="email">Email
+                            Address</label>
+                        <div class="relative group">
+                            <input autocomplete="email"
+                                class="form-input block w-full rounded-lg border-slate-200 bg-white text-[#181511] placeholder:text-slate-400 focus:border-primary focus:ring-primary focus:ring-1 h-12 px-4 py-3 text-base transition-all duration-200 shadow-sm group-hover:border-slate-300"
+                                id="email" name="email" placeholder="name@company.com" required="" type="email" />
+                            <div
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                                <span class="material-symbols-outlined text-[20px]">mail</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Password Input -->
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center ml-0.5">
+                            <label class="text-[#181511] text-sm font-semibold leading-normal"
+                                for="password">Password</label>
+                            <a class="text-sm font-semibold text-primary hover:text-orange-700 hover:underline transition-colors decoration-2 underline-offset-2"
+                                href="#">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+                        <div class="relative group">
+                            <input autocomplete="current-password"
+                                class="form-input block w-full rounded-lg border-slate-200 bg-white text-[#181511] placeholder:text-slate-400 focus:border-primary focus:ring-primary focus:ring-1 h-12 px-4 py-3 text-base transition-all duration-200 shadow-sm group-hover:border-slate-300"
+                                id="password" name="password" placeholder="••••••••" required="" type="password" />
+                            <div
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                                <span class="material-symbols-outlined text-[20px]">lock</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Action Button -->
+                    <button
+                        class="group relative w-full flex justify-center items-center gap-2 bg-primary hover:bg-[#e67a05] text-white font-bold rounded-lg h-12 px-6 transition-all duration-200 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 active:scale-[0.98] mt-2"
+                        type="submit">
+                        <span>Sign In</span>
+                        <span
+                            class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+                    </button>
+                </form>
+                <!-- Footer / Sign Up -->
+                <div class="flex items-center justify-center gap-2 pt-2 border-t border-slate-100 mt-2">
+                    <p class="text-slate-500 text-sm font-medium">Don't have an account?</p>
+                    <a class="text-primary text-sm font-bold hover:underline decoration-2 underline-offset-2"
+                        href="#">Sign up</a>
+                </div>
+            </div>
+            <!-- Trust Indicator -->
+            <div class="flex justify-center items-center gap-6 opacity-70">
+                <div class="flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-colors cursor-help group"
+                    title="Your data is encrypted">
+                    <span class="material-symbols-outlined text-[18px]">verified_user</span>
+                    <span class="text-xs font-semibold tracking-wide">Secure SSL</span>
+                </div>
+                <div
+                    class="flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-colors cursor-help group">
+                    <span class="material-symbols-outlined text-[18px]">lock</span>
+                    <span class="text-xs font-semibold tracking-wide">Encrypted</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

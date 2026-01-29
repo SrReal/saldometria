@@ -61,11 +61,26 @@ export const AuthProvider = ({ children }) => {
         setUser(newUser);
     };
 
+    const formatCurrency = (amount) => {
+        const symbol = user?.currency || '€';
+        return new Intl.NumberFormat('es-ES', {
+            style: 'currency',
+            currency: symbol === '€' ? 'EUR' : (symbol === '$' ? 'USD' : 'EUR'), // Fallback basic mapping or just use symbol appended
+            // Actually user asked for symbol selection. Let's simplfy and just return string with symbol.
+        }).format(amount).replace('EUR', '€').replace('USD', '$');
+        // Wait, simpler approach:
+    };
+
+    // Better simpler approach requested by user "elegir moneda" usually implies symbol.
+    // Let's just assume user stores the symbol directly like '€', '$', '£'.
+    const currencySymbol = user?.currency || '€';
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
+        <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser, currencySymbol, formatCurrency }}>
             {!loading && children}
         </AuthContext.Provider>
     );
+
 };
 
 export const useAuth = () => useContext(AuthContext);

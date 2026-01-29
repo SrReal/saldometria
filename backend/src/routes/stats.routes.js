@@ -22,5 +22,14 @@ router.get('/categories', statsController.getCategoryBreakdown);
 router.get('/recurring', statsController.getRecurring);
 router.get('/calendar', statsController.getCalendarEvents);
 router.get('/forecast', forecastController.getForecast);
+router.get('/evolution', requireAuth, statsController.getEvolution);
+
+const groqService = require('../services/groq.service');
+router.post('/ai-categorize', async (req, res) => {
+    const { entityId } = req.body;
+    if (!entityId) return res.status(400).json({ message: 'entityId required' });
+    const result = await groqService.categorizeEntityTransactions(entityId);
+    res.json(result);
+});
 
 module.exports = router;

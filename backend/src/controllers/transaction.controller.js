@@ -84,6 +84,28 @@ exports.create = async (req, res, next) => {
       status: 'COMPLETED',
     });
 
+    // Update Account Balance
+    if (accountId) {
+        const account = await Account.findByPk(accountId);
+        if (account) {
+            const numAmount = parseFloat(amount);
+            const newBalance = type === 'INCOME' 
+                ? parseFloat(account.balance) + numAmount 
+                : parseFloat(account.balance) - numAmount;
+            await account.update({ balance: newBalance });
+        }
+    }
+
+    // Background alert checks
+    const alertService = require('../services/alert.service');
+    if (type === 'EXPENSE' && categoryId) {
+        alertService.checkBudgetAlerts(entityId, categoryId);
+    }
+    if (accountId) {
+        alertService.checkAccountBalance(accountId);
+    }
+    alertService.checkLargeTransaction(transaction);
+
     res.status(201).json(transaction);
   } catch (error) {
     next(error);
@@ -104,6 +126,10 @@ exports.update = async (req, res, next) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
+    const oldAmount = parseFloat(transaction.amount);
+    const oldType = transaction.type;
+    const oldAccountId = transaction.accountId;
+
     if (date) transaction.date = date;
     if (amount) transaction.amount = amount;
     if (description) transaction.description = description;
@@ -112,6 +138,42 @@ exports.update = async (req, res, next) => {
     if (accountId !== undefined) transaction.accountId = accountId;
 
     await transaction.save();
+
+    // Update Balance if amount, type, or account changed
+    if (amount !== undefined || type !== undefined || accountId !== undefined) {
+        const alertService = require('../services/alert.service');
+        
+        // 1. Revert old impact
+        if (oldAccountId) {
+            const oldAcc = await Account.findByPk(oldAccountId);
+            if (oldAcc) {
+                const revertBalance = oldType === 'INCOME' 
+                    ? parseFloat(oldAcc.balance) - oldAmount 
+                    : parseFloat(oldAcc.balance) + oldAmount;
+                await oldAcc.update({ balance: revertBalance });
+            }
+        }
+
+        // 2. Apply new impact
+        if (transaction.accountId) {
+            const newAcc = await Account.findByPk(transaction.accountId);
+            if (newAcc) {
+                const newAmount = parseFloat(transaction.amount);
+                const applyBalance = transaction.type === 'INCOME' 
+                    ? parseFloat(newAcc.balance) + newAmount 
+                    : parseFloat(newAcc.balance) - newAmount;
+                await newAcc.update({ balance: applyBalance });
+                
+                // Trigger balance alert for new account
+                alertService.checkAccountBalance(transaction.accountId);
+            }
+        }
+        
+        // Trigger budget alert for new category if applicable
+        if (transaction.type === 'EXPENSE' && transaction.categoryId) {
+            alertService.checkBudgetAlerts(transaction.entityId, transaction.categoryId);
+        }
+    }
 
     await transaction.reload({ 
         include: [
@@ -137,7 +199,22 @@ exports.deleteTransaction = async (req, res, next) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
+    const { accountId, amount, type } = transaction;
+
     await transaction.destroy();
+
+    // Revert balance
+    if (accountId) {
+        const account = await Account.findByPk(accountId);
+        if (account) {
+            const numAmount = parseFloat(amount);
+            const newBalance = type === 'INCOME' 
+                ? parseFloat(account.balance) - numAmount 
+                : parseFloat(account.balance) + numAmount;
+            await account.update({ balance: newBalance });
+        }
+    }
+
     res.status(204).send();
   } catch (error) {
     next(error);
@@ -164,7 +241,7 @@ exports.bulkAction = async (req, res, next) => {
         // 1. Get all transactions provided
         const transactions = await Transaction.findAll({
             where: { id: ids },
-            include: [{ model: Entity, attributes: ['userId'] }]
+            include: [{ model: Entity, as: 'entity', attributes: ['userId'] }]
         });
 
         if (transactions.length !== ids.length) {

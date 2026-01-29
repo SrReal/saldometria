@@ -1,67 +1,44 @@
-const { Sequelize, Op } = require('sequelize');
-const { Transaction, Entity, Category } = require('../src/models');
-require('dotenv').config();
+const { Sequelize } = require('sequelize');
+const db = require('../src/models');
+const { Transaction } = db;
 
-const fs = require('fs');
-const path = require('path');
-
-const run = async () => {
-    let logBuffer = '';
-    const log = (msg) => {
-        console.log(msg);
-        logBuffer += msg + '\n';
-    };
-
+async function check() {
     try {
-        log('--- DEBUG AGGREGATION LOOKUP ---');
+        console.log('Connecting...');
+        await db.sequelize.authenticate();
+        console.log('Connected.');
 
-        const entity = await Entity.findOne({ where: { id: 1 } });
-        if (!entity) throw new Error("Entity 1 not found");
-        log(`Using Entity: ${entity.name}`);
+        const entityId = 1; // Assuming Entity 1 for test, or we list them.
+        console.log(`Checking stats for Entity ${entityId}`);
 
-        const now = new Date();
-        const start = "2025-12-01"; // Match user's error params
-        const end = "2025-12-31";
-        
-        log(`Testing Range: ${start} to ${end}`);
+        // 1. Raw Count
+        const count = await Transaction.count({ where: { entityId } });
+        console.log(`Total transactions for entity ${entityId}: ${count}`);
 
-        // Try the breakdown query
-        const breakdown = await Transaction.findAll({
-            where: {
-                entityId: entity.id,
-                type: 'EXPENSE',
-                date: {
-                    [Op.gte]: start,
-                    [Op.lte]: end
-                },
-                status: 'COMPLETED'
-            },
-            include: [{
-                model: Category,
-                as: 'category',
-                attributes: ['name', 'color']
-            }],
+        // 2. Check Date Range
+        const minDate = await Transaction.min('date', { where: { entityId } });
+        const maxDate = await Transaction.max('date', { where: { entityId } });
+        console.log(`Date Range: ${minDate} - ${maxDate}`);
+
+        // 3. Run Evolution Query Simulation
+        const data = await Transaction.findAll({
+            where: { entityId, status: 'COMPLETED' },
             attributes: [
-                'categoryId',
+                [Sequelize.fn('DATE_FORMAT', Sequelize.col('date'), '%Y-%m'), 'month'],
+                'type',
                 [Sequelize.fn('SUM', Sequelize.col('amount')), 'total']
             ],
-            group: ['categoryId', 'category.id', 'category.name', 'category.color'],
-            order: [[Sequelize.literal('total'), 'DESC']]
+            group: [Sequelize.fn('DATE_FORMAT', Sequelize.col('date'), '%Y-%m'), 'type'],
+            order: [[Sequelize.fn('DATE_FORMAT', Sequelize.col('date'), '%Y-%m'), 'ASC']]
         });
         
-        log(`Query Success. Rows: ${breakdown.length}`);
-        log(JSON.stringify(breakdown, null, 2));
+        console.log('Evolution Query Result:', JSON.stringify(data, null, 2));
 
     } catch (error) {
-        log('Debug Error (STACK): ' + error.stack);
-        if (error.original) {
-             log('Original SQL Error: ' + error.original.message);
-             log('SQL: ' + error.sql);
-        }
+        console.error('Error:', error);
     } finally {
-        fs.writeFileSync(path.join(__dirname, '../debug_log.txt'), logBuffer);
-        process.exit();
+        await db.sequelize.close();
     }
-};
+}
 
-run();
+check();

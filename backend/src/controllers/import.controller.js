@@ -1,5 +1,5 @@
 const importService = require('../services/import.service');
-const { Transaction, Account, Category, Sequelize } = require('../models');
+const { Transaction, Account, Category, Sequelize, Rule } = require('../models');
 const { Op } = require('sequelize');
 const fs = require('fs');
 
@@ -94,7 +94,7 @@ exports.uploadCsv = async (req, res) => {
                 
                 // Compare Date (DateOnly string vs Date object)
                 const existingDateStr = new Date(existing.date).toISOString().split('T')[0];
-                const newDateStr = newRxDate(newTx.date).toISOString().split('T')[0];
+                const newDateStr = new Date(newTx.date).toISOString().split('T')[0];
 
                 const typesMatch = existing.type === newTx.type;
                 const amountsMatch = Math.abs(existingAmount - newAmount) < 0.01;
@@ -124,12 +124,22 @@ exports.uploadCsv = async (req, res) => {
             // Update account
              await Account.update({ balance: latestTx.balance }, { where: { id: accountId } });
         }
+
+        // Trigger Alert Checks
+        const alertService = require('../services/alert.service');
+        // Check balance alert
+        await alertService.checkAccountBalance(accountId);
         
-        // Helper date function since original helper missing in scope
-        function newRxDate(d) { return new Date(d); }
-        
+        // Check budget alerts for all unique categories in this import
+        const uniqueCatIds = [...new Set(finalTransactions.filter(t => t.categoryId && t.type === 'EXPENSE').map(t => t.categoryId))];
+        for (const catId of uniqueCatIds) {
+            await alertService.checkBudgetAlerts(entityId, catId);
+        }
+
         // Clean up uploaded file
-        fs.unlinkSync(req.file.path);
+        if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
 
         res.status(201).json({
             message: 'Import successful',

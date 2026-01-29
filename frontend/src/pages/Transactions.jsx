@@ -3,7 +3,6 @@ import { useEntity } from '../context/EntityContext';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
-import { Plus, ArrowUpRight, ArrowDownLeft, Filter, Trash2, CreditCard } from 'lucide-react';
 import api from '../api/client';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
@@ -19,7 +18,6 @@ export const Transactions = () => {
     const { t, i18n } = useTranslation();
     const locale = i18n.language.startsWith('es') ? es : enUS;
 
-    // New Transaction Form State
     const [formData, setFormData] = useState({
         date: new Date().toISOString().split('T')[0],
         amount: '',
@@ -29,7 +27,6 @@ export const Transactions = () => {
         accountId: ''
     });
 
-    // Filters State
     const [showFilters, setShowFilters] = useState(false);
     const [filters, setFilters] = useState({
         accountId: '',
@@ -39,7 +36,6 @@ export const Transactions = () => {
         endDate: ''
     });
 
-    // Bulk selection state
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [isBulkActionLoading, setIsBulkActionLoading] = useState(false);
 
@@ -58,7 +54,6 @@ export const Transactions = () => {
                 params: {
                     entityId: selectedEntity.id,
                     ...filters,
-                    // If categoryId is empty string, don't send it. If it's specific ID or 'null' (string), send it.
                     categoryId: filters.categoryId || undefined,
                     type: filters.type || undefined,
                     accountId: filters.accountId || undefined,
@@ -91,7 +86,6 @@ export const Transactions = () => {
                 params: { entityId: selectedEntity.id }
             });
             setAccounts(response.data);
-            // Set default account if available and not set
             if (response.data.length > 0 && !formData.accountId) {
                 setFormData(prev => ({ ...prev, accountId: response.data[0].id }));
             }
@@ -152,11 +146,10 @@ export const Transactions = () => {
             });
             setSelectedIds(new Set());
             await fetchTransactions();
-            const count = selectedIds.size;
-            alert(`Acción completada en ${count} elementos`); // Use toast if available, fallback to alert
+            alert(t('transactions.table.bulkActions.success', { count: selectedIds.size }));
         } catch (error) {
             console.error('Bulk action failed', error);
-            alert('Error en acción masiva');
+            alert(t('transactions.table.bulkActions.error'));
         } finally {
             setIsBulkActionLoading(false);
         }
@@ -176,7 +169,7 @@ export const Transactions = () => {
         if (selectedIds.size === transactions.length) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(transactions.map(t => t.id)));
+            setSelectedIds(new Set(transactions.map(tx => tx.id)));
         }
     };
 
@@ -209,48 +202,53 @@ export const Transactions = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
-                {/* ... Header ... */}
-                <div className="flex gap-2">
-                    <Button onClick={() => setIsImporting(true)} variant="secondary" className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-0">
-                        <ArrowDownLeft className="w-4 h-4" /> {t('transactions.import')}
+        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+            {/* Header Area */}
+            <header className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
+                        <span className="material-icons-round text-primary text-4xl">swap_horiz</span>
+                        {t('nav.transactions')}
+                    </h2>
+                    <p className="text-slate-500 font-bold dark:text-slate-400 mt-1">{selectedEntity?.name}</p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                    <Button onClick={() => setIsImporting(true)} variant="secondary">
+                        <span className="material-icons-round text-lg">upload_file</span>
+                        {t('transactions.import')}
                     </Button>
-                    <Button onClick={() => setShowFilters(!showFilters)} variant={showFilters ? 'primary' : 'ghost'} className="gap-2">
-                        <Filter className="w-4 h-4" /> {t('transactions.filter')}
+                    <Button onClick={() => setShowFilters(!showFilters)} variant={showFilters ? 'primary' : 'secondary'}>
+                        <span className="material-icons-round text-lg">filter_list</span>
+                        {t('transactions.filter')}
                     </Button>
-                    <Button onClick={() => setIsCreating(true)} className="gap-2">
-                        <Plus className="w-4 h-4" /> {t('transactions.addTransaction')}
+                    <Button onClick={() => setIsCreating(true)}>
+                        <span className="material-icons-round text-lg">add</span>
+                        {t('transactions.addTransaction')}
                     </Button>
                 </div>
-            </div>
+            </header>
 
             {/* Filters Section */}
             {showFilters && (
-                <Card className="mb-6 border-emerald-500/30 animate-in fade-in slide-in-from-top-2">
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">{t('transactions.filters.startDate')}</label>
-                            <input
-                                type="date"
-                                className="glass-input w-full text-sm py-1.5"
-                                value={filters.startDate}
-                                onChange={e => setFilters({ ...filters, startDate: e.target.value })}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">{t('transactions.filters.endDate')}</label>
-                            <input
-                                type="date"
-                                className="glass-input w-full text-sm py-1.5"
-                                value={filters.endDate}
-                                onChange={e => setFilters({ ...filters, endDate: e.target.value })}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">{t('transactions.filters.type')}</label>
+                <Card className="border-primary/20 bg-primary/5 animate-in slide-in-from-top-4 duration-300">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <Input
+                            type="date"
+                            label={t('transactions.filters.startDate')}
+                            value={filters.startDate}
+                            onChange={e => setFilters({ ...filters, startDate: e.target.value })}
+                        />
+                        <Input
+                            type="date"
+                            label={t('transactions.filters.endDate')}
+                            value={filters.endDate}
+                            onChange={e => setFilters({ ...filters, endDate: e.target.value })}
+                        />
+                        <div className="flex flex-col gap-1.5 flex-1 w-full">
+                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('transactions.filters.type')}</label>
                             <select
-                                className="glass-input w-full text-sm py-1.5"
+                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium shadow-sm"
                                 value={filters.type}
                                 onChange={e => setFilters({ ...filters, type: e.target.value })}
                             >
@@ -259,313 +257,352 @@ export const Transactions = () => {
                                 <option value="EXPENSE">{t('transactions.expense')}</option>
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">{t('entities.accounts')}</label>
+                        <div className="flex flex-col gap-1.5 flex-1 w-full">
+                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('entities.accounts')}</label>
                             <select
-                                className="glass-input w-full text-sm py-1.5"
+                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium shadow-sm"
                                 value={filters.accountId}
                                 onChange={e => setFilters({ ...filters, accountId: e.target.value })}
                             >
                                 <option value="">{t('transactions.filters.allAccounts')}</option>
                                 {accounts.map(acc => (
-                                    <option key={acc.id} value={acc.id} className="bg-slate-900">{acc.name}</option>
+                                    <option key={acc.id} value={acc.id}>{acc.name}</option>
                                 ))}
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">{t('transactions.category')}</label>
+                        <div className="flex flex-col gap-1.5 md:col-span-2 lg:col-span-1">
+                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('transactions.category')}</label>
                             <select
-                                className="glass-input w-full text-sm py-1.5"
+                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium shadow-sm"
                                 value={filters.categoryId}
                                 onChange={e => setFilters({ ...filters, categoryId: e.target.value })}
                             >
                                 <option value="">{t('transactions.filters.allCategories')}</option>
                                 <option value="null">{t('transactions.filters.uncategorized')}</option>
                                 {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id} className="bg-slate-900">{cat.name}</option>
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
                                 ))}
                             </select>
                         </div>
                     </div>
-                    <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/5">
+                    <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-primary/10">
                         <Button
                             variant="ghost"
-                            size="sm"
                             onClick={() => {
                                 setFilters({ accountId: '', categoryId: '', type: '', startDate: '', endDate: '' });
-                                // Optional: fetch immediately or wait for Apply? User experience: wait for apply or clear + apply.
-                                // Let's just clear state.
                             }}
                         >
                             {t('transactions.filters.clear')}
                         </Button>
-                        <Button size="sm" onClick={fetchTransactions} loading={loading}>
+                        <Button onClick={fetchTransactions} loading={loading}>
                             {t('transactions.filters.apply')}
                         </Button>
                     </div>
                 </Card>
             )}
 
-            {/* Import Modal */}
-            {isImporting && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <Card className="w-full max-w-lg border-emerald-500/50 relative animation-fade-in">
-                        <h3 className="text-xl font-bold mb-4">{t('transactions.importModal.title')}</h3>
-                        <form onSubmit={handleImport} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">{t('transactions.importModal.selectAccount')}</label>
-                                <select
-                                    className="glass-input w-full"
-                                    value={importAccount}
-                                    onChange={e => setImportAccount(e.target.value)}
-                                    required
-                                >
-                                    <option value="">{t('transactions.importModal.chooseAccount')}</option>
-                                    {accounts.map(acc => (
-                                        <option key={acc.id} value={acc.id} className="bg-slate-900">
-                                            {acc.name} ({acc.type})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+            {/* Creation Modal / Form */}
+            {isCreating && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <Card className="w-full max-w-2xl border-none shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-2xl font-black tracking-tight">{t('transactions.addTransaction')}</h3>
+                            <button onClick={() => setIsCreating(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+                                <span className="material-icons-round">close</span>
+                            </button>
+                        </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">{t('transactions.importModal.bankFormat')}</label>
-                                <select className="glass-input w-full" disabled>
-                                    <option>Santander XLS (Excel/HTML)</option>
-                                </select>
-                            </div>
-
-                            <div className="border-2 border-dashed border-white/10 rounded-lg p-8 text-center hover:border-emerald-500/50 transition-colors">
-                                <input
-                                    type="file"
-                                    accept=".csv,.xls,.xlsx"
-                                    onChange={e => setImportFile(e.target.files[0])}
-                                    className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20"
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <Input
+                                    type="date"
+                                    label={t('transactions.date')}
+                                    value={formData.date}
+                                    onChange={e => setFormData({ ...formData, date: e.target.value })}
                                     required
                                 />
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('common.type')}</label>
+                                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl h-full items-stretch">
+                                        <button
+                                            type="button"
+                                            className={`flex-1 flex items-center justify-center gap-2 text-xs font-black rounded-lg transition-all ${formData.type === 'INCOME' ? 'bg-white dark:bg-slate-700 text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                            onClick={() => setFormData({ ...formData, type: 'INCOME' })}
+                                        >
+                                            <span className="material-icons-round text-base">arrow_downward</span>
+                                            {t('transactions.income')}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`flex-1 flex items-center justify-center gap-2 text-xs font-black rounded-lg transition-all ${formData.type === 'EXPENSE' ? 'bg-white dark:bg-slate-700 text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                            onClick={() => setFormData({ ...formData, type: 'EXPENSE' })}
+                                        >
+                                            <span className="material-icons-round text-base">arrow_upward</span>
+                                            {t('transactions.expense')}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('entities.accounts')}</label>
+                                    <select
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium shadow-sm"
+                                        value={formData.accountId}
+                                        onChange={e => setFormData({ ...formData, accountId: e.target.value })}
+                                        required
+                                    >
+                                        <option value="" disabled>Select Account</option>
+                                        {accounts.map(acc => (
+                                            <option key={acc.id} value={acc.id}>{acc.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <Input
+                                    type="number"
+                                    label={t('transactions.amount')}
+                                    step="0.01"
+                                    value={formData.amount}
+                                    placeholder="0.00"
+                                    onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                                    required
+                                />
+
+                                <div className="md:col-span-2">
+                                    <Input
+                                        label={t('transactions.description')}
+                                        value={formData.description}
+                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                        placeholder="e.g. Groceries"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-1.5 md:col-span-2">
+                                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('transactions.category')}</label>
+                                    <select
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium shadow-sm"
+                                        value={formData.categoryId}
+                                        onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
+                                    >
+                                        <option value="">{t('transactions.uncategorized')}</option>
+                                        {categories
+                                            .filter(c => c.type === formData.type)
+                                            .map(c => (
+                                                <option key={c.id} value={c.id}>{c.name}</option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
                             </div>
 
-                            <div className="flex justify-end gap-2 pt-4">
-                                <Button type="button" variant="ghost" onClick={() => setIsImporting(false)}>{t('transactions.importModal.cancel')}</Button>
-                                <Button type="submit" loading={loading}>{t('transactions.importModal.submit')}</Button>
+                            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                                <Button type="button" variant="ghost" onClick={() => setIsCreating(false)}>{t('common.cancel')}</Button>
+                                <Button type="submit" disabled={accounts.length === 0}>{t('transactions.saveTransaction')}</Button>
                             </div>
                         </form>
                     </Card>
                 </div>
             )}
 
-            {isCreating && (
-                <Card className="mb-6 border-blue-500/50">
-                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input
-                            type="date"
-                            label={t('transactions.date')}
-                            value={formData.date}
-                            onChange={e => setFormData({ ...formData, date: e.target.value })}
-                            required
-                        />
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm text-gray-400 font-medium">{t('common.type')}</label>
-                            <div className="flex bg-black/20 p-1 rounded-lg">
-                                <button
-                                    type="button"
-                                    className={`flex-1 py-2 text-sm rounded-md transition-colors ${formData.type === 'INCOME' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-400 hover:text-white'}`}
-                                    onClick={() => setFormData({ ...formData, type: 'INCOME' })}
+            {/* Import Modal */}
+            {isImporting && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <Card className="w-full max-w-lg border-none shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-2xl font-black tracking-tight">{t('transactions.importModal.title')}</h3>
+                            <button onClick={() => setIsImporting(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+                                <span className="material-icons-round">close</span>
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleImport} className="space-y-6">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('transactions.importModal.selectAccount')}</label>
+                                <select
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium shadow-sm"
+                                    value={importAccount}
+                                    onChange={e => setImportAccount(e.target.value)}
+                                    required
                                 >
-                                    {t('transactions.income')}
-                                </button>
-                                <button
-                                    type="button"
-                                    className={`flex-1 py-2 text-sm rounded-md transition-colors ${formData.type === 'EXPENSE' ? 'bg-red-500/20 text-red-400' : 'text-gray-400 hover:text-white'}`}
-                                    onClick={() => setFormData({ ...formData, type: 'EXPENSE' })}
-                                >
-                                    {t('transactions.expense')}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Account Selector */}
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm text-gray-400 font-medium">{t('entities.accounts')}</label>
-                            <select
-                                className="glass-input"
-                                value={formData.accountId}
-                                onChange={e => setFormData({ ...formData, accountId: e.target.value })}
-                                required
-                            >
-                                <option value="" disabled>Select Account</option>
-                                {accounts.map(acc => (
-                                    <option key={acc.id} value={acc.id} className="bg-slate-800">
-                                        {acc.name} ({acc.type})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <Input
-                            type="number"
-                            label={t('transactions.amount')}
-                            step="0.01"
-                            value={formData.amount}
-                            onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                            required
-                        />
-
-                        <div className="md:col-span-2">
-                            <Input
-                                label={t('transactions.description')}
-                                value={formData.description}
-                                onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                placeholder="e.g. Groceries"
-                                required
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-2 md:col-span-2">
-                            <label className="text-sm text-gray-400 font-medium">{t('transactions.category')}</label>
-                            <select
-                                className="glass-input"
-                                value={formData.categoryId}
-                                onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
-                            >
-                                <option value="">{t('transactions.uncategorized')}</option>
-                                {categories
-                                    .filter(c => c.type === formData.type)
-                                    .map(c => (
-                                        <option key={c.id} value={c.id} className="bg-slate-800">
-                                            {c.name}
+                                    <option value="">{t('transactions.importModal.chooseAccount')}</option>
+                                    {accounts.map(acc => (
+                                        <option key={acc.id} value={acc.id}>
+                                            {acc.name} ({acc.type})
                                         </option>
-                                    ))
-                                }
-                            </select>
-                        </div>
+                                    ))}
+                                </select>
+                            </div>
 
-                        <div className="md:col-span-2 flex justify-end gap-2 mt-4">
-                            <Button type="button" variant="ghost" onClick={() => setIsCreating(false)}>{t('common.cancel')}</Button>
-                            <Button type="submit" disabled={accounts.length === 0}>{t('transactions.saveTransaction')}</Button>
-                        </div>
-                    </form>
-                </Card>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('transactions.importModal.bankFormat')}</label>
+                                <select className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium shadow-sm" disabled>
+                                    <option>Santander XLS (Excel/HTML)</option>
+                                </select>
+                            </div>
+
+                            <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group cursor-pointer relative">
+                                <input
+                                    type="file"
+                                    accept=".csv,.xls,.xlsx"
+                                    onChange={e => setImportFile(e.target.files[0])}
+                                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                    required
+                                />
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <span className="material-icons-round text-3xl">upload_file</span>
+                                    </div>
+                                    <div>
+                                        <p className="font-black text-sm text-slate-700 dark:text-slate-200">{importFile ? importFile.name : 'Haz clic o arrastra tu archivo aquí'}</p>
+                                        <p className="text-xs text-slate-400 font-bold mt-1">Formatos soportados: .xls, .xlsx, .csv</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                                <Button type="button" variant="ghost" onClick={() => setIsImporting(false)}>{t('transactions.importModal.cancel')}</Button>
+                                <Button type="submit" loading={loading} className="bg-emerald-600 hover:bg-emerald-700">{t('transactions.importModal.submit')}</Button>
+                            </div>
+                        </form>
+                    </Card>
+                </div>
             )}
 
             {/* Transactions List */}
             <div className="space-y-4">
                 {transactions.map(tx => (
-                    <Card key={tx.id} className={`flex items-center justify-between p-4 group transition-colors ${selectedIds.has(tx.id) ? 'bg-blue-500/10 border-blue-500/30' : 'hover:bg-white/5'}`}>
-                        <div className="flex items-center gap-4">
+                    <Card
+                        key={tx.id}
+                        className={`flex items-center justify-between p-4 group transition-all hover:translate-x-1 ${selectedIds.has(tx.id) ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+                    >
+                        <div className="flex items-center gap-6">
                             <input
                                 type="checkbox"
-                                className="w-5 h-5 rounded border-gray-600 bg-slate-800 text-emerald-500 focus:ring-offset-0 focus:ring-1 focus:ring-emerald-500 transition-colors cursor-pointer"
+                                className="w-5 h-5 rounded-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-primary focus:ring-offset-0 focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
                                 checked={selectedIds.has(tx.id)}
                                 onChange={() => toggleSelection(tx.id)}
                             />
-                            <div className={`p-3 rounded-full ${tx.type === 'INCOME' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                                {tx.type === 'INCOME' ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${tx.type === 'INCOME' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' : 'bg-rose-100 dark:bg-rose-900/30 text-rose-600'}`}>
+                                <span className="material-icons-round text-2xl">
+                                    {tx.type === 'INCOME' ? 'arrow_downward' : 'arrow_upward'}
+                                </span>
                             </div>
                             <div>
-                                <h4 className="font-semibold text-lg">{tx.description}</h4>
-                                <div className="flex items-center gap-2 text-sm text-gray-400">
-                                    <span className="capitalize">{format(new Date(tx.date), 'MMM dd, yyyy', { locale })}</span>
+                                <h4 className="font-black text-slate-800 dark:text-white leading-tight">{tx.description}</h4>
+                                <div className="flex items-center gap-3 text-[11px] font-bold text-slate-500 mt-1 uppercase tracking-wider">
+                                    <span className="flex items-center gap-1">
+                                        <span className="material-icons-round text-[14px]">calendar_today</span>
+                                        {format(new Date(tx.date), 'dd MMM yyyy', { locale })}
+                                    </span>
                                     <span>•</span>
                                     <span className="flex items-center gap-1">
-                                        <CreditCard className="w-3 h-3" />
+                                        <span className="material-icons-round text-[14px]">credit_card</span>
                                         {tx.account?.name || 'CASH'}
                                     </span>
                                     <span>•</span>
-                                    <span className="bg-white/5 px-2 py-0.5 rounded text-xs">
+                                    <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg text-slate-600 dark:text-slate-400 shadow-sm">
                                         {tx.category?.name || t('transactions.uncategorized')}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-8">
                             <div className="text-right">
-                                <p className={`text-lg font-bold ${tx.type === 'INCOME' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                <p className={`text-xl font-black tracking-tight ${tx.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
                                     {tx.type === 'INCOME' ? '+' : '-'}${Number(tx.amount).toFixed(2)}
                                 </p>
                                 {tx.balance !== undefined && tx.balance !== null && (
-                                    <p className="text-xs text-blue-300/70 font-mono mt-0.5">
-                                        {Number(tx.balance).toLocaleString(i18n.language, { minimumFractionDigits: 2 })} EUR
+                                    <p className="text-[10px] text-slate-400 font-black mt-1 uppercase tracking-widest">
+                                        Balance: {Number(tx.balance).toLocaleString('es-ES', { minimumFractionDigits: 2 })}€
                                     </p>
                                 )}
                             </div>
                             <button
                                 onClick={() => handleDelete(tx.id)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-white/10 rounded text-gray-400 hover:text-red-400"
+                                className="opacity-0 group-hover:opacity-100 transition-all p-2 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl text-slate-400 hover:text-rose-500"
                             >
-                                <Trash2 className="w-4 h-4" />
+                                <span className="material-icons-round">delete</span>
                             </button>
                         </div>
                     </Card>
                 ))}
 
                 {transactions.length === 0 && !loading && (
-                    <div className="text-center py-12 text-gray-500">
-                        <p>{t('transactions.noTransactions')}</p>
+                    <div className="text-center py-24 bg-white dark:bg-card-dark rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                        <span className="material-icons-round text-6xl text-slate-200 dark:text-slate-800 mb-4">search_off</span>
+                        <p className="text-slate-500 font-bold">{t('transactions.noTransactions')}</p>
                     </div>
                 )}
             </div>
 
-
             {/* Floating Bulk Actions Bar */}
             {selectedIds.size > 0 && (
-                <div
-                    className="fixed bg-slate-800 border border-slate-700 shadow-2xl rounded-full px-6 py-3 flex items-center justify-center gap-4 z-50"
-                    style={{
-                        position: 'fixed',
-                        top: '24px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        zIndex: 9999,
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
-                        WebkitTapHighlightColor: 'transparent',
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        width: '60%',
-                        paddingLeft: '20px'
-                    }}
-                >
-                    <span className="text-sm font-medium text-white whitespace-nowrap">
-                        {t('transactions.table.selected', { count: selectedIds.size })}
-                    </span>
-                    <div className="h-6 w-px bg-slate-600 mx-2"></div>
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-8 duration-300">
+                    <div className="bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-700 dark:border-slate-600 shadow-2xl rounded-2xl px-6 py-4 flex items-center gap-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-black shadow-lg shadow-primary/20">
+                                {selectedIds.size}
+                            </div>
+                            <div>
+                                <p className="text-xs font-black text-white uppercase tracking-wider">{t('transactions.table.selected', { count: selectedIds.size })}</p>
+                                <button
+                                    onClick={toggleSelectAll}
+                                    className="text-[10px] text-primary hover:text-orange-400 font-black uppercase tracking-widest transition-colors"
+                                >
+                                    {selectedIds.size === transactions.length ? t('transactions.table.bulkActions.deselectAll') : t('transactions.table.bulkActions.selectAll')}
+                                </button>
+                            </div>
+                        </div>
 
-                    {/* Bulk Category Assign */}
-                    <select
-                        className="bg-slate-900 border border-slate-700 text-sm rounded-md px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        onChange={(e) => {
-                            if (e.target.value) {
-                                handleBulkAction('UPDATE', { categoryId: e.target.value });
-                                e.target.value = ''; // Reset
-                            }
-                        }}
-                    >
-                        <option value="">{t('transactions.table.bulkActions.assignCategory')}</option>
-                        <option value="null">{t('transactions.uncategorized')}</option>
-                        {categories.map(c => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                    </select>
+                        <div className="h-10 w-px bg-slate-700"></div>
 
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border-red-500/20 gap-2"
-                        onClick={() => handleBulkAction('DELETE')}
-                        loading={isBulkActionLoading}
-                    >
-                        <Trash2 className="w-4 h-4" />
-                        {t('transactions.table.bulkActions.delete')}
-                    </Button>
+                        <div className="flex items-center gap-3">
+                            <select
+                                className="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all cursor-pointer"
+                                onChange={(e) => {
+                                    if (e.target.value) {
+                                        handleBulkAction('UPDATE', { categoryId: e.target.value });
+                                        e.target.value = '';
+                                    }
+                                }}
+                            >
+                                <option value="">{t('transactions.table.bulkActions.assignCategory')}</option>
+                                <option value="null">{t('transactions.uncategorized')}</option>
+                                <optgroup label={t('settings.sections.income')} className="bg-slate-900">
+                                    {categories.filter(c => c.type === 'INCOME').map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </optgroup>
+                                <optgroup label={t('settings.sections.expense')} className="bg-slate-900">
+                                    {categories.filter(c => c.type === 'EXPENSE').map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </optgroup>
+                            </select>
 
-                    <button
-                        onClick={() => setSelectedIds(new Set())}
-                        className="ml-2 text-gray-400 hover:text-white"
-                    >
-                        <ArrowDownLeft className="w-5 h-5 rotate-45" /> {/* Use generic icon or X */}
-                    </button>
+                            <Button
+                                variant="danger"
+                                size="sm"
+                                className="h-9 px-4"
+                                onClick={() => handleBulkAction('DELETE')}
+                                loading={isBulkActionLoading}
+                            >
+                                <span className="material-icons-round text-lg">delete</span>
+                                {t('transactions.table.bulkActions.delete')}
+                            </Button>
+
+                            <button
+                                onClick={() => setSelectedIds(new Set())}
+                                className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/50 hover:text-white"
+                            >
+                                <span className="material-icons-round">close</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

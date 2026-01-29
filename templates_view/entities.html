@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>FinanceHub - Gestionar Entidades</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#ff8404",
+                        "background-light": "#f9fafb",
+                        "background-dark": "#111827",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 10px;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #374151;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                    <span class="material-icons-outlined text-xl">account_balance_wallet</span>
+                </div>
+                <span class="text-xl font-bold tracking-tight">Finance<span class="text-primary">Hub</span></span>
+            </div>
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
+                <a class="flex items-center gap-3 px-3 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+                    href="#">
+                    <span class="material-icons-outlined">dashboard</span>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 bg-orange-50 dark:bg-orange-900/20 text-primary rounded-md"
+                    href="#">
+                    <span class="material-icons-outlined">layers</span>
+                    <span class="font-medium">Entidades</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+                    href="#">
+                    <span class="material-icons-outlined">receipt_long</span>
+                    <span class="font-medium">Transacciones</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+                    href="#">
+                    <span class="material-icons-outlined">assessment</span>
+                    <span class="font-medium">Reportes</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+                <button
+                    class="w-full flex items-center justify-between p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+                            P</div>
+                        <div class="text-left">
+                            <p class="text-xs font-semibold leading-none">Personal</p>
+                            <p class="text-[10px] text-gray-500">Cambiar perfil</p>
+                        </div>
+                    </div>
+                    <span class="material-icons-outlined text-gray-400 text-sm">unfold_more</span>
+                </button>
+            </div>
+        </aside>
+        <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900/40 p-8 custom-scrollbar">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight mb-1">Entidades</h1>
+                    <p class="text-gray-500 dark:text-gray-400">Gestiona tus perfiles personales y de negocio</p>
+                </div>
+                <button
+                    class="flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm transition-all transform active:scale-95">
+                    <span class="material-icons-outlined text-xl">add</span>
+                    Nueva Entidad
+                </button>
+            </div>
+            <div class="space-y-6">
+                <div
+                    class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 flex items-center justify-between border-b border-gray-100 dark:border-gray-700">
+                        <div class="flex items-center gap-4">
+                            <div class="p-2 bg-orange-100 dark:bg-orange-900/30 text-primary rounded-lg">
+                                <span class="material-icons-outlined">person</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold">Personal</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">PerfilesActiva</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mr-4">
+                                <span class="material-icons-outlined text-base">account_balance</span>
+                                2 Cuentas
+                            </div>
+                            <button class="p-2 text-gray-400 hover:text-primary transition-colors">
+                                <span class="material-icons-outlined">edit</span>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                                <span class="material-icons-outlined">delete</span>
+                            </button>
+                            <button class="ml-2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <span class="material-icons-outlined">expand_less</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-gray-50/50 dark:bg-gray-900/10">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs">
+                                Gestionar Cuentas</h4>
+                            <button class="flex items-center gap-1 text-sm text-primary font-medium hover:underline">
+                                <span class="material-icons-outlined text-sm">add_circle_outline</span>
+                                Añadir Cuenta
+                            </button>
+                        </div>
+                        <div
+                            class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-orange-200 dark:border-orange-900/30 mb-6 shadow-sm">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase">Nombre
+                                        de Cuenta</label>
+                                    <input
+                                        class="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-sm"
+                                        placeholder="e.g. Main Checking" type="text" />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase">Tipo
+                                        de Cuenta</label>
+                                    <select
+                                        class="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-sm">
+                                        <option>Bank</option>
+                                        <option>Cash</option>
+                                        <option>Investment</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end gap-3">
+                                    <button
+                                        class="flex-1 bg-primary text-white font-medium py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors text-sm">Guardar</button>
+                                    <button
+                                        class="flex-1 bg-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium py-2 px-4 text-sm">Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div
+                                class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg group hover:border-primary/30 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-full flex items-center justify-center">
+                                        <span class="material-icons-outlined">credit_card</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100 leading-none mb-1">
+                                            Santander</p>
+                                        <p class="text-xs text-gray-500 uppercase font-medium">BANK • USD</p>
+                                    </div>
+                                </div>
+                                <button
+                                    class="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 transition-all">
+                                    <span class="material-icons-outlined text-xl">delete</span>
+                                </button>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg group hover:border-primary/30 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-full flex items-center justify-center">
+                                        <span class="material-icons-outlined">payments</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100 leading-none mb-1">Caja
+                                        </p>
+                                        <p class="text-xs text-gray-500 uppercase font-medium">CASH • USD</p>
+                                    </div>
+                                </div>
+                                <button
+                                    class="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 transition-all">
+                                    <span class="material-icons-outlined text-xl">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-lg">
+                                <span class="material-icons-outlined">business_center</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold">Empresa</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Corporativo</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mr-4">
+                                <span class="material-icons-outlined text-base">account_balance</span>
+                                4 Cuentas
+                            </div>
+                            <button class="p-2 text-gray-400 hover:text-primary transition-colors">
+                                <span class="material-icons-outlined">edit</span>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                                <span class="material-icons-outlined">delete</span>
+                            </button>
+                            <button class="ml-2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <span class="material-icons-outlined text-xl">expand_more</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    class="w-full py-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-primary hover:border-primary hover:bg-orange-50/30 dark:hover:bg-orange-900/5 transition-all">
+                    <span class="material-icons-outlined text-3xl">add_circle_outline</span>
+                    <span class="font-medium">Agregar nueva entidad de negocio o personal</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

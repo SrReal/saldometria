@@ -10,7 +10,7 @@ const generateToken = (userId) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, currency } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password required' });
@@ -28,6 +28,7 @@ exports.register = async (req, res, next) => {
         email,
         passwordHash,
         name: name || null,
+        currency: currency || 'EUR',
         entities: [
           {
             name: 'Personal',
@@ -45,7 +46,7 @@ exports.register = async (req, res, next) => {
     res.status(201).json({
       ok: true,
       token,
-      user: { id: newUser.id, email: newUser.email, name: newUser.name },
+      user: { id: newUser.id, email: newUser.email, name: newUser.name, currency: newUser.currency },
     });
   } catch (error) {
     next(error);
@@ -75,7 +76,7 @@ exports.login = async (req, res, next) => {
     res.status(200).json({
       ok: true,
       token,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, currency: user.currency },
     });
   } catch (error) {
     next(error);
@@ -90,7 +91,7 @@ exports.getMe = async (req, res, next) => {
     }
     res.json({
         ok: true,
-        user: { id: user.id, email: user.email, name: user.name }
+        user: { id: user.id, email: user.email, name: user.name, currency: user.currency }
     });
   } catch (error) {
     next(error);
@@ -99,7 +100,7 @@ exports.getMe = async (req, res, next) => {
 
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { email, newPassword, name } = req.body;
+    const { email, newPassword, name, currency } = req.body;
     const userId = req.user.id;
 
     const user = await User.findByPk(userId);
@@ -117,8 +118,13 @@ exports.updateProfile = async (req, res, next) => {
     }
 
     // Update Name
-    if (name !== undefined) { // Allow empty string to clear name if desired
+    if (name !== undefined) { 
         user.name = name;
+    }
+
+    // Update Currency
+    if (currency !== undefined) {
+        user.currency = currency;
     }
 
     // Update Password - No current password required as per user request
@@ -126,7 +132,7 @@ exports.updateProfile = async (req, res, next) => {
       user.passwordHash = await bcrypt.hash(newPassword, 10);
     }
 
-    if (!email && !newPassword && name === undefined) {
+    if (!email && !newPassword && name === undefined && currency === undefined) {
          return res.status(400).json({ message: 'No changes provided' });
     }
 
@@ -134,7 +140,7 @@ exports.updateProfile = async (req, res, next) => {
 
     res.json({
       ok: true,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, currency: user.currency },
       message: 'Profile updated successfully'
     });
 

@@ -18,6 +18,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      currency: {
+        type: DataTypes.STRING,
+        defaultValue: 'EUR',
+        allowNull: false,
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,

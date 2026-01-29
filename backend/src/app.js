@@ -41,6 +41,7 @@ app.use('/api/stats', require('./routes/stats.routes'));
 app.use('/api/rules', require('./routes/rules.routes'));
 app.use('/api/budgets', require('./routes/budget.routes'));
 app.use('/api/goals', require('./routes/goals.routes'));
+app.use('/api/alerts', require('./routes/alert.routes'));
 
 
 

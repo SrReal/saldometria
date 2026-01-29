@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>FinanceHub - Objetivos de Ahorro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#ff8404",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                    },
+                },
+            },
+        };
+        function toggleModal() {
+            const modal = document.getElementById('goalModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex">
+    <aside
+        class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 transform -translate-x-full lg:translate-x-0 flex flex-col"
+        id="sidebar">
+        <div class="p-6 flex items-center space-x-3">
+            <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
+                <span class="material-icons-round">account_balance_wallet</span>
+            </div>
+            <span class="text-xl font-bold tracking-tight">FinanceHub</span>
+        </div>
+        <nav class="flex-1 px-4 space-y-2 mt-4">
+            <a class="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                href="#">
+                <span class="material-icons-round">dashboard</span>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <a class="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                href="#">
+                <span class="material-icons-round">swap_horiz</span>
+                <span class="font-medium">Transacciones</span>
+            </a>
+            <a class="flex items-center space-x-3 px-4 py-3 bg-primary/10 text-primary rounded-lg" href="#">
+                <span class="material-icons-round">savings</span>
+                <span class="font-medium">Ahorros</span>
+            </a>
+            <a class="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                href="#">
+                <span class="material-icons-round">analytics</span>
+                <span class="font-medium">Presupuestos</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+            <button
+                class="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                        <span class="material-icons-round text-sm">business</span>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-xs font-semibold">Mi Empresa S.L.</p>
+                        <p class="text-[10px] text-slate-500">Cuenta Business</p>
+                    </div>
+                </div>
+                <span class="material-icons-round text-slate-400">unfold_more</span>
+            </button>
+        </div>
+    </aside>
+    <main class="flex-1 lg:ml-64 min-h-screen flex flex-col">
+        <header
+            class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 px-6 flex items-center justify-between">
+            <button class="lg:hidden p-2 text-slate-600 dark:text-slate-300" onclick="toggleSidebar()">
+                <span class="material-icons-round">menu</span>
+            </button>
+            <div class="flex items-center space-x-4 ml-auto">
+                <button
+                    class="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                    <span class="material-icons-round">notifications</span>
+                </button>
+                <div class="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
+                <div class="flex items-center space-x-3 cursor-pointer">
+                    <div
+                        class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">
+                        JD</div>
+                    <span class="text-sm font-medium hidden sm:block">Juan Diego</span>
+                </div>
+            </div>
+        </header>
+        <div class="p-6 lg:p-10 max-w-6xl mx-auto w-full">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight mb-2">Objetivos de Ahorro</h1>
+                    <p class="text-slate-500 dark:text-slate-400">Define tus metas financieras y haz un seguimiento de
+                        tu progreso.</p>
+                </div>
+                <button
+                    class="inline-flex items-center justify-center px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+                    onclick="toggleModal()">
+                    <span class="material-icons-round mr-2 text-xl">add</span>
+                    Nuevo Objetivo
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                            <span class="material-icons-round">shopping_bag</span>
+                        </div>
+                        <div class="flex space-x-1">
+                            <button class="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                                <span class="material-icons-round text-lg">edit</span>
+                            </button>
+                            <button class="p-1.5 text-slate-400 hover:text-red-500 transition-colors">
+                                <span class="material-icons-round text-lg">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">Comprarme una gorra</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 flex items-center">
+                        <span class="material-icons-round text-sm mr-1">calendar_today</span>
+                        Meta: 3/11/2026
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p
+                                    class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold tracking-wider">
+                                    Ahorrado</p>
+                                <p class="text-xl font-bold">500,00 €</p>
+                            </div>
+                            <div class="text-right">
+                                <p
+                                    class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold tracking-wider">
+                                    Objetivo</p>
+                                <p class="text-sm font-medium">2000,00 €</p>
+                            </div>
+                        </div>
+                        <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-primary" style="width: 25%"></div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-primary px-2 py-1 bg-primary/10 rounded-lg">25%</span>
+                            <span class="text-xs text-slate-400">Faltan 1.500,00 €</span>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                            <span class="material-icons-round">directions_car</span>
+                        </div>
+                        <div class="flex space-x-1">
+                            <button class="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                                <span class="material-icons-round text-lg">edit</span>
+                            </button>
+                            <button class="p-1.5 text-slate-400 hover:text-red-500 transition-colors">
+                                <span class="material-icons-round text-lg">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">Coche Nuevo</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 flex items-center">
+                        <span class="material-icons-round text-sm mr-1">calendar_today</span>
+                        Meta: 15/06/2025
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p
+                                    class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold tracking-wider">
+                                    Ahorrado</p>
+                                <p class="text-xl font-bold">12.450,00 €</p>
+                            </div>
+                            <div class="text-right">
+                                <p
+                                    class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold tracking-wider">
+                                    Objetivo</p>
+                                <p class="text-sm font-medium">25.000,00 €</p>
+                            </div>
+                        </div>
+                        <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500" style="width: 50%"></div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-blue-500 px-2 py-1 bg-blue-500/10 rounded-lg">50%</span>
+                            <span class="text-xs text-slate-400">Faltan 12.550,00 €</span>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    class="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-primary dark:hover:border-primary flex flex-col items-center justify-center p-8 transition-colors group"
+                    onclick="toggleModal()">
+                    <div
+                        class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 group-hover:bg-primary group-hover:text-white flex items-center justify-center text-slate-400 transition-colors mb-4">
+                        <span class="material-icons-round">add</span>
+                    </div>
+                    <span class="font-semibold text-slate-600 dark:text-slate-400 group-hover:text-primary">Añadir otra
+                        meta</span>
+                </button>
+            </div>
+        </div>
+    </main>
+    <div class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+        id="goalModal">
+        <div
+            class="glass w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold">Crear Objetivo</h2>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Configura los detalles de tu nueva meta.
+                        </p>
+                    </div>
+                    <button
+                        class="w-10 h-10 flex items-center justify-center rounded-full bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 transition-colors"
+                        onclick="toggleModal()">
+                        <span class="material-icons-round">close</span>
+                    </button>
+                </div>
+                <form class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Nombre</label>
+                        <input
+                            class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-primary focus:border-primary dark:text-white transition-all"
+                            placeholder="Ej: Coche Nuevo" type="text" />
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Meta (EUR)</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">€</span>
+                                <input
+                                    class="w-full pl-8 pr-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-primary focus:border-primary dark:text-white transition-all"
+                                    placeholder="0.00" type="number" />
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Ya ahorrado
+                                (EUR)</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">€</span>
+                                <input
+                                    class="w-full pl-8 pr-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-primary focus:border-primary dark:text-white transition-all"
+                                    placeholder="0.00" type="number" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Fecha Límite</label>
+                            <input
+                                class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-primary focus:border-primary dark:text-white transition-all"
+                                type="date" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Color</label>
+                            <div
+                                class="flex items-center space-x-2 p-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
+                                <input class="h-10 w-full bg-transparent border-none cursor-pointer rounded-lg"
+                                    type="color" value="#ff8404" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end space-x-4 pt-6 mt-4">
+                        <button
+                            class="px-6 py-3 font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                            onclick="toggleModal()" type="button">
+                            Cancelar
+                        </button>
+                        <button
+                            class="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:opacity-90 shadow-lg shadow-primary/30 transition-all"
+                            type="submit">
+                            Guardar Objetivo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

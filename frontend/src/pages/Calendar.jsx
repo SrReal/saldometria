@@ -4,7 +4,6 @@ import api from '../api/client';
 import { useEntity } from '../context/EntityContext';
 import { Card } from '../components/Card';
 import { FullScreenLoader } from '../components/FullScreenLoader';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameDay, getDay } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 
@@ -32,7 +31,7 @@ export const Calendar = () => {
                 params: { entityId: selectedEntity.id, month: monthStr }
             });
             setEvents(res.data);
-            setSelectedDay(null); // Reset selection on month change
+            setSelectedDay(null);
         } catch (error) {
             console.error('Error fetching calendar:', error);
         } finally {
@@ -48,12 +47,9 @@ export const Calendar = () => {
         return new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'EUR' }).format(amount);
     };
 
-    // Calendar Grid Logic
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
-    const startDayOfWeek = getDay(monthStart); // 0 = Sunday
-    // Adjust for Monday start (Spain)
-    // 0(Sun) -> 6, 1(Mon) -> 0
+    const startDayOfWeek = getDay(monthStart);
     const offset = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
 
     const daysInMonth = Array.from({ length: monthEnd.getDate() }, (_, i) => i + 1);
@@ -75,34 +71,48 @@ export const Calendar = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6 relative h-[calc(100vh-100px)] flex flex-col">
+        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
             {loading && <FullScreenLoader message="Cargando calendario..." />}
 
-            {/* Header */}
-            <div className="flex items-center justify-between">
+            {/* Header Area */}
+            <header className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
-                    <h2 className="text-3xl font-bold flex items-center gap-3">
-                        <CalendarIcon className="w-8 h-8 text-blue-500" />
+                    <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
+                        <span className="material-icons-round text-primary text-4xl">calendar_month</span>
                         {t('calendar.title') || 'Calendario Financiero'}
                     </h2>
-                    <p className="text-gray-400">{format(currentDate, 'MMMM yyyy', { locale })}</p>
+                    <p className="text-slate-500 font-bold dark:text-slate-400 mt-1 capitalize">{format(currentDate, 'MMMM yyyy', { locale })}</p>
                 </div>
 
-                <div className="flex bg-slate-800 rounded-lg p-1">
-                    <button onClick={() => navigateMonth('prev')} className="p-2 hover:bg-slate-700 rounded"><ChevronLeft /></button>
-                    <button onClick={() => navigateMonth('next')} className="p-2 hover:bg-slate-700 rounded"><ChevronRight /></button>
+                <div className="flex bg-slate-100 dark:bg-slate-800 rounded-2xl p-1.5 shadow-sm">
+                    <button
+                        onClick={() => navigateMonth('prev')}
+                        className="p-2.5 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all text-slate-600 dark:text-slate-300 active:scale-95"
+                    >
+                        <span className="material-icons-round">chevron_left</span>
+                    </button>
+                    <button
+                        onClick={() => navigateMonth('next')}
+                        className="p-2.5 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all text-slate-600 dark:text-slate-300 active:scale-95"
+                    >
+                        <span className="material-icons-round">chevron_right</span>
+                    </button>
                 </div>
-            </div>
+            </header>
 
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
-                {/* Calendar Grid */}
-                <Card className="lg:col-span-2 overflow-y-auto flex flex-col">
-                    <div className="grid grid-cols-7 mb-4 text-center text-gray-400 text-sm font-medium border-b border-slate-700 pb-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-                        {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(d => <div key={d}>{d}</div>)}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                {/* Calendar Card */}
+                <Card className="lg:col-span-3 p-6 shadow-sm border-none">
+                    <div className="grid grid-cols-7 mb-6 text-center">
+                        {['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'].map(d => (
+                            <div key={d} className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{d}</div>
+                        ))}
                     </div>
 
-                    <div className="grid grid-cols-7 gap-2 w-full" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-                        {blanks.map(i => <div key={`blank-${i}`} className="min-h-[80px] bg-slate-900/20 rounded" />)}
+                    <div className="grid grid-cols-7 gap-3">
+                        {blanks.map(i => (
+                            <div key={`blank-${i}`} className="aspect-square bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl opacity-30" />
+                        ))}
 
                         {daysInMonth.map(day => {
                             const dayEvents = getEventsForDay(day);
@@ -116,26 +126,23 @@ export const Calendar = () => {
                                 <div
                                     key={day}
                                     onClick={() => handleDayClick(day)}
-                                    style={{
-                                        minHeight: '140px',
-                                        border: isSelected ? '2px solid #3b82f6' : '1px solid #94a3b8',
-                                        backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'rgba(30, 41, 59, 0.5)'
-                                    }}
                                     className={`
-                                        p-2 rounded-lg transition-all cursor-pointer relative group flex flex-col justify-between
-                                        ${!isSelected && 'hover:bg-slate-800'}
-                                        ${isToday ? 'ring-2 ring-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : ''}
+                                        aspect-square p-3 rounded-2xl transition-all cursor-pointer relative group flex flex-col justify-between border-2
+                                        ${isSelected ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-slate-50/30 dark:bg-slate-800/30'}
+                                        ${isToday ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
                                     `}
                                 >
-                                    <span className={`text-sm font-medium ${isToday ? 'text-emerald-400' : 'text-slate-400'}`}>{day}</span>
+                                    <span className={`text-sm font-black ${isToday ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}`}>
+                                        {day}
+                                    </span>
 
-                                    <div className="space-y-0.5 text-xs text-right">
-                                        {income > 0 && <div className="text-emerald-400 font-bold">+{Math.round(income)}</div>}
-                                        {expense > 0 && <div className="text-red-400 font-bold">-{Math.round(expense)}</div>}
+                                    <div className="space-y-0.5 text-[10px] text-right font-black flex flex-col items-end">
+                                        {income > 0 && <div className="text-emerald-500">+{Math.round(income)}€</div>}
+                                        {expense > 0 && <div className="text-rose-500">-{Math.round(expense)}€</div>}
                                     </div>
 
                                     {hasRecurring && (
-                                        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]" />
+                                        <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-primary shadow-lg shadow-primary/50" />
                                     )}
                                 </div>
                             );
@@ -144,42 +151,44 @@ export const Calendar = () => {
                 </Card>
 
                 {/* Sidebar Details */}
-                <Card className="overflow-y-auto">
-                    <h3 className="text-lg font-semibold mb-4 border-b border-slate-700 pb-2">
+                <Card className="lg:col-span-1 p-6 border-none shadow-sm flex flex-col h-fit">
+                    <h3 className="text-sm font-black mb-8 border-b border-primary/10 pb-4 uppercase tracking-wider text-slate-500">
                         {selectedDay
-                            ? format(new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDay.day), 'EEEE d, MMMM', { locale })
-                            : t('calendar.selectDay') || 'Selecciona un día'}
+                            ? format(new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDay.day), 'EEEE d MMM', { locale })
+                            : t('calendar.selectDay') || 'Detalles del día'}
                     </h3>
 
-                    {selectedDay ? (
-                        <div className="space-y-4">
-                            {selectedDay.events.map((ev, idx) => (
-                                <div key={idx} className="flex flex-col p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
-                                    <div className="flex justify-between items-start">
-                                        <span className="font-medium text-slate-100">{ev.description}</span>
-                                        <span className={`font-bold ${ev.type === 'INCOME' ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                        {selectedDay ? (
+                            selectedDay.events.map((ev, idx) => (
+                                <div key={idx} className="flex flex-col p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-transparent hover:border-primary/20 transition-all hover:translate-x-1">
+                                    <div className="flex justify-between items-start gap-4">
+                                        <span className="text-xs font-black text-slate-800 dark:text-slate-100 line-clamp-2">{ev.description}</span>
+                                        <span className={`text-sm font-black whitespace-nowrap ${ev.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
                                             {ev.type === 'INCOME' ? '+' : '-'}{formatCurrency(ev.amount)}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider
-                                            ${ev.status === 'PROJECTED' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-slate-700 text-slate-400'}
+                                    <div className="flex items-center gap-2 mt-3">
+                                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider shadow-sm
+                                            ${ev.status === 'PROJECTED' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'}
                                         `}>
                                             {ev.status === 'PROJECTED' ? 'Estimado' : 'Real'}
                                         </span>
                                         {ev.type === 'RECURRING_EXPENSE' && (
-                                            <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full border border-purple-500/20">Recurrente</span>
+                                            <span className="text-[9px] font-black bg-primary/10 text-primary px-2 py-0.5 rounded-lg uppercase tracking-wider shadow-sm border border-primary/5">Recurrente</span>
                                         )}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center text-gray-500 py-10 flex flex-col items-center">
-                            <CalendarIcon className="w-12 h-12 mb-3 opacity-20" />
-                            <p>Haz clic en un día para ver los movimientos</p>
-                        </div>
-                    )}
+                            ))
+                        ) : (
+                            <div className="text-center py-20 flex flex-col items-center">
+                                <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-200 dark:text-slate-700 mb-4 ring-8 ring-slate-50/50 dark:ring-slate-800/50">
+                                    <span className="material-icons-round text-4xl">event_note</span>
+                                </div>
+                                <p className="text-slate-400 font-bold text-xs">{t('calendar.selectDayPrompt') || 'Selecciona un día para ver los detalles'}</p>
+                            </div>
+                        )}
+                    </div>
                 </Card>
             </div>
         </div>

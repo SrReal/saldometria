@@ -22,6 +22,7 @@ db.Transaction = require('./transaction.model')(sequelize);
 db.Rule = require('./rule.model')(sequelize);
 db.Budget = require('./budget.model')(sequelize);
 db.Goal = require('./goal.model')(sequelize);
+db.Alert = require('./alert.model')(sequelize);
 
 // Initialize associations
 Object.keys(db).forEach((modelName) => {
