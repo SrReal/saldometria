@@ -31,7 +31,7 @@ exports.getAll = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const { name, type, entityId } = req.body;
+    const { name, type, entityId, color } = req.body;
 
     if (!name || !type || !entityId) {
       return res.status(400).json({ message: 'Name, type, and entityId are required' });
@@ -41,7 +41,7 @@ exports.create = async (req, res, next) => {
       return res.status(403).json({ message: 'Not authorized for this entity' });
     }
 
-    const category = await Category.create({ name, type, entityId });
+    const category = await Category.create({ name, type, entityId, color: color || '#ff8404' });
     res.status(201).json(category);
   } catch (error) {
     next(error);
@@ -51,7 +51,7 @@ exports.create = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, type } = req.body;
+    const { name, type, color } = req.body;
 
     const category = await Category.findByPk(id);
     if (!category) {
@@ -64,6 +64,7 @@ exports.update = async (req, res, next) => {
 
     if (name) category.name = name;
     if (type) category.type = type;
+    if (color) category.color = color;
 
     await category.save();
     res.json(category);

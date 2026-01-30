@@ -3,6 +3,7 @@ import { Card } from './Card';
 import api from '../api/client';
 import { useTranslation } from 'react-i18next';
 import { useEntity } from '../context/EntityContext';
+import { HandCoins, MessageSquareWarning } from 'lucide-react';
 
 export const BudgetProgress = ({ currentDate }) => {
     const { t } = useTranslation();
@@ -48,11 +49,13 @@ export const BudgetProgress = ({ currentDate }) => {
     if (loading) return <Card className="animate-pulse h-48" />;
 
     return (
-        <Card className="mb-4">
-            <h3 className="text-lg font-black mb-6 flex items-center gap-2">
-                <span className="material-icons-round text-primary">track_changes</span>
-                {t('dashboard.budgets.title')}
-            </h3>
+        <Card className="bg-card-light p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className='flex justify-between items-center mb-6'>
+                <h3 className="flex items-center gap-2 font-bold text-lg">
+                    <HandCoins className="material-icons-round text-primary" />
+                    {t('dashboard.budgets.title')}
+                </h3>
+            </div>
 
             {status.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-40 text-slate-500 text-sm">
@@ -60,15 +63,15 @@ export const BudgetProgress = ({ currentDate }) => {
                     <p className="font-bold">{t('dashboard.budgets.noBudgets') || "No hay presupuestos activos"}</p>
                 </div>
             ) : (
-                <div className="space-y-6 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+                <div className="space-y-6">
                     {status.map((item, idx) => {
                         const isOver = item.percent >= 100;
                         return (
-                            <div key={idx} className="group">
-                                <div className="flex justify-between items-end mb-2">
-                                    <span className="font-bold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">{item.budget.category.name}</span>
-                                    <div className="text-[11px] font-black tracking-tight">
-                                        <span className={isOver ? 'text-rose-500' : 'text-slate-900 dark:text-white'}>
+                            <div key={idx} className="space-y-2">
+                                <div className="flex justify-between text-sm">
+                                    <span className="font-medium">{item.budget.category.name}</span>
+                                    <div className="text-slate-500">
+                                        <span className={isOver ? 'text-rose-500' : 'text-slate-900'}>
                                             {formatCurrency(item.spent)}
                                         </span>
                                         <span className="mx-1 text-slate-400">/</span>
@@ -77,19 +80,19 @@ export const BudgetProgress = ({ currentDate }) => {
                                 </div>
 
                                 {/* Progress Bar */}
-                                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden shadow-inner">
+                                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                                     <div
-                                        className={`h-full rounded-full ${getProgressColor(item.percent)} transition-all duration-700 ease-out shadow-sm`}
+                                        className={`${getProgressColor(item.percent)} bg-primary h-full rounded-full`}
                                         style={{ width: `${Math.min(item.percent, 100)}%` }}
                                     />
                                 </div>
 
                                 <div className="flex justify-between items-center mt-2">
-                                    <span className="text-[10px] font-black text-slate-400">{item.percent.toFixed(0)}% Utilizado</span>
-                                    <p className="text-[10px] font-bold">
+                                    <span className="text-xs text-slate-400">{item.percent.toFixed(0)}% Utilizado</span>
+                                    <p className="text-xs text-slate-500">
                                         {isOver ? (
                                             <span className="text-rose-500 flex items-center gap-1 transition-colors">
-                                                <span className="material-icons-round text-[12px]">warning</span>
+                                                <MessageSquareWarning className="material-icons-round" />
                                                 {t('dashboard.budgets.overBy', { amount: formatCurrency(Math.abs(item.remaining)) })}
                                             </span>
                                         ) : (

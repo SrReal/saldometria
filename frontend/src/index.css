@@ -132,6 +132,15 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+.bg-card-light {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+}
+
+.recharts-tooltip-wrapper {
+  z-index: 100;
+}
+
 /* --- Glassmorphism Modal --- */
 .modal-overlay {
   position: fixed;

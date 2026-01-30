@@ -81,9 +81,17 @@ exports.getSummary = async (req, res) => {
         });
         const prevTotals = calculateTotals(prevTransactions);
 
-        // Fetch Active Alerts
+        // Fetch Active Alerts (configured or triggered) with related data
         const activeAlerts = await Alert.findAll({
-            where: { entityId, status: 'TRIGGERED' },
+            where: { 
+                entityId, 
+                status: { [Op.in]: ['ACTIVE', 'TRIGGERED'] },
+                enabled: true
+            },
+            include: [
+                { model: require('../models').Account, as: 'account', attributes: ['name'] },
+                { model: require('../models').Category, as: 'category', attributes: ['name'] }
+            ],
             limit: 5
         });
 

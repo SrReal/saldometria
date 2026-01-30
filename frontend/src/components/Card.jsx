@@ -1,6 +1,9 @@
-export const Card = ({ children, className = '' }) => {
+export const Card = ({ children, className }) => {
+    // Si se pasan clases personalizadas, usarlas; si no, usar las por defecto
+    const defaultClasses = 'bg-card-light p-6 rounded-2xl border border-slate-200 shadow-sm transition-colors';
+
     return (
-        <div className={`bg-card-light dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors ${className}`}>
+        <div className={className || defaultClasses}>
             {children}
         </div>
     );

@@ -16,11 +16,15 @@
         "createAccount": "Crea tu cuenta",
         "noAccount": "¿No tienes cuenta?",
         "hasAccount": "¿Ya tienes cuenta?",
-        "accumulated": "Acumulado"
+        "accumulated": "Acumulado",
+        "confirm": "¿Estás seguro?",
+        "confirmDelete": "¿Estás seguro de que quieres eliminar?",
+        "type": "Tipo",
+        "selectAccount": "Seleccionar cuenta"
     },
     "nav": {
         "dashboard": "Panel Principal",
-        "transactions": "Transacciones",
+        "transactions": "Movimientos",
         "calendar": "Calendario",
         "goals": "Objetivos",
         "entities": "Entidades",
@@ -43,7 +47,7 @@
         "noExpenses": "No hay gastos en este periodo",
         "noIncome": "No hay ingresos en este periodo",
         "forecast": {
-            "title": "Protección de Fin de Mes",
+            "title": "Proyección de Fin de Mes",
             "burnRate": "Gasto Medio Diario (90d)",
             "daysLeft": "Días Restantes",
             "projectedBalance": "Saldo Proyectado"
@@ -60,9 +64,9 @@
         "recurring": {
             "title": "Próximos Cargos",
             "avgAmount": "Ø {{amount}}",
-            "dueIn": "Vence en {{days}} días",
-            "dueToday": "Vence hoy",
-            "overdue": "Vencido hace {{days}} días",
+            "dueIn": "En {{days}} días",
+            "dueToday": "Hoy",
+            "overdue": "Hace {{days}} días",
             "noRecurring": "No se detectaron suscripciones."
         },
         "budgets": {
@@ -70,6 +74,16 @@
             "left": "Quedan {{amount}}",
             "overBy": "Excedido por {{amount}}",
             "noBudgets": "No hay presupuestos activos."
+        },
+        "topExpenses": "Mayores gastos del mes",
+        "noExpensesRecorded": "No hay gastos registrados",
+        "alerts": {
+            "title": "Alertas Activas",
+            "lowBalance": "Alerta de saldo bajo: umbral de {{amount}}",
+            "budgetExceeded": "Presupuesto excedido",
+            "largeTransaction": "Alerta de transacción grande: más de {{amount}}",
+            "configured": "Alerta configurada",
+            "triggered": "Disparada"
         }
     },
     "entities": {
@@ -123,7 +137,9 @@
             "cancel": "Cancelar",
             "submit": "Importar Archivo",
             "success": "Importadas {{count}} transacciones",
-            "error": "Error en la importación: "
+            "error": "Error en la importación: ",
+            "dropzone": "Haz clic o arrastra tu archivo aquí",
+            "supportedFormats": "Formatos soportados: .xls, .xlsx, .csv"
         },
         "table": {
             "date": "Fecha",

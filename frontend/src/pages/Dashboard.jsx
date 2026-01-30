@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { useEntity } from '../context/EntityContext';
 import { useTranslation } from 'react-i18next';
 import { format, subMonths, startOfMonth, endOfMonth, startOfQuarter, endOfQuarter, startOfYear, endOfYear } from 'date-fns';
+import {
+    ChevronLeft, ChevronRight, ChevronDown, TrendingUp, TrendingDown, Wallet,
+    ChartColumn, BanknoteX, TriangleAlert, OctagonX, MessageCircleWarning, BellRing
+} from 'lucide-react';
 import { es, enUS } from 'date-fns/locale';
 import api from '../api/client';
 import { Card } from '../components/Card';
@@ -73,6 +77,7 @@ export const Dashboard = () => {
                 api.get('/stats/forecast', { params: { entityId: selectedEntity.id } })
             ]);
 
+            console.log('Summary response:', summaryRes.data);
             setSummary(summaryRes.data);
             setExpenseData(expenseRes.data);
             setIncomeData(incomeRes.data);
@@ -80,7 +85,7 @@ export const Dashboard = () => {
         } catch (error) {
             console.error('Failed to fetch stats', error);
         } finally {
-            setTimeout(() => setLoading(false), 500);
+            setTimeout(() => setLoading(false), 1500);
         }
     };
 
@@ -132,30 +137,29 @@ export const Dashboard = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {loading && <FullScreenLoader message={t('common.loadingStats') || 'Actualizando datos...'} />}
-
             {/* Header & Navigation */}
-            <header className="flex flex-col md:flex-row items-center justify-between gap-6 mb-2">
+            <header className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-1 shadow-sm">
+                    <div className="flex items-center bg-white border border-slate-200 rounded-lg px-2 py-1">
                         <button
                             onClick={() => navigateDate('prev')}
-                            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-500 hover:text-primary"
+                            className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-primary"
                         >
-                            <span className="material-icons-round text-lg">chevron_left</span>
+                            <ChevronLeft className="material-icons-round text-lg" />
                         </button>
-                        <span className="px-4 text-sm font-bold min-w-[120px] text-center capitalize">{getLabel()}</span>
+                        <span className="px-3 text-sm font-medium capitalize">{getLabel()}</span>
                         <button
                             onClick={() => navigateDate('next')}
-                            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-500 hover:text-primary"
+                            className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-primary"
                         >
-                            <span className="material-icons-round text-lg">chevron_right</span>
+                            <ChevronRight className="material-icons-round text-lg" />
                         </button>
                     </div>
                     <div className="relative">
                         <select
                             onChange={handleFilterChange}
                             defaultValue="THIS_MONTH"
-                            className="appearance-none bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 pr-10 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none cursor-pointer text-sm font-bold shadow-sm transition-all text-slate-700 dark:text-slate-200"
+                            className="appearance-none bg-none border border-slate-200 rounded-lg px-4 py-3 pr-10 focus:ring-2 focus:ring-primary focus:border-primary cursor-pointer text-sm font-medium"
                         >
                             <option value="THIS_MONTH">{t('dashboard.filters.thisMonth')}</option>
                             <option value="PREV_MONTH">{t('dashboard.filters.prevMonth')}</option>
@@ -165,74 +169,64 @@ export const Dashboard = () => {
                             <option value="Q4">{t('dashboard.filters.q4')}</option>
                             <option value="YEAR">{t('dashboard.filters.year')}</option>
                         </select>
-                        <span className="material-icons-round absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-base">expand_more</span>
+                        <ChevronDown className="material-icons-round absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-base" />
                     </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={fetchStats}
-                        className="flex items-center gap-2 bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm text-slate-700 dark:text-slate-200"
-                    >
-                        <span className="material-icons-round text-sm">sync</span>
-                        Sincronizar
-                    </button>
                 </div>
             </header>
 
             {/* Summary KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <Card className="bg-card-light p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-start mb-4">
-                        <span className="text-slate-500 dark:text-slate-400 text-sm font-bold">{t('dashboard.monthlyIncome')}</span>
-                        <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-xl">
-                            <span className="material-icons-round">trending_up</span>
+                        <span className="text-slate-500 text-sm font-medium">{t('dashboard.monthlyIncome')}</span>
+                        <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                            <TrendingUp className="material-icons-round" />
                         </div>
                     </div>
-                    <div className="text-3xl font-black tracking-tight">{formatCurrency(summary.income)}</div>
+                    <div className="text-3xl font-black">{formatCurrency(summary.income)}</div>
                     {summary.prevIncome > 0 && (
-                        <div className={`mt-2 text-xs flex items-center gap-1 font-bold ${summary.income >= summary.prevIncome ? 'text-emerald-500' : 'text-slate-400'}`}>
-                            <span className="material-icons-round text-xs">{summary.income >= summary.prevIncome ? 'arrow_upward' : 'arrow_downward'}</span>
+                        <div className={`mt-2 text-xs flex items-center gap-1 font-medium ${summary.income >= summary.prevIncome ? 'text-emerald-500' : 'text-slate-400'}`}>
+                            {summary.income >= summary.prevIncome ? <TrendingUp /> : <TrendingDown />}
                             {((Math.abs(summary.income - summary.prevIncome) / summary.prevIncome) * 100).toFixed(1)}% vs anterior
                         </div>
                     )}
                 </Card>
 
-                <Card className="p-6">
+                <Card className="bg-card-light p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-start mb-4">
-                        <span className="text-slate-500 dark:text-slate-400 text-sm font-bold">{t('dashboard.monthlyExpenses')}</span>
-                        <div className="p-2 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-xl">
-                            <span className="material-icons-round">trending_down</span>
+                        <span className="text-slate-500 text-sm font-medium">{t('dashboard.monthlyExpenses')}</span>
+                        <div className="p-2 bg-rose-100 text-rose-600 rounded-xl">
+                            <TrendingDown className="material-icons-round" />
                         </div>
                     </div>
-                    <div className="text-3xl font-black tracking-tight">{formatCurrency(summary.expense)}</div>
+                    <div className="text-3xl font-black">{formatCurrency(summary.expense)}</div>
                     {summary.prevExpense > 0 && (
-                        <div className={`mt-2 text-xs flex items-center gap-1 font-bold ${summary.expense <= summary.prevExpense ? 'text-emerald-500' : 'text-rose-500'}`}>
-                            <span className="material-icons-round text-xs">{summary.expense <= summary.prevExpense ? 'arrow_downward' : 'arrow_upward'}</span>
+                        <div className={`mt-2 text-xs flex items-center gap-1 font-medium ${summary.expense <= summary.prevExpense ? 'text-emerald-500' : 'text-rose-500'}`}>
+                            {summary.expense <= summary.prevExpense ? <TrendingDown /> : <TrendingUp />}
                             {((Math.abs(summary.expense - summary.prevExpense) / summary.prevExpense) * 100).toFixed(1)}% vs anterior
                         </div>
                     )}
                 </Card>
 
-                <Card className="bg-primary p-6 text-white border-none shadow-xl shadow-primary/20">
+                <Card className="bg-primary p-6 rounded-2xl shadow-lg shadow-primary/20 text-white">
                     <div className="flex justify-between items-start mb-4">
-                        <span className="text-white/80 text-sm font-bold">{t('dashboard.totalBalance')}</span>
-                        <div className="p-2 bg-white/20 rounded-xl">
-                            <span className="material-icons-round text-white">account_balance_wallet</span>
+                        <span className="text-white/80 text-sm font-medium">{t('dashboard.totalBalance')}</span>
+                        <div className="p-2 bg-white/20 rounded-lg">
+                            <Wallet className="material-icons-round" />
                         </div>
                     </div>
-                    <div className="text-3xl font-black tracking-tight">{forecast ? formatCurrency(forecast.currentBalance) : '...'}</div>
+                    <div className="text-3xl font-bold">{forecast ? formatCurrency(forecast.currentBalance) : '...'}</div>
                     <div className="mt-4 flex gap-4 text-xs text-white/90">
                         {forecast && (
                             <>
                                 <div>
-                                    <p className="text-white/60 font-bold uppercase tracking-wider text-[9px]">Disponible</p>
-                                    <p className="font-black text-sm">{formatCurrency(forecast.available)}</p>
+                                    <p className="text-white/60">Disponible</p>
+                                    <p className="font-semibold">{formatCurrency(forecast.available)}</p>
                                 </div>
                                 {forecast.reserved > 0 && (
                                     <div>
-                                        <p className="text-white/60 font-bold uppercase tracking-wider text-[9px]">En Objetivos</p>
-                                        <p className="font-black text-sm">{formatCurrency(forecast.reserved)}</p>
+                                        <p className="text-white/60">En Objetivos</p>
+                                        <p className="font-semibold">{formatCurrency(forecast.reserved)}</p>
                                     </div>
                                 )}
                             </>
@@ -243,32 +237,32 @@ export const Dashboard = () => {
 
             {/* Projection Chart / Forecast */}
             {forecast && (
-                <Card className="p-8">
-                    <h3 className="flex items-center gap-2 font-black text-lg mb-8">
-                        <span className="material-icons-round text-primary">auto_graph</span>
+                <Card className="bg-card-light p-8 rounded-2xl border border-slate-200 shadow-sm mb-8">
+                    <h3 className="flex items-center gap-2 font-bold text-lg mb-8 mt-2">
+                        <ChartColumn className="material-icons-round text-primary" />
                         {t('dashboard.forecast.title')}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                         <div className="space-y-1">
-                            <p className="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">{t('dashboard.forecast.burnRate')}</p>
-                            <p className="text-2xl font-black">{formatCurrency(forecast.dailyBurnRate)}</p>
-                            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-3">
-                                <div className="bg-primary h-full" style={{ width: '45%' }}></div>
+                            <p className="text-sm text-slate-500">{t('dashboard.forecast.burnRate')}</p>
+                            <p className="text-2xl font-bold">{formatCurrency(forecast.dailyBurnRate)}</p>
+                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-3">
+                                <div className="bg-primary h-full transition-all" style={{ width: `${Math.min(100, (forecast.dailyBurnRate / (summary.income / 30)) * 100)}%` }}></div>
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">{t('dashboard.forecast.daysLeft')}</p>
-                            <p className="text-2xl font-black">{forecast.daysLeft} días</p>
-                            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-3">
-                                <div className="bg-primary h-full" style={{ width: '90%' }}></div>
+                            <p className="text-sm text-slate-500">{t('dashboard.forecast.daysLeft')}</p>
+                            <p className="text-2xl font-bold">{forecast.daysLeft} días</p>
+                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-3">
+                                <div className="bg-primary h-full transition-all" style={{ width: `${Math.min(100, ((new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate() - forecast.daysLeft) / new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()) * 100)}%` }}></div>
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">{t('dashboard.forecast.projectedBalance')}</p>
-                            <p className={`text-2xl font-black ${forecast.projectedBalance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                            <p className="text-sm text-slate-500">{t('dashboard.forecast.projectedBalance')}</p>
+                            <p className={`text-2xl font-bold ${forecast.projectedBalance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                                 {formatCurrency(forecast.projectedBalance)}
                             </p>
-                            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-3">
+                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-3">
                                 <div className={`${forecast.projectedBalance >= 0 ? 'bg-emerald-500' : 'bg-rose-500'} h-full`} style={{ width: '100%' }}></div>
                             </div>
                         </div>
@@ -276,68 +270,102 @@ export const Dashboard = () => {
                 </Card>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Main Content Areas */}
-                <div className="lg:col-span-2 space-y-8">
-                    {/* Categorized Charts Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <CategoryChart
-                            title={t('dashboard.expensesByCategory')}
-                            data={expenseData}
-                            formatCurrency={formatCurrency}
-                            emptyMessage={t('dashboard.noExpenses')}
-                        />
-                        <CategoryChart
-                            title={t('dashboard.incomeByCategory')}
-                            data={incomeData}
-                            formatCurrency={formatCurrency}
-                            emptyMessage={t('dashboard.noIncome')}
-                        />
-                    </div>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <RecurringExpenses />
+                <BudgetProgress currentDate={currentDate} />
+            </div>
 
-                {/* Sidebar Widgets */}
-                <div className="space-y-8">
-                    {/* Active Alerts */}
-                    {summary.activeAlerts?.length > 0 && (
-                        <Card className="border-amber-500/20 bg-amber-500/5">
-                            <h3 className="text-sm font-black text-amber-500 mb-4 flex items-center gap-2">
-                                <span className="material-icons-round text-lg">warning</span>
-                                Alertas Activas ({summary.activeAlerts.length})
-                            </h3>
-                            <div className="space-y-3">
-                                {summary.activeAlerts.slice(0, 3).map(alert => (
-                                    <div key={alert.id} className="text-xs text-slate-600 dark:text-slate-300 bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-white dark:border-white/5 shadow-sm">
-                                        {alert.message}
-                                    </div>
-                                ))}
-                            </div>
-                        </Card>
-                    )}
-
-                    {/* Top Expenses */}
-                    <Card>
-                        <h3 className="text-sm font-black mb-6 flex items-center gap-2">
-                            <span className="material-icons-round text-rose-500">priority_high</span>
-                            Mayores Gastos del Mes
-                        </h3>
-                        <div className="space-y-4">
-                            {expenseData.slice(0, 3).map((item, idx) => (
-                                <div key={idx} className="flex items-center justify-between group">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: item.color }} />
-                                        <span className="text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-primary transition-colors">{item.category}</span>
-                                    </div>
-                                    <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{formatCurrency(item.total)}</span>
+            {/* Top Expenses */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <Card className="bg-card-light p-8 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 className="flex items-center gap-2 font-bold text-lg mb-8">
+                        <BanknoteX className="material-icons-round text-primary" />
+                        {t('dashboard.topExpenses')}
+                    </h3>
+                    <div className="w-full space-y-3">
+                        {expenseData.slice(0, 3).map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                                    <span>{item.category}</span>
                                 </div>
-                            ))}
-                            {expenseData.length === 0 && <p className="text-xs text-slate-500 italic">No hay gastos registrados</p>}
+                                <span className="font-semibold">{formatCurrency(item.total)}</span>
+                            </div>
+                        ))}
+                        {expenseData.length === 0 && <p className="text-xs text-slate-500 italic">{t('dashboard.noExpensesRecorded')}</p>}
+                    </div>
+                </Card>
+                {summary.activeAlerts?.length > 0 && (
+                    <Card className="bg-card-light p-8 rounded-2xl border border-slate-200 shadow-sm">
+                        <div className="space-y-8">
+                            {/* Active Alerts */}
+                            <h3 className="flex items-center gap-2 font-bold text-lg mb-8">
+                                <TriangleAlert className="text-primary" />
+                                {t('dashboard.alerts.title')} ({summary.activeAlerts.length})
+                            </h3>
+                            <div className="w-full space-y-3">
+                                {summary.activeAlerts.slice(0, 3).map(alert => {
+                                    // Generar mensaje si no existe
+                                    const getMessage = () => {
+                                        if (alert.message) return alert.message;
+                                        switch (alert.type) {
+                                            case 'LOW_BALANCE':
+                                                return t('dashboard.alerts.lowBalance', { amount: formatCurrency(alert.threshold) });
+                                            case 'BUDGET_EXCEEDED':
+                                                return t('dashboard.alerts.budgetExceeded');
+                                            case 'LARGE_TRANSACTION':
+                                                return t('dashboard.alerts.largeTransaction', { amount: formatCurrency(alert.threshold) });
+                                            default:
+                                                return t('dashboard.alerts.configured');
+                                        }
+                                    };
+                                    // Obtener contexto (cuenta o categoría)
+                                    const getContext = () => {
+                                        if (alert.account?.name) return alert.account.name;
+                                        if (alert.category?.name) return alert.category.name;
+                                        return null;
+                                    };
+                                    const context = getContext();
+                                    return (
+                                        <div key={alert.id} className="flex items-start gap-3 text-sm text-slate-600 bg-amber-50 p-3 rounded-xl">
+                                            {alert.status === 'TRIGGERED' ? <OctagonX className={`material-icons-round text-sm mt-0.5 ${alert.status === 'TRIGGERED' ? 'text-rose-500' : 'text-amber-500'}`} /> : <MessageCircleWarning className={`material-icons-round text-sm mt-0.5 ${alert.status === 'TRIGGERED' ? 'text-rose-500' : 'text-amber-500'}`} />}
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <p className="font-medium">{getMessage()}</p>
+                                                    {context && (
+                                                        <span className={`text-sm ${alert.status === 'TRIGGERED' ? 'bg-rose-500' : 'bg-amber-500'} text-white px-2 py-0.5 rounded-full`}>
+                                                            {context}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {alert.status !== 'TRIGGERED' && (
+                                                    <p className="text-rose-500 text-xs mt-1 flex items-center gap-1"><BellRing className="w-3 h-3" /> {t('dashboard.alerts.triggered')}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </Card>
+                )}
+            </div>
 
-                    <RecurringExpenses />
-                    <BudgetProgress currentDate={currentDate} />
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                {/* Main Content Areas */}
+                {/* Categorized Charts Row */}
+                <CategoryChart
+                    title={t('dashboard.expensesByCategory')}
+                    data={expenseData}
+                    formatCurrency={formatCurrency}
+                    emptyMessage={t('dashboard.noExpenses')}
+                />
+                <CategoryChart
+                    title={t('dashboard.incomeByCategory')}
+                    data={incomeData}
+                    formatCurrency={formatCurrency}
+                    emptyMessage={t('dashboard.noIncome')}
+                />
             </div>
         </div>
     );
@@ -354,8 +382,8 @@ const CategoryChart = ({ title, data, formatCurrency, emptyMessage }) => {
     const totalValue = safeData.reduce((acc, curr) => acc + curr.total, 0);
 
     return (
-        <Card className="flex flex-col">
-            <h3 className="text-lg font-black mb-8 px-2">{title}</h3>
+        <Card className="bg-card-light p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <h3 className="font-bold text-lg mb-6">{title}</h3>
 
             {safeData.length > 0 ? (
                 <div className="flex flex-col items-center gap-8">
@@ -397,25 +425,25 @@ const CategoryChart = ({ title, data, formatCurrency, emptyMessage }) => {
                         </div>
                     </div>
 
-                    <div className="w-full space-y-4 px-2">
+                    <div className="w-full space-y-3">
                         {safeData.map((item, idx) => {
                             const percent = totalValue > 0 ? ((item.total / totalValue) * 100).toFixed(1) : 0;
                             return (
-                                <div key={idx} className="flex items-center justify-between text-xs group">
-                                    <div className="flex items-center gap-3">
+                                <div key={idx} className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center gap-2">
                                         <div
-                                            className="w-3 h-3 rounded-full flex-shrink-0 shadow-sm"
+                                            className="w-3 h-3 rounded-full"
                                             style={{ backgroundColor: item.fillColor }}
                                         />
-                                        <span className="text-slate-600 dark:text-slate-400 font-bold group-hover:text-primary transition-colors truncate max-w-[140px]" title={item.category}>
+                                        <span title={item.category}>
                                             {item.category}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span className="text-[10px] text-slate-400 font-black">
-                                            {percent}%
+                                        <span className="text-xs text-slate-400 ml-1">
+                                            ({percent}%)
                                         </span>
-                                        <span className="font-black text-slate-900 dark:text-white">
+                                        <span className="font-semibold">
                                             {formatCurrency(item.total)}
                                         </span>
                                     </div>

@@ -20,9 +20,9 @@ export const FullScreenLoader = ({ message = 'Cargando...' }) => {
 
     return createPortal(
         <div style={overlayStyle}>
-            <div className="bg-slate-800 p-8 rounded-2xl shadow-2xl flex flex-col items-center space-y-4 border border-slate-700 animate-in fade-in zoom-in duration-300">
-                <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
-                <p className="text-lg font-medium text-slate-200 animate-pulse">{message}</p>
+            <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center space-y-4 border border-slate-700 animate-in fade-in zoom-in duration-300">
+                <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                <p className="text-lg font-medium text-slate-600 animate-pulse">{message}</p>
             </div>
         </div>,
         document.body

@@ -75,7 +75,7 @@ export const Layout = ({ children }) => {
     };
 
     return (
-        <div className="flex min-h-screen bg-[#f8fafc]">
+        <div className="bg-[#f8fafc]">
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-slate-200 z-50 flex flex-col">
                 <div className="p-6">
@@ -127,7 +127,7 @@ export const Layout = ({ children }) => {
                             </button>
 
                             {showNotifications && (
-                                <div className="absolute bottom-full right-0 mb-2 w-64 glass-panel z-50 shadow-2xl overflow-hidden rounded-xl border border-slate-200">
+                                <div className="absolute bottom-full left-0 mb-2 w-64 z-50 shadow-2xl overflow-hidden rounded-xl border border-slate-200 bg-white glass-panel">
                                     <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                                         {alerts.length === 0 ? (
                                             <div className="p-4 text-center text-xs text-slate-500 italic">

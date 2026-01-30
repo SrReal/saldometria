@@ -135,7 +135,7 @@ export const Transactions = () => {
     const [importAccount, setImportAccount] = useState('');
 
     const handleBulkAction = async (action, payload = {}) => {
-        if (!window.confirm(t('common.confirm') || 'Are you sure?')) return;
+        if (!window.confirm(t('common.confirm'))) return;
 
         setIsBulkActionLoading(true);
         try {
@@ -352,7 +352,7 @@ export const Transactions = () => {
                                         onChange={e => setFormData({ ...formData, accountId: e.target.value })}
                                         required
                                     >
-                                        <option value="" disabled>Select Account</option>
+                                        <option value="" disabled>{t('common.selectAccount')}</option>
                                         {accounts.map(acc => (
                                             <option key={acc.id} value={acc.id}>{acc.name}</option>
                                         ))}
@@ -456,8 +456,8 @@ export const Transactions = () => {
                                         <span className="material-icons-round text-3xl">upload_file</span>
                                     </div>
                                     <div>
-                                        <p className="font-black text-sm text-slate-700 dark:text-slate-200">{importFile ? importFile.name : 'Haz clic o arrastra tu archivo aquí'}</p>
-                                        <p className="text-xs text-slate-400 font-bold mt-1">Formatos soportados: .xls, .xlsx, .csv</p>
+                                        <p className="font-black text-sm text-slate-700 dark:text-slate-200">{importFile ? importFile.name : t('transactions.importModal.dropzone')}</p>
+                                        <p className="text-xs text-slate-400 font-bold mt-1">{t('transactions.importModal.supportedFormats')}</p>
                                     </div>
                                 </div>
                             </div>

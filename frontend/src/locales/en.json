@@ -16,7 +16,11 @@
         "createAccount": "Create your account",
         "noAccount": "Don't have an account?",
         "hasAccount": "Already have an account?",
-        "accumulated": "Accumulated"
+        "accumulated": "Accumulated",
+        "confirm": "Are you sure?",
+        "confirmDelete": "Are you sure you want to delete?",
+        "type": "Type",
+        "selectAccount": "Select account"
     },
     "nav": {
         "dashboard": "Dashboard",
@@ -59,9 +63,9 @@
         "recurring": {
             "title": "Upcoming Bills",
             "avgAmount": "Ø {{amount}}",
-            "dueIn": "Due in {{days}} days",
-            "dueToday": "Due today",
-            "overdue": "Overdue by {{days}} days",
+            "dueIn": "In {{days}} days",
+            "dueToday": "Today",
+            "overdue": "{{days}} days ago",
             "noRecurring": "No subscriptions detected."
         },
         "budgets": {
@@ -69,6 +73,16 @@
             "left": "{{amount}} left",
             "overBy": "Over by {{amount}}",
             "noBudgets": "No active budgets."
+        },
+        "topExpenses": "Top expenses this month",
+        "noExpensesRecorded": "No expenses recorded",
+        "alerts": {
+            "title": "Active Alerts",
+            "lowBalance": "Low balance alert: threshold of {{amount}}",
+            "budgetExceeded": "Budget exceeded",
+            "largeTransaction": "Large transaction alert: over {{amount}}",
+            "configured": "Alert configured",
+            "triggered": "Triggered"
         }
     },
     "entities": {
@@ -122,7 +136,9 @@
             "cancel": "Cancel",
             "submit": "Import File",
             "success": "Imported {{count}} transactions",
-            "error": "Import failed: "
+            "error": "Import failed: ",
+            "dropzone": "Click or drag your file here",
+            "supportedFormats": "Supported formats: .xls, .xlsx, .csv"
         },
         "table": {
             "date": "Date",
