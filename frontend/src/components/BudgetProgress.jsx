@@ -3,11 +3,13 @@ import { Card } from './Card';
 import api from '../api/client';
 import { useTranslation } from 'react-i18next';
 import { useEntity } from '../context/EntityContext';
-import { HandCoins, MessageSquareWarning } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { HandCoins, MessageSquareWarning, CheckCircle2 } from 'lucide-react';
 
 export const BudgetProgress = ({ currentDate }) => {
     const { t } = useTranslation();
     const { selectedEntity } = useEntity();
+    const { formatCurrency } = useAuth();
     const [status, setStatus] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -32,14 +34,6 @@ export const BudgetProgress = ({ currentDate }) => {
         }
     };
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('es-ES', {
-            style: 'currency',
-            currency: 'EUR',
-            maximumFractionDigits: 0
-        }).format(amount);
-    };
-
     const getProgressColor = (percent) => {
         if (percent >= 100) return 'bg-rose-500';
         if (percent >= 80) return 'bg-amber-500';
@@ -52,14 +46,14 @@ export const BudgetProgress = ({ currentDate }) => {
         <Card className="bg-card-light p-6 rounded-2xl border border-slate-200 shadow-sm">
             <div className='flex justify-between items-center mb-6'>
                 <h3 className="flex items-center gap-2 font-bold text-lg">
-                    <HandCoins className="material-icons-round text-primary" />
+                    <HandCoins className="w-5 h-5 text-primary" />
                     {t('dashboard.budgets.title')}
                 </h3>
             </div>
 
             {status.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-40 text-slate-500 text-sm">
-                    <span className="material-icons-round text-4xl mb-2 opacity-20">assignment_turned_in</span>
+                    <CheckCircle2 className="w-10 h-10 mb-2 text-slate-300 stroke-1" />
                     <p className="font-bold">{t('dashboard.budgets.noBudgets') || "No hay presupuestos activos"}</p>
                 </div>
             ) : (

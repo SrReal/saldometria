@@ -84,14 +84,28 @@ exports.create = async (req, res, next) => {
       return res.status(403).json({ message: 'Not authorized for this entity' });
     }
 
+    // Auto-apply active rules if categoryId is not provided
+    let finalCategoryId = categoryId || null;
+    if (!finalCategoryId && description) {
+        const { Rule } = require('../models');
+        const rules = await Rule.findAll({ where: { entityId, isActive: true } });
+        const upperDesc = description.toUpperCase();
+        for (const rule of rules) {
+            if (upperDesc.includes(rule.pattern.toUpperCase())) {
+                finalCategoryId = rule.categoryId;
+                break;
+            }
+        }
+    }
+
     const transaction = await Transaction.create({
       date,
       amount,
       description,
       type,
-      categoryId,
+      categoryId: finalCategoryId,
       entityId,
-      accountId, // New field, allows null if not provided (though UI should enfore)
+      accountId, // New field, allows null if not provided (though UI should enforce)
       source: accountName, // Maintaining legacy field for now
       status: 'COMPLETED',
     });

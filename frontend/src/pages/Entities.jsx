@@ -1,13 +1,31 @@
 import { useState } from 'react';
 import { useEntity } from '../context/EntityContext';
-import { Card } from '../components/Card';
+import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import api from '../api/client';
 import { useTranslation } from 'react-i18next';
+import {
+    Building2,
+    User,
+    Plus,
+    Pencil,
+    Trash2,
+    Check,
+    X,
+    ChevronDown,
+    ChevronUp,
+    CreditCard,
+    Banknote,
+    Layers,
+    ShieldCheck,
+    Save
+} from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export const Entities = () => {
     const { entities, fetchEntities, selectedEntity, switchEntity } = useEntity();
+    const { currencySymbol } = useAuth();
     const [isCreating, setIsCreating] = useState(false);
     const [newEntityName, setNewEntityName] = useState('');
     const [editingId, setEditingId] = useState(null);
@@ -18,7 +36,7 @@ export const Entities = () => {
     const [expandedEntityId, setExpandedEntityId] = useState(null);
     const [accounts, setAccounts] = useState([]);
     const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-    const [newAccount, setNewAccount] = useState({ name: '', type: 'BANK', currency: 'EUR' });
+    const [newAccount, setNewAccount] = useState({ name: '', type: 'BANK', currency: currencySymbol || 'EUR' });
 
     const { t } = useTranslation();
 
@@ -32,8 +50,10 @@ export const Entities = () => {
             await fetchEntities();
             setNewEntityName('');
             setIsCreating(false);
+            toast.success('Entidad creada con éxito');
         } catch (error) {
             console.error('Failed to create entity', error);
+            toast.error('Error al crear la entidad');
         } finally {
             setLoading(false);
         }
@@ -46,21 +66,25 @@ export const Entities = () => {
             await api.patch(`/entities/${id}`, { name: editName });
             await fetchEntities();
             setEditingId(null);
+            toast.success('Nombre de entidad actualizado');
         } catch (error) {
             console.error('Failed to update entity', error);
+            toast.error('Error al actualizar entidad');
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm(t('entities.deleteConfirm'))) return;
+        if (!window.confirm(t('entities.deleteConfirm') || '¿Estás seguro de que deseas eliminar esta entidad y todos sus movimientos asociados?')) return;
         setLoading(true);
         try {
             await api.delete(`/entities/${id}`);
             await fetchEntities();
+            toast.success('Entidad eliminada');
         } catch (error) {
             console.error('Failed to delete entity', error);
+            toast.error('Error al eliminar la entidad');
         } finally {
             setLoading(false);
         }
@@ -83,6 +107,7 @@ export const Entities = () => {
             setAccounts(response.data);
         } catch (error) {
             console.error('Failed to fetch accounts', error);
+            toast.error('Error al cargar cuentas de la entidad');
         }
     };
 
@@ -97,246 +122,300 @@ export const Entities = () => {
             });
             await fetchAccounts(expandedEntityId);
             setIsCreatingAccount(false);
-            setNewAccount({ name: '', type: 'BANK', currency: 'EUR' });
+            setNewAccount({ name: '', type: 'BANK', currency: currencySymbol || 'EUR' });
+            toast.success('Cuenta añadida');
         } catch (error) {
             console.error('Failed to create account', error);
+            toast.error('Error al crear la cuenta');
         }
     };
 
     const handleDeleteAccount = async (accountId) => {
-        if (!window.confirm(t('entities.deleteConfirm'))) return;
+        if (!window.confirm('¿Seguro que deseas eliminar esta cuenta?')) return;
         try {
             await api.delete(`/accounts/${accountId}`);
             await fetchAccounts(expandedEntityId);
+            toast.success('Cuenta eliminada');
         } catch (error) {
             console.error('Failed to delete account', error);
+            toast.error('Error al eliminar la cuenta');
         }
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
-            <header className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300">
+            {/* Page Header */}
+            <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
                 <div>
-                    <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                        <span className="material-icons-round text-primary text-4xl">corporate_fare</span>
-                        {t('entities.title')}
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800 flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                            <Layers className="w-6 h-6 text-primary" />
+                        </div>
+                        {t('entities.title') || 'Entidades y Cuentas'}
                     </h2>
-                    <p className="text-slate-500 font-bold dark:text-slate-400 mt-1">{t('entities.subtitle')}</p>
+                    <p className="text-xs sm:text-sm font-medium text-slate-500 mt-1">
+                        {t('entities.subtitle') || 'Gestiona tus entornos personales, empresas y cuentas bancarias asociadas'}
+                    </p>
                 </div>
-                <Button onClick={() => setIsCreating(true)}>
-                    <span className="material-icons-round text-lg">add</span>
-                    {t('entities.newEntity')}
+                <Button
+                    onClick={() => setIsCreating(true)}
+                    className="shadow-md shadow-primary/20"
+                >
+                    <Plus className="w-4 h-4" />
+                    <span>{t('entities.create') || 'Nueva Entidad'}</span>
                 </Button>
             </header>
 
+            {/* Create Entity Card */}
             {isCreating && (
-                <Card className="p-8 border-none shadow-xl relative overflow-hidden animate-in zoom-in-95 duration-200">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
-                    <form onSubmit={handleCreate} className="flex flex-col md:flex-row gap-6 items-end">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-8 relative overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="h-1.5 w-full bg-gradient-to-r from-primary to-orange-500 absolute top-0 left-0"></div>
+                    <h3 className="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-primary" />
+                        <span>Crear Nueva Entidad Empresarial / Personal</span>
+                    </h3>
+
+                    <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-4 items-end">
                         <div className="flex-1 w-full">
                             <Input
-                                label={t('entities.entityName')}
+                                label={t('entities.entityName') || 'Nombre de la Entidad'}
                                 value={newEntityName}
                                 onChange={(e) => setNewEntityName(e.target.value)}
-                                placeholder="e.g. My Startup Inc."
+                                placeholder="Ej: Mi Empresa SL, Actividad Freelance..."
                                 autoFocus
                                 required
                             />
                         </div>
-                        <div className="flex gap-3 w-full md:w-auto">
-                            <Button type="submit" loading={loading} className="flex-1">
-                                <span className="material-icons-round">save</span>
-                                {t('common.save')}
+                        <div className="flex gap-2.5 w-full sm:w-auto">
+                            <Button type="submit" loading={loading} className="flex-1 sm:flex-none">
+                                <Save className="w-4 h-4" />
+                                {t('common.save') || 'Guardar'}
                             </Button>
                             <Button
                                 type="button"
-                                variant="ghost"
+                                variant="secondary"
                                 onClick={() => setIsCreating(false)}
-                                className="flex-1"
+                                className="flex-1 sm:flex-none"
                             >
-                                {t('common.cancel')}
+                                {t('common.cancel') || 'Cancelar'}
                             </Button>
                         </div>
                     </form>
-                </Card>
+                </div>
             )}
 
-            <div className="grid gap-6">
+            {/* Entities List */}
+            <div className="space-y-4">
                 {entities.map(entity => {
                     const isSelected = selectedEntity?.id === entity.id;
                     const isExpanded = expandedEntityId === entity.id;
 
                     return (
-                        <div key={entity.id} className="relative group">
-                            <Card className={`p-0 overflow-hidden transition-all duration-300 border-none shadow-sm ${isSelected ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm'}`}>
-                                <div className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                                    {editingId === entity.id ? (
-                                        <div className="flex-1 flex items-center gap-4 w-full">
-                                            <div className="flex-1">
-                                                <Input
-                                                    value={editName}
-                                                    onChange={(e) => setEditName(e.target.value)}
-                                                    autoFocus
-                                                />
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <button onClick={() => handleUpdate(entity.id)} className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/20 hover:scale-110 transition-all">
-                                                    <span className="material-icons-round">check</span>
-                                                </button>
-                                                <button onClick={() => setEditingId(null)} className="p-2.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl hover:scale-110 transition-all">
-                                                    <span className="material-icons-round">close</span>
-                                                </button>
-                                            </div>
+                        <div
+                            key={entity.id}
+                            className={`bg-white rounded-2xl border transition-all overflow-hidden ${isSelected
+                                ? 'border-primary ring-2 ring-primary/20 shadow-md'
+                                : 'border-slate-200 shadow-sm hover:border-slate-300'
+                                }`}
+                        >
+                            {/* Main Entity Row */}
+                            <div className="p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                {editingId === entity.id ? (
+                                    <div className="flex-1 flex items-center gap-3 w-full">
+                                        <div className="flex-1">
+                                            <Input
+                                                value={editName}
+                                                onChange={(e) => setEditName(e.target.value)}
+                                                autoFocus
+                                            />
                                         </div>
-                                    ) : (
-                                        <>
-                                            <div
-                                                className="flex-1 cursor-pointer flex items-center gap-4 w-full"
-                                                onClick={() => switchEntity(entity.id)}
-                                            >
-                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black ${isSelected ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:text-primary transition-colors'}`}>
-                                                    {entity.name[0].toUpperCase()}
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-black text-xl text-slate-800 dark:text-white flex items-center gap-3">
-                                                        {entity.name}
-                                                        {entity.type === 'PERSONAL' && (
-                                                            <span className="text-[9px] font-black uppercase tracking-widest bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-2 py-0.5 rounded-lg border border-blue-200/50">{t('entities.personal')}</span>
-                                                        )}
-                                                        {isSelected && (
-                                                            <span className="text-[9px] font-black uppercase tracking-widest bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 px-2 py-0.5 rounded-lg border border-emerald-200/50">{t('entities.active')}</span>
-                                                        )}
-                                                    </h3>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">ID: {String(entity.id).slice(0, 8)}...</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 w-full md:w-auto">
-                                                <button
-                                                    onClick={() => toggleAccounts(entity.id)}
-                                                    className={`h-11 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all shadow-sm ${isExpanded ? 'bg-primary text-white shadow-primary/20' : 'bg-white dark:bg-slate-900/50 text-slate-500 hover:text-primary dark:text-slate-400 border border-slate-100 dark:border-slate-800'}`}
-                                                >
-                                                    <span className="material-icons-round text-lg">account_balance</span>
-                                                    {t('entities.accounts')}
-                                                    <span className="material-icons-round text-base transition-transform duration-300" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none' }}>expand_more</span>
-                                                </button>
-
-                                                <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-1"></div>
-
-                                                <button
-                                                    onClick={() => {
-                                                        setEditingId(entity.id);
-                                                        setEditName(entity.name);
-                                                    }}
-                                                    className="p-2.5 text-slate-400 hover:text-primary hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm"
-                                                    title="Editar"
-                                                >
-                                                    <span className="material-icons-round text-xl">edit</span>
-                                                </button>
-
-                                                {entity.type !== 'PERSONAL' && (
-                                                    <button
-                                                        onClick={() => handleDelete(entity.id)}
-                                                        className="p-2.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all shadow-sm"
-                                                        title="Eliminar"
-                                                    >
-                                                        <span className="material-icons-round text-xl">delete</span>
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-
-                                {/* Accounts Section */}
-                                {isExpanded && (
-                                    <div className="px-6 pb-8 animate-in slide-in-from-top-4 duration-300">
-                                        <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
-                                            <div className="flex items-center justify-between mb-6">
-                                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                                    <span className="material-icons-round text-base">manage_accounts</span>
-                                                    {t('entities.manageAccounts')}
-                                                </h4>
-                                                <button
-                                                    onClick={() => setIsCreatingAccount(true)}
-                                                    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary hover:text-orange-400 transition-colors"
-                                                >
-                                                    <span className="material-icons-round text-lg">add_circle</span>
-                                                    {t('entities.addAccount')}
-                                                </button>
-                                            </div>
-
-                                            {isCreatingAccount && (
-                                                <div className="mb-6 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
-                                                    <form onSubmit={handleCreateAccount} className="flex flex-col md:flex-row gap-6 items-end">
-                                                        <div className="flex-1 w-full">
-                                                            <Input
-                                                                label={t('entities.accountName')}
-                                                                value={newAccount.name}
-                                                                onChange={e => setNewAccount({ ...newAccount, name: e.target.value })}
-                                                                placeholder="e.g. Main Checking"
-                                                                autoFocus
-                                                                required
-                                                            />
-                                                        </div>
-                                                        <div className="w-full md:w-48">
-                                                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider mb-1.5 block">{t('entities.accountType')}</label>
-                                                            <div className="relative">
-                                                                <select
-                                                                    className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium shadow-sm appearance-none h-11"
-                                                                    value={newAccount.type}
-                                                                    onChange={e => setNewAccount({ ...newAccount, type: e.target.value })}
-                                                                >
-                                                                    <option value="BANK">Bank</option>
-                                                                    <option value="CASH">Cash</option>
-                                                                    <option value="CREDIT">Credit</option>
-                                                                </select>
-                                                                <span className="material-icons-round absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-base">expand_more</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-3 w-full md:w-auto">
-                                                            <Button type="submit" size="sm" className="h-11 px-6">Guardar</Button>
-                                                            <Button type="button" variant="ghost" className="h-11 px-6" onClick={() => setIsCreatingAccount(false)}>{t('common.cancel')}</Button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            )}
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                {accounts.map(acc => (
-                                                    <div key={acc.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-800 group/acc hover:border-primary/20 transition-all shadow-sm">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${acc.type === 'CASH' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'}`}>
-                                                                <span className="material-icons-round text-xl">
-                                                                    {acc.type === 'CASH' ? 'payments' : 'credit_card'}
-                                                                </span>
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-black text-sm text-slate-700 dark:text-slate-200">{acc.name}</div>
-                                                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{acc.type} • {acc.currency}</div>
-                                                            </div>
-                                                        </div>
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDeleteAccount(acc.id);
-                                                            }}
-                                                            className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all opacity-0 group-hover/acc:opacity-100"
-                                                        >
-                                                            <span className="material-icons-round text-lg">delete</span>
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                                {accounts.length === 0 && !isCreatingAccount && (
-                                                    <div className="col-span-full py-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 italic">
-                                                        No accounts found. Create one to get started.
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
+                                        <button
+                                            onClick={() => handleUpdate(entity.id)}
+                                            className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-md hover:bg-emerald-600 transition-colors"
+                                        >
+                                            <Check className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => setEditingId(null)}
+                                            className="p-2.5 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 transition-colors"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
                                     </div>
+                                ) : (
+                                    <>
+                                        <div
+                                            className="flex-1 cursor-pointer flex items-center gap-4 w-full"
+                                            onClick={() => switchEntity(entity.id)}
+                                        >
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg ${isSelected
+                                                ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                                                : 'bg-slate-100 text-slate-500'
+                                                }`}>
+                                                {entity.type === 'PERSONAL' ? (
+                                                    <User className="w-6 h-6" />
+                                                ) : (
+                                                    <Building2 className="w-6 h-6" />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <h3 className="font-extrabold text-lg text-slate-800">
+                                                        {entity.name}
+                                                    </h3>
+                                                    {entity.type === 'PERSONAL' && (
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-200">
+                                                            {t('entities.personal') || 'Personal'}
+                                                        </span>
+                                                    )}
+                                                    {isSelected && (
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                                                            <ShieldCheck className="w-3 h-3" />
+                                                            {t('entities.active') || 'Activa'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                                                    {entity.type === 'PERSONAL' ? 'Gestión de finanzas personales y ahorro' : 'Finanzas empresariales, facturación y cuentas'}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Controls */}
+                                        <div className="flex items-center gap-2 w-full md:w-auto justify-end pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+                                            <button
+                                                onClick={() => toggleAccounts(entity.id)}
+                                                className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border ${isExpanded
+                                                    ? 'bg-primary text-white border-primary shadow-sm shadow-primary/20'
+                                                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-primary/50'
+                                                    }`}
+                                            >
+                                                <CreditCard className="w-4 h-4" />
+                                                <span>Cuentas</span>
+                                                {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                            </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    setEditingId(entity.id);
+                                                    setEditName(entity.name);
+                                                }}
+                                                className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-xl transition-colors"
+                                                title="Renombrar entidad"
+                                            >
+                                                <Pencil className="w-4 h-4" />
+                                            </button>
+
+                                            {entity.type !== 'PERSONAL' && (
+                                                <button
+                                                    onClick={() => handleDelete(entity.id)}
+                                                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                                                    title="Eliminar entidad"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </>
                                 )}
-                            </Card>
+                            </div>
+
+                            {/* Sub-Accounts Collapsible Panel */}
+                            {isExpanded && (
+                                <div className="bg-slate-50 border-t border-slate-200 p-5 sm:p-6 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                                            <CreditCard className="w-3.5 h-3.5 text-primary" />
+                                            Cuentas y Depósitos Bancarios / Efectivo
+                                        </h4>
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => setIsCreatingAccount(!isCreatingAccount)}
+                                            className="text-xs py-1.5 px-3"
+                                        >
+                                            <Plus className="w-3.5 h-3.5" />
+                                            <span>Añadir Cuenta</span>
+                                        </Button>
+                                    </div>
+
+                                    {/* Add Account Inline Form */}
+                                    {isCreatingAccount && (
+                                        <form onSubmit={handleCreateAccount} className="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                <Input
+                                                    placeholder="Nombre: ej. BBVA Principal, Caja Chica"
+                                                    value={newAccount.name}
+                                                    onChange={e => setNewAccount({ ...newAccount, name: e.target.value })}
+                                                    required
+                                                />
+                                                <select
+                                                    value={newAccount.type}
+                                                    onChange={e => setNewAccount({ ...newAccount, type: e.target.value })}
+                                                    className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-[38px] focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                                >
+                                                    <option value="BANK">Bancaria (BANK)</option>
+                                                    <option value="CASH">Efectivo / Caja (CASH)</option>
+                                                    <option value="INVESTMENT">Inversión (INVESTMENT)</option>
+                                                </select>
+                                                <div className="flex gap-2">
+                                                    <Button type="submit" className="flex-1 py-1.5 text-xs">
+                                                        Guardar
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        onClick={() => setIsCreatingAccount(false)}
+                                                        className="py-1.5 text-xs"
+                                                    >
+                                                        Cancelar
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    )}
+
+                                    {/* Accounts Grid */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        {accounts.map(acc => (
+                                            <div
+                                                key={acc.id}
+                                                className="bg-white p-3.5 rounded-xl border border-slate-200 flex items-center justify-between group shadow-sm"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                                                        {acc.type === 'CASH' ? (
+                                                            <Banknote className="w-4 h-4" />
+                                                        ) : (
+                                                            <CreditCard className="w-4 h-4" />
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-bold text-slate-800 truncate">
+                                                            {acc.name}
+                                                        </p>
+                                                        <span className="text-[10px] font-semibold text-slate-400 uppercase">
+                                                            {acc.type} • {currencySymbol}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleDeleteAccount(acc.id)}
+                                                    className="p-1.5 text-slate-300 hover:text-rose-600 transition-colors opacity-0 group-hover:opacity-100"
+                                                    title="Eliminar cuenta"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        ))}
+
+                                        {accounts.length === 0 && !isCreatingAccount && (
+                                            <div className="col-span-full py-4 text-center text-xs text-slate-400 font-medium">
+                                                No hay cuentas registradas en esta entidad.
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     );
                 })}

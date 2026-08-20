@@ -49,10 +49,16 @@
         "noExpenses": "No hay gastos en este periodo",
         "noIncome": "No hay ingresos en este periodo",
         "forecast": {
-            "title": "Proyección de Fin de Mes",
+            "title": "Proyección y Saldo Recomendado",
             "burnRate": "Gasto Medio Diario (90d)",
             "daysLeft": "Días Restantes",
-            "projectedBalance": "Saldo Proyectado"
+            "projectedBalance": "Saldo Proyectado",
+            "safetyMargin": "Margen de Seguridad",
+            "recommendedBuffer": "Colchón Recomendado",
+            "upcomingBills": "Recibos Pendientes",
+            "healthHealthy": "Saludable",
+            "healthWarning": "Ajustado",
+            "healthCritical": "En Riesgo"
         },
         "filters": {
             "thisMonth": "Este mes",
@@ -100,6 +106,7 @@
         "title": "Entidades",
         "subtitle": "Gestiona tus perfiles personales y de negocio",
         "newEntity": "Nueva Entidad",
+        "create": "Nueva Entidad",
         "personal": "Personal",
         "business": "Negocio",
         "active": "Activa",
@@ -175,6 +182,7 @@
         "title": "Gestión de Categorías",
         "subtitle": "Personaliza cómo organizas tus finanzas",
         "newCategory": "Nueva Categoría",
+        "createCategory": "Añadir Categoría",
         "form": {
             "name": "Nombre",
             "placeholder": "Ej: Netflix, Gimnasio...",
@@ -258,12 +266,15 @@
         "title": "Perfil de Usuario",
         "subtitle": "Gestiona la configuración de tu cuenta",
         "personalInfo": "Información Personal",
+        "name": "Nombre Completo",
+        "currency": "Moneda Predeterminada",
         "security": "Seguridad",
         "currentPassword": "Contraseña Actual",
         "newPassword": "Nueva Contraseña",
         "confirmPassword": "Confirmar Contraseña",
         "passwordNote": "Déjalo en blanco para mantener la contraseña actual.",
         "passwordsDoNotMatch": "Las contraseñas no coinciden",
+        "saveChanges": "Guardar Cambios",
         "success": "Perfil actualizado correctamente"
     },
     "analytics": {

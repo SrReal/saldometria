@@ -284,10 +284,10 @@ export const Analytics = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Evolution Chart */}
                 <Card className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                    <div class="flex items-center justify-between mb-8">
-                        <div class="flex items-center gap-2">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-2">
                             <ChartNoAxesColumn className="w-4 h-4 text-primary" />
-                            <h2 class="text-xl font-bold">{t('analytics.charts.monthlyEvolution')}</h2>
+                            <h2 className="text-xl font-bold">{t('analytics.charts.monthlyEvolution')}</h2>
                         </div>
                     </div>
 
@@ -372,7 +372,7 @@ export const Analytics = () => {
                             </ResponsiveContainer>
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center text-slate-400 text-sm">
-                                <span className="material-icons-round text-5xl mb-2 opacity-10">pie_chart_outline</span>
+                                <ChartPie className="w-12 h-12 mb-2 text-slate-300 stroke-1" />
                                 <p className="font-bold">{t('analytics.charts.noData')}</p>
                             </div>
                         )}

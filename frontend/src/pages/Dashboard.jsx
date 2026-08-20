@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useEntity } from '../context/EntityContext';
+import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { format, subMonths, startOfMonth, endOfMonth, startOfQuarter, endOfQuarter, startOfYear, endOfYear } from 'date-fns';
 import {
     ChevronLeft, ChevronRight, ChevronDown, TrendingUp, TrendingDown, Wallet,
-    ChartColumn, BanknoteX, TriangleAlert, OctagonX, MessageCircleWarning, BellRing
+    ChartColumn, BanknoteX, TriangleAlert, OctagonX, MessageCircleWarning, BellRing,
+    ShieldCheck, ShieldAlert, Shield
 } from 'lucide-react';
 import { es, enUS } from 'date-fns/locale';
 import api from '../api/client';
@@ -17,6 +19,7 @@ import { FullScreenLoader } from '../components/FullScreenLoader';
 
 export const Dashboard = () => {
     const { selectedEntity } = useEntity();
+    const { formatCurrency, currencySymbol, formatNumber } = useAuth();
     const { t, i18n } = useTranslation();
 
     const [filterMode, setFilterMode] = useState('MONTH');
@@ -26,6 +29,7 @@ export const Dashboard = () => {
     const [expenseData, setExpenseData] = useState([]);
     const [incomeData, setIncomeData] = useState([]);
     const [forecast, setForecast] = useState(null);
+    const [safetyMargin, setSafetyMargin] = useState(15);
     const [loading, setLoading] = useState(true);
     const [showFilterDropdown, setShowFilterDropdown] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState('THIS_MONTH');
@@ -47,7 +51,7 @@ export const Dashboard = () => {
         if (selectedEntity) {
             fetchStats();
         }
-    }, [selectedEntity, currentDate, filterMode]);
+    }, [selectedEntity, currentDate, filterMode, safetyMargin]);
 
     const getRange = () => {
         let start, end;
@@ -87,7 +91,7 @@ export const Dashboard = () => {
                 api.get('/stats/summary', { params }),
                 api.get('/stats/categories', { params: { ...params, type: 'EXPENSE' } }),
                 api.get('/stats/categories', { params: { ...params, type: 'INCOME' } }),
-                api.get('/stats/forecast', { params: { entityId: selectedEntity.id } })
+                api.get('/stats/forecast', { params: { entityId: selectedEntity.id, safetyMargin } })
             ]);
 
             console.log('Summary response:', summaryRes.data);
@@ -131,16 +135,6 @@ export const Dashboard = () => {
         else if (filterMode.startsWith('Q')) setCurrentDate(d => subMonths(d, -factor * 12));
     };
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('es-ES', {
-            style: 'currency',
-            currency: 'EUR',
-            useGrouping: true,
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(Number(amount));
-    };
-
     const getLabel = () => {
         if (filterMode === 'MONTH') return format(currentDate, 'MMMM yyyy', { locale });
         if (filterMode === 'YEAR') return format(currentDate, 'yyyy');
@@ -159,14 +153,14 @@ export const Dashboard = () => {
                             onClick={() => navigateDate('prev')}
                             className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-primary"
                         >
-                            <ChevronLeft className="material-icons-round text-lg" />
+                            <ChevronLeft className="w-5 h-5" />
                         </button>
                         <span className="px-3 text-sm font-medium capitalize">{getLabel()}</span>
                         <button
                             onClick={() => navigateDate('next')}
                             className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-primary"
                         >
-                            <ChevronRight className="material-icons-round text-lg" />
+                            <ChevronRight className="w-5 h-5" />
                         </button>
                     </div>
                     <div className="relative" data-dropdown>
@@ -225,13 +219,13 @@ export const Dashboard = () => {
                     <div className="flex justify-between items-start mb-4">
                         <span className="text-slate-500 text-sm font-medium">{t('dashboard.monthlyIncome')}</span>
                         <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
-                            <TrendingUp className="material-icons-round" />
+                            <TrendingUp className="w-5 h-5" />
                         </div>
                     </div>
                     <div className="text-3xl font-black">{formatCurrency(summary.income)}</div>
                     {summary.prevIncome > 0 && (
                         <div className={`mt-2 text-xs flex items-center gap-1 font-medium ${summary.income >= summary.prevIncome ? 'text-emerald-500' : 'text-slate-400'}`}>
-                            {summary.income >= summary.prevIncome ? <TrendingUp /> : <TrendingDown />}
+                            {summary.income >= summary.prevIncome ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                             {((Math.abs(summary.income - summary.prevIncome) / summary.prevIncome) * 100).toFixed(1)}% vs anterior
                         </div>
                     )}
@@ -241,13 +235,13 @@ export const Dashboard = () => {
                     <div className="flex justify-between items-start mb-4">
                         <span className="text-slate-500 text-sm font-medium">{t('dashboard.monthlyExpenses')}</span>
                         <div className="p-2 bg-rose-100 text-rose-600 rounded-xl">
-                            <TrendingDown className="material-icons-round" />
+                            <TrendingDown className="w-5 h-5" />
                         </div>
                     </div>
                     <div className="text-3xl font-black">{formatCurrency(summary.expense)}</div>
                     {summary.prevExpense > 0 && (
                         <div className={`mt-2 text-xs flex items-center gap-1 font-medium ${summary.expense <= summary.prevExpense ? 'text-emerald-500' : 'text-rose-500'}`}>
-                            {summary.expense <= summary.prevExpense ? <TrendingDown /> : <TrendingUp />}
+                            {summary.expense <= summary.prevExpense ? <TrendingDown className="w-3.5 h-3.5" /> : <TrendingUp className="w-3.5 h-3.5" />}
                             {((Math.abs(summary.expense - summary.prevExpense) / summary.prevExpense) * 100).toFixed(1)}% vs anterior
                         </div>
                     )}
@@ -257,7 +251,7 @@ export const Dashboard = () => {
                     <div className="flex justify-between items-start mb-4">
                         <span className="text-white/80 text-sm font-medium">{t('dashboard.totalBalance')}</span>
                         <div className="p-2 bg-white/20 rounded-lg">
-                            <Wallet className="material-icons-round" />
+                            <Wallet className="w-5 h-5" />
                         </div>
                     </div>
                     <div className="text-3xl font-bold">{forecast ? formatCurrency(forecast.currentBalance) : '...'}</div>
@@ -283,35 +277,86 @@ export const Dashboard = () => {
             {/* Projection Chart / Forecast */}
             {forecast && (
                 <Card className="bg-card-light p-8 rounded-2xl border border-slate-200 shadow-sm mb-8">
-                    <h3 className="flex items-center gap-2 font-bold text-lg mb-8 mt-2">
-                        <ChartColumn className="material-icons-round text-primary" />
-                        {t('dashboard.forecast.title')}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        <div className="space-y-1">
-                            <p className="text-sm text-slate-500">{t('dashboard.forecast.burnRate')}</p>
-                            <p className="text-2xl font-bold">{formatCurrency(forecast.dailyBurnRate)}</p>
-                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-3">
-                                <div className="bg-primary h-full transition-all" style={{ width: `${Math.min(100, (forecast.dailyBurnRate / (summary.income / 30)) * 100)}%` }}></div>
-                            </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 mt-1">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <ChartColumn className="w-5 h-5 text-primary" />
+                            <h3 className="font-bold text-lg text-slate-800">
+                                {t('dashboard.forecast.title')}
+                            </h3>
+                            {forecast.healthStatus === 'HEALTHY' && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <ShieldCheck className="w-3.5 h-3.5" />
+                                    {t('dashboard.forecast.healthHealthy')}
+                                </span>
+                            )}
+                            {forecast.healthStatus === 'WARNING' && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                    <ShieldAlert className="w-3.5 h-3.5" />
+                                    {t('dashboard.forecast.healthWarning')}
+                                </span>
+                            )}
+                            {forecast.healthStatus === 'CRITICAL' && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                    <ShieldAlert className="w-3.5 h-3.5" />
+                                    {t('dashboard.forecast.healthCritical')}
+                                </span>
+                            )}
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-sm text-slate-500">{t('dashboard.forecast.daysLeft')}</p>
-                            <p className="text-2xl font-bold">{forecast.daysLeft} días</p>
-                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-3">
-                                <div className="bg-primary h-full transition-all" style={{ width: `${Math.min(100, ((new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate() - forecast.daysLeft) / new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()) * 100)}%` }}></div>
-                            </div>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-sm text-slate-500">{t('dashboard.forecast.projectedBalance')}</p>
-                            <p className={`text-2xl font-bold ${forecast.projectedBalance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                {formatCurrency(forecast.projectedBalance)}
-                            </p>
-                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-3">
-                                <div className={`${forecast.projectedBalance >= 0 ? 'bg-emerald-500' : 'bg-rose-500'} h-full`} style={{ width: '100%' }}></div>
+
+                        {/* Safety margin selector pills */}
+                        <div className="flex items-center gap-2 self-start sm:self-auto">
+                            <span className="text-xs text-slate-500 font-medium">{t('dashboard.forecast.safetyMargin')}:</span>
+                            <div className="inline-flex rounded-lg bg-slate-100 p-0.5 text-xs font-medium">
+                                {[10, 15, 20].map((m) => (
+                                    <button
+                                        key={m}
+                                        onClick={() => setSafetyMargin(m)}
+                                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                                            safetyMargin === m
+                                                ? 'bg-white text-primary shadow-xs font-bold'
+                                                : 'text-slate-600 hover:text-slate-900'
+                                        }`}
+                                    >
+                                        +{m}%
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="space-y-1 p-4 rounded-xl bg-slate-50/70 border border-slate-100">
+                            <p className="text-xs text-slate-500 font-medium">{t('dashboard.forecast.burnRate')}</p>
+                            <p className="text-xl font-bold text-slate-800">{formatCurrency(forecast.dailyBurnRate)}</p>
+                            <p className="text-xs text-slate-400 mt-1">~{formatCurrency(forecast.monthlyEstimatedSpend)} / mes</p>
+                        </div>
+                        <div className="space-y-1 p-4 rounded-xl bg-slate-50/70 border border-slate-100">
+                            <p className="text-xs text-slate-500 font-medium">{t('dashboard.forecast.daysLeft')}</p>
+                            <p className="text-xl font-bold text-slate-800">{forecast.daysLeft} días</p>
+                            <p className="text-xs text-slate-400 mt-1">Gasto est.: {formatCurrency(forecast.projectedSpend)}</p>
+                        </div>
+                        <div className="space-y-1 p-4 rounded-xl bg-slate-50/70 border border-slate-100">
+                            <p className="text-xs text-slate-500 font-medium">{t('dashboard.forecast.projectedBalance')}</p>
+                            <p className={`text-xl font-bold ${forecast.projectedBalance >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                {formatCurrency(forecast.projectedBalance)}
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1">a fin de mes</p>
+                        </div>
+                        <div className="space-y-1 p-4 rounded-xl bg-slate-50/70 border border-slate-100">
+                            <p className="text-xs text-slate-500 font-medium">{t('dashboard.forecast.recommendedBuffer')}</p>
+                            <p className="text-xl font-bold text-primary">{formatCurrency(forecast.recommendedBuffer)}</p>
+                            <p className="text-xs text-slate-400 mt-1">colchón (+{forecast.safetyMarginPercent}%)</p>
+                        </div>
+                    </div>
+
+                    {forecast.upcomingBillsTotal > 0 && (
+                        <div className="mt-4 flex items-center justify-between px-4 py-2.5 rounded-xl bg-amber-50/60 border border-amber-200/70 text-xs text-amber-800">
+                            <span className="font-medium">
+                                🔔 {t('dashboard.forecast.upcomingBills')} ({forecast.upcomingBills?.length || 0} recibos pendientes):
+                            </span>
+                            <span className="font-bold">{formatCurrency(forecast.upcomingBillsTotal)}</span>
+                        </div>
+                    )}
                 </Card>
             )}
 
@@ -324,7 +369,7 @@ export const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <Card className="bg-card-light p-8 rounded-2xl border border-slate-200 shadow-sm">
                     <h3 className="flex items-center gap-2 font-bold text-lg mb-8">
-                        <BanknoteX className="material-icons-round text-primary" />
+                        <BanknoteX className="w-5 h-5 text-primary" />
                         {t('dashboard.topExpenses')}
                     </h3>
                     <div className="w-full space-y-3">
@@ -345,7 +390,7 @@ export const Dashboard = () => {
                         <div className="space-y-8">
                             {/* Active Alerts */}
                             <h3 className="flex items-center gap-2 font-bold text-lg mb-8">
-                                <TriangleAlert className="text-primary" />
+                                <TriangleAlert className="w-5 h-5 text-primary" />
                                 {t('dashboard.alerts.title')} ({summary.activeAlerts.length})
                             </h3>
                             <div className="w-full space-y-3">
@@ -359,13 +404,13 @@ export const Dashboard = () => {
                                         if (alert.message) return alert.message;
                                         switch (alert.type) {
                                             case 'LOW_BALANCE':
-                                                return t('dashboard.alerts.lowBalance');
+                                                 return t('dashboard.alerts.lowBalance');
                                             case 'BUDGET_EXCEEDED':
-                                                return t('dashboard.alerts.budgetExceeded');
+                                                 return t('dashboard.alerts.budgetExceeded');
                                             case 'LARGE_TRANSACTION':
-                                                return t('dashboard.alerts.largeTransaction', { amount: formatCurrency(alert.threshold) });
+                                                 return t('dashboard.alerts.largeTransaction', { amount: formatCurrency(alert.threshold) });
                                             default:
-                                                return t('dashboard.alerts.configured');
+                                                 return t('dashboard.alerts.configured');
                                         }
                                     };
                                     // Obtener contexto (cuenta o categoría)
@@ -377,7 +422,7 @@ export const Dashboard = () => {
                                     const context = getContext();
                                     return (
                                         <div key={alert.id} className="flex items-start gap-3 text-sm text-slate-600 bg-amber-50 p-3 rounded-xl">
-                                            {alert.status === 'TRIGGERED' ? <OctagonX className={`material-icons-round text-sm mt-0.5 ${alert.status === 'TRIGGERED' ? 'text-rose-500' : 'text-amber-500'}`} /> : <MessageCircleWarning className={`material-icons-round text-sm mt-0.5 ${alert.status === 'TRIGGERED' ? 'text-rose-500' : 'text-amber-500'}`} />}
+                                            {alert.status === 'TRIGGERED' ? <OctagonX className="w-4 h-4 mt-0.5 text-rose-500 flex-shrink-0" /> : <MessageCircleWarning className="w-4 h-4 mt-0.5 text-amber-500 flex-shrink-0" />}
                                             <div className="flex-1">
                                                 <div className="flex items-start justify-between gap-2">
                                                     <p className="font-medium">{getMessage()}
@@ -477,7 +522,7 @@ const CategoryChart = ({ title, data, formatCurrency, emptyMessage }) => {
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span className="text-2xl font-black tracking-tighter">{formatCurrency(totalValue).split(',')[0]}€</span>
+                            <span className="text-xl font-black tracking-tighter text-slate-800">{formatCurrency(totalValue)}</span>
                             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Total</span>
                         </div>
                     </div>

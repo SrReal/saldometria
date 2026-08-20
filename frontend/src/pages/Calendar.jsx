@@ -124,8 +124,8 @@ export const Calendar = () => {
                                 </span>
 
                                 <div className="space-y-0.5 text-[10px] text-right font-black flex flex-col items-end">
-                                    {income > 0 && <div className="text-[10px] font-bold text-emerald-500">+{Math.round(income)}€</div>}
-                                    {expense > 0 && <div className="text-[10px] font-bold text-rose-500">-{Math.round(expense)}€</div>}
+                                    {income > 0 && <div className="text-[10px] font-bold text-emerald-500">+{formatNumber(income, 0)} {currencySymbol}</div>}
+                                    {expense > 0 && <div className="text-[10px] font-bold text-rose-500">-{formatNumber(expense, 0)} {currencySymbol}</div>}
                                 </div>
 
                                 {hasRecurring && (
@@ -153,17 +153,17 @@ export const Calendar = () => {
                             {selectedDay.events.map((ev, idx) => (
                                 <div key={idx} className="p-4 flex items-center justify-between group hover:bg-slate-50 transition-colors no-select">
                                     <div className="flex items-center gap-4">
-                                        <div class={`w-10 h-10 rounded-full ${ev.type === 'INCOME' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'} flex items-center justify-center`}>
+                                        <div className={`w-10 h-10 rounded-full ${ev.type === 'INCOME' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'} flex items-center justify-center`}>
                                             {ev.type === 'INCOME' ?
-                                                <TrendingUp className="text-2xl" /> :
-                                                <TrendingDown className="text-2xl" />}
+                                                <TrendingUp className="w-5 h-5" /> :
+                                                <TrendingDown className="w-5 h-5" />}
                                         </div>
                                         <div>
                                             <p className="text-sm font-semibold text-slate-800">{ev.description}</p>
-                                            <div class="flex items-center gap-2 mt-0.5">
-                                                <span class={`text-xs text-slate-500 ${ev.status === 'PROJECTED' ? 'bg-blue-100 text-blue-600' : ''}`}>{ev.status === 'PROJECTED' ? 'Estimado' : 'Real'}</span>
-                                                <span class="text-xs text-slate-400">•</span>
-                                                <span class="text-xs text-slate-500">{ev.type === 'RECURRING_EXPENSE' ? 'Recurrente' : 'Unico'}</span>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className={`text-xs text-slate-500 ${ev.status === 'PROJECTED' ? 'bg-blue-100 text-blue-600' : ''}`}>{ev.status === 'PROJECTED' ? 'Estimado' : 'Real'}</span>
+                                                <span className="text-xs text-slate-400">•</span>
+                                                <span className="text-xs text-slate-500">{ev.type === 'RECURRING_EXPENSE' ? 'Recurrente' : 'Unico'}</span>
                                             </div>
                                         </div>
                                     </div>

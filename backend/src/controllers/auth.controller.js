@@ -4,7 +4,7 @@ const { User, Entity } = require('../models');
 
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET || 'secret_dev', {
-    expiresIn: '7d', // Long expiration for personal app
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   });
 };
 
@@ -16,7 +16,13 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ message: 'Email and password required' });
     }
 
-    const existingUser = await User.findOne({ where: { email } });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
+    const existingUser = await User.findOne({ where: { email: normalizedEmail } });
     if (existingUser) {
       return res.status(409).json({ message: 'User already exists' });
     }
@@ -25,9 +31,9 @@ exports.register = async (req, res, next) => {
 
     const newUser = await User.create(
       {
-        email,
+        email: normalizedEmail,
         passwordHash,
-        name: name || null,
+        name: name ? name.trim() : null,
         currency: currency || 'EUR',
         entities: [
           {
@@ -61,7 +67,9 @@ exports.login = async (req, res, next) => {
       return res.status(400).json({ message: 'Email and password required' });
     }
 
-    const user = await User.findOne({ where: { email } });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({ where: { email: normalizedEmail } });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -109,17 +117,20 @@ exports.updateProfile = async (req, res, next) => {
     }
 
     // Update Email
-    if (email && email !== user.email) {
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        return res.status(409).json({ message: 'Email already in use' });
+    if (email) {
+      const normalizedEmail = email.trim().toLowerCase();
+      if (normalizedEmail !== user.email) {
+        const existingUser = await User.findOne({ where: { email: normalizedEmail } });
+        if (existingUser) {
+          return res.status(409).json({ message: 'Email already in use' });
+        }
+        user.email = normalizedEmail;
       }
-      user.email = email;
     }
 
     // Update Name
     if (name !== undefined) { 
-        user.name = name;
+        user.name = name ? name.trim() : null;
     }
 
     // Update Currency
@@ -127,8 +138,11 @@ exports.updateProfile = async (req, res, next) => {
         user.currency = currency;
     }
 
-    // Update Password - No current password required as per user request
+    // Update Password
     if (newPassword) {
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'New password must be at least 6 characters long' });
+      }
       user.passwordHash = await bcrypt.hash(newPassword, 10);
     }
 

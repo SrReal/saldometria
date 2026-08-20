@@ -48,10 +48,16 @@
         "noExpenses": "No expenses in this period",
         "noIncome": "No income in this period",
         "forecast": {
-            "title": "End of Month Protection",
+            "title": "Projection & Recommended Balance",
             "burnRate": "Daily Burn Rate (90d)",
             "daysLeft": "Days Left",
-            "projectedBalance": "Projected Balance"
+            "projectedBalance": "Projected Balance",
+            "safetyMargin": "Safety Margin",
+            "recommendedBuffer": "Recommended Buffer",
+            "upcomingBills": "Upcoming Bills",
+            "healthHealthy": "Healthy",
+            "healthWarning": "Tight",
+            "healthCritical": "At Risk"
         },
         "filters": {
             "thisMonth": "This Month",
@@ -99,6 +105,7 @@
         "title": "Entities",
         "subtitle": "Manage your personal and business profiles",
         "newEntity": "New Entity",
+        "create": "New Entity",
         "personal": "Personal",
         "business": "Business",
         "active": "Active",
@@ -174,6 +181,7 @@
         "title": "Category Management",
         "subtitle": "Customize how you organize your finances",
         "newCategory": "New Category",
+        "createCategory": "Add Category",
         "form": {
             "name": "Name",
             "placeholder": "E.g. Netflix, Gym...",
@@ -261,12 +269,15 @@
         "title": "User Profile",
         "subtitle": "Manage your account settings",
         "personalInfo": "Personal Information",
+        "name": "Full Name",
+        "currency": "Default Currency",
         "security": "Security",
         "currentPassword": "Current Password",
         "newPassword": "New Password",
         "confirmPassword": "Confirm Password",
         "passwordNote": "Leave blank to keep current password.",
         "passwordsDoNotMatch": "Passwords do not match",
+        "saveChanges": "Save Changes",
         "success": "Profile updated successfully"
     },
     "analytics": {

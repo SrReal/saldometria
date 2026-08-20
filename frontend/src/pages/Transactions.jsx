@@ -255,16 +255,18 @@ export const Transactions = () => {
         <>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-6">
-                    <Button onClick={() => setIsImporting(true)} className='text-sm font-medium text-slate-500 hover:text-primary flex items-center gap-1 transition-colors'>
-                        <FileUp className="material-icons-round" />
-                        {t('transactions.import')}
+                    <Button
+                        variant="secondary"
+                        onClick={() => setIsImporting(true)}
+                    >
+                        <FileUp className="w-4 h-4" />
+                        <span>{t('transactions.import')}</span>
                     </Button>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button onClick={() => setIsCreating(true)}
-                        className='flex items-center gap-2 px-6 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all active:scale-95'>
-                        <Plus className="material-icons-round" />
-                        {t('transactions.addTransaction')}
+                    <Button onClick={() => setIsCreating(true)}>
+                        <Plus className="w-4 h-4" />
+                        <span>{t('transactions.addTransaction')}</span>
                     </Button>
                 </div>
             </div>
@@ -497,7 +499,7 @@ export const Transactions = () => {
                                             className={`flex-1 flex items-center justify-center gap-2 text-xs font-black rounded-lg transition-all ${formData.type === 'INCOME' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                                             onClick={() => setFormData({ ...formData, type: 'INCOME' })}
                                         >
-                                            <TrendingUp className="material-icons-round text-base" />
+                                            <TrendingUp className="w-4 h-4" />
                                             {t('transactions.income')}
                                         </button>
                                         <button
@@ -505,7 +507,7 @@ export const Transactions = () => {
                                             className={`flex-1 flex items-center justify-center gap-2 text-xs font-black rounded-lg transition-all ${formData.type === 'EXPENSE' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                                             onClick={() => setFormData({ ...formData, type: 'EXPENSE' })}
                                         >
-                                            <TrendingDown className="material-icons-round text-base" />
+                                            <TrendingDown className="w-4 h-4" />
                                             {t('transactions.expense')}
                                         </button>
                                     </div>
@@ -766,8 +768,8 @@ export const Transactions = () => {
                             />
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${tx.type === 'INCOME' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
                                 {tx.type === 'INCOME' ?
-                                    <TrendingUp className="material-icons-round text-2xl" /> :
-                                    <TrendingDown className="material-icons-round text-2xl" />}
+                                    <TrendingUp className="w-5 h-5" /> :
+                                    <TrendingDown className="w-5 h-5" />}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h4 className="font-semibold truncate text-slate-800">{tx.description}</h4>
@@ -792,11 +794,11 @@ export const Transactions = () => {
                         <div className="text-right flex items-center gap-6">
                             <div className="text-right">
                                 <p className={`text-lg font-bold ${tx.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                    {tx.type === 'INCOME' ? '+' : '-'}{formatCurrency(tx.amount).replace(currencySymbol, '').trim()} {currencySymbol}
+                                    {tx.type === 'INCOME' ? '+' : '-'}{formatCurrency(tx.amount)}
                                 </p>
                                 {tx.balance !== undefined && tx.balance !== null && (
                                     <p className="text-[10px] text-slate-400 font-medium">
-                                        {formatCurrency(tx.balance)}
+                                        Saldo: {formatCurrency(tx.balance)}
                                     </p>
                                 )}
                             </div>

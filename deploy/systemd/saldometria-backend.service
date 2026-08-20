@@ -1,0 +1,30 @@
+[Unit]
+Description=SaldoMetria Backend Service (Node.js Express API)
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/saldometria/backend
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node src/server.js
+Restart=always
+RestartSec=10
+
+# Hardening y Sandbox de permisos en Linux
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+# Límite de descriptores de fichero
+LimitNOFILE=65535
+
+# Logging estándar dirigido a journald
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=saldometria-backend
+
+[Install]
+WantedBy=multi-user.target

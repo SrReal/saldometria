@@ -1,19 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useEntity } from '../context/EntityContext';
 import api from '../api/client';
-import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useTranslation } from 'react-i18next';
 import { FullScreenLoader } from '../components/FullScreenLoader';
 import { BudgetManager } from '../components/BudgetManager';
 import { AlertManager } from '../components/AlertManager';
+import {
+    Settings as SettingsIcon,
+    Tag,
+    Plus,
+    Trash2,
+    Sliders,
+    Bell,
+    Check,
+    Palette
+} from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export const Settings = () => {
     const { selectedEntity } = useEntity();
     const { t } = useTranslation();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState('categories'); // 'categories', 'budgets', 'alerts'
 
     // Form
     const [newName, setNewName] = useState('');
@@ -33,6 +44,7 @@ export const Settings = () => {
             setCategories(res.data);
         } catch (error) {
             console.error('Error fetching categories', error);
+            toast.error('Error al cargar categorías');
         } finally {
             setLoading(false);
         }
@@ -40,30 +52,34 @@ export const Settings = () => {
 
     const handleCreate = async (e) => {
         e.preventDefault();
-        if (!newName) return;
+        if (!newName.trim()) return;
 
         try {
             const res = await api.post('/categories', {
                 entityId: selectedEntity.id,
-                name: newName,
+                name: newName.trim(),
                 type: newType,
                 color: newColor
             });
             setCategories([...categories, res.data]);
             setNewName('');
             setNewColor('#ff8404');
+            toast.success('Categoría creada con éxito');
         } catch (error) {
             console.error('Error creating category', error);
+            toast.error('Error al crear la categoría');
         }
     };
 
     const handleDelete = async (id) => {
-        if (!confirm(t('settings.confirm.delete'))) return;
+        if (!confirm(t('settings.confirm.delete') || '¿Deseas eliminar esta categoría?')) return;
         try {
             await api.delete(`/categories/${id}`);
             setCategories(categories.filter(c => c.id !== id));
+            toast.success('Categoría eliminada');
         } catch (error) {
             console.error('Error deleting category', error);
+            toast.error('Error al eliminar la categoría');
         }
     };
 
@@ -72,176 +88,247 @@ export const Settings = () => {
         '#06b6d4', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e', '#64748b'
     ];
 
+    const expenseCategories = categories.filter(c => c.type === 'EXPENSE');
+    const incomeCategories = categories.filter(c => c.type === 'INCOME');
+
     return (
-        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-300">
             {loading && <FullScreenLoader message="Cargando configuración..." />}
 
-            <header>
-                <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                    <span className="material-icons-round text-primary text-4xl">settings</span>
-                    {t('settings.title')}
-                </h2>
-                <p className="text-slate-500 font-bold dark:text-slate-400 mt-1">{t('settings.subtitle')}</p>
+            {/* Page Header */}
+            <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+                <div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800 flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                            <SettingsIcon className="w-6 h-6 text-primary" />
+                        </div>
+                        {t('settings.title') || 'Configuración del Entorno'}
+                    </h2>
+                    <p className="text-xs sm:text-sm font-medium text-slate-500 mt-1">
+                        {t('settings.subtitle') || 'Personaliza categorías, límites de presupuesto mensual y alertas automáticas'}
+                    </p>
+                </div>
+
+                {/* Tabs Navigation */}
+                <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button
+                        onClick={() => setActiveTab('categories')}
+                        className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'categories'
+                            ? 'bg-white text-primary shadow-sm'
+                            : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                    >
+                        <Tag className="w-3.5 h-3.5" />
+                        <span>Categorías</span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('budgets')}
+                        className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'budgets'
+                            ? 'bg-white text-primary shadow-sm'
+                            : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                    >
+                        <Sliders className="w-3.5 h-3.5" />
+                        <span>Presupuestos</span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('alerts')}
+                        className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'alerts'
+                            ? 'bg-white text-primary shadow-sm'
+                            : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                    >
+                        <Bell className="w-3.5 h-3.5" />
+                        <span>Alertas</span>
+                    </button>
+                </div>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                {/* Form Column */}
-                <Card className="lg:col-span-5 p-6 border-none shadow-sm sticky top-8">
-                    <h3 className="text-lg font-black mb-8 flex items-center gap-2">
-                        <span className="material-icons-round text-primary">add_circle</span>
-                        {t('settings.newCategory')}
-                    </h3>
+            {/* TAB: Categories */}
+            {activeTab === 'categories' && (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    {/* Create Category Form Column */}
+                    <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-7 relative overflow-hidden sticky top-6">
+                        <div className="h-1 w-full bg-gradient-to-r from-primary to-orange-500 absolute top-0 left-0"></div>
 
-                    <form onSubmit={handleCreate} className="space-y-6">
-                        <Input
-                            label={t('settings.form.name')}
-                            value={newName}
-                            onChange={(e) => setNewName(e.target.value)}
-                            placeholder={t('settings.form.placeholder')}
-                            required
-                        />
-
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('settings.form.type')}</label>
-                            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl h-11 items-stretch">
-                                <button
-                                    type="button"
-                                    onClick={() => setNewType('EXPENSE')}
-                                    className={`flex-1 flex items-center justify-center text-xs font-black rounded-lg transition-all ${newType === 'EXPENSE'
-                                        ? 'bg-white dark:bg-slate-700 text-rose-600 shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-700'
-                                        }`}
-                                >
-                                    {t('transactions.expense')}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setNewType('INCOME')}
-                                    className={`flex-1 flex items-center justify-center text-xs font-black rounded-lg transition-all ${newType === 'INCOME'
-                                        ? 'bg-white dark:bg-slate-700 text-emerald-600 shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-700'
-                                        }`}
-                                >
-                                    {t('transactions.income')}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('settings.form.color')}</label>
-                            <div className="flex flex-wrap gap-3 p-1">
-                                {colors.map(c => (
-                                    <button
-                                        key={c}
-                                        type="button"
-                                        onClick={() => setNewColor(c)}
-                                        className={`w-10 h-10 rounded-xl transition-all duration-200 outline-none hover:scale-110 ${newColor === c
-                                            ? 'ring-4 ring-primary/20 scale-110 shadow-lg'
-                                            : 'opacity-70 hover:opacity-100'
-                                            }`}
-                                        style={{ backgroundColor: c }}
-                                        title={c}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-6">
-                            <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('settings.form.preview')}</span>
-                                <span
-                                    className="px-4 py-1.5 rounded-xl text-xs font-black text-white shadow-sm transition-all"
-                                    style={{ backgroundColor: newColor }}
-                                >
-                                    {newName || t('settings.newCategory')}
-                                </span>
-                            </div>
-
-                            <Button
-                                type="submit"
-                                disabled={!newName}
-                                className="w-full h-12"
-                            >
-                                <span className="material-icons-round">add</span>
-                                {t('settings.form.create')}
-                            </Button>
-                        </div>
-                    </form>
-                </Card>
-
-                {/* Managers and Category List Column */}
-                <div className="lg:col-span-7 space-y-8">
-                    <BudgetManager />
-
-                    {selectedEntity && (
-                        <AlertManager entityId={selectedEntity.id} />
-                    )}
-
-                    {/* Expenses Categories */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-black text-rose-500 flex items-center justify-between border-b border-rose-500/10 pb-4 uppercase tracking-widest">
-                            <div className="flex items-center gap-2">
-                                <span className="material-icons-round">trending_down</span>
-                                <span>{t('settings.sections.expense')}</span>
-                            </div>
-                            <span className="text-[10px] bg-rose-100 dark:bg-rose-900/30 px-2.5 py-1 rounded-full">{categories.filter(c => c.type === 'EXPENSE').length}</span>
+                        <h3 className="text-base font-extrabold text-slate-800 mb-6 flex items-center gap-2">
+                            <Plus className="w-4 h-4 text-primary" />
+                            {t('settings.newCategory') || 'Nueva Categoría'}
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {categories.filter(c => c.type === 'EXPENSE').map(cat => (
-                                <div key={cat.id} className="group bg-white dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60 hover:border-primary/20 p-4 rounded-2xl flex items-center justify-between transition-all hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-4 h-4 rounded-full shadow-inner" style={{ backgroundColor: cat.color }} />
-                                        <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">{cat.name}</span>
-                                    </div>
+
+                        <form onSubmit={handleCreate} className="space-y-5">
+                            <Input
+                                label={t('settings.form.name') || 'Nombre de Categoría'}
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                placeholder={t('settings.form.placeholder') || 'Ej: Supermercado, Alquiler, Ventas...'}
+                                required
+                            />
+
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 ml-1">
+                                    {t('settings.form.type') || 'Tipo'}
+                                </label>
+                                <div className="flex bg-slate-100 p-1 rounded-xl h-[42px] items-stretch border border-slate-200">
                                     <button
-                                        onClick={() => handleDelete(cat.id)}
-                                        className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0"
+                                        type="button"
+                                        onClick={() => setNewType('EXPENSE')}
+                                        className={`flex-1 flex items-center justify-center text-xs font-bold rounded-lg transition-all ${newType === 'EXPENSE'
+                                            ? 'bg-white text-rose-600 shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-800'
+                                            }`}
                                     >
-                                        <span className="material-icons-round text-lg">delete</span>
+                                        {t('transactions.expense') || 'Gasto'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setNewType('INCOME')}
+                                        className={`flex-1 flex items-center justify-center text-xs font-bold rounded-lg transition-all ${newType === 'INCOME'
+                                            ? 'bg-white text-emerald-600 shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-800'
+                                            }`}
+                                    >
+                                        {t('transactions.income') || 'Ingreso'}
                                     </button>
                                 </div>
-                            ))}
-                            {categories.filter(c => c.type === 'EXPENSE').length === 0 && (
-                                <div className="col-span-full py-12 text-center text-slate-400 font-bold border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
-                                    {t('settings.sections.noExpense')}
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 ml-1">
+                                    {t('settings.form.color') || 'Color Identificativo'}
+                                </label>
+                                <div className="flex flex-wrap gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                    {colors.map((c) => (
+                                        <button
+                                            key={c}
+                                            type="button"
+                                            onClick={() => setNewColor(c)}
+                                            className="w-7 h-7 rounded-lg transition-transform hover:scale-110 flex items-center justify-center relative shadow-sm"
+                                            style={{ backgroundColor: c }}
+                                        >
+                                            {newColor === c && <Check className="w-4 h-4 text-white drop-shadow-sm" />}
+                                        </button>
+                                    ))}
+                                    <div className="w-7 h-7 rounded-lg overflow-hidden border border-slate-300 relative flex items-center justify-center cursor-pointer">
+                                        <input
+                                            type="color"
+                                            value={newColor}
+                                            onChange={(e) => setNewColor(e.target.value)}
+                                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                            title="Color personalizado"
+                                        />
+                                        <Palette className="w-4 h-4 text-slate-400 pointer-events-none" />
+                                    </div>
                                 </div>
-                            )}
-                        </div>
+                            </div>
+
+                            <Button type="submit" className="w-full shadow-md shadow-primary/20">
+                                <Plus className="w-4 h-4" />
+                                {t('settings.createCategory') || 'Añadir Categoría'}
+                            </Button>
+                        </form>
                     </div>
 
-                    {/* Income Categories */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-black text-emerald-500 flex items-center justify-between border-b border-emerald-500/10 pb-4 uppercase tracking-widest">
-                            <div className="flex items-center gap-2">
-                                <span className="material-icons-round">trending_up</span>
-                                <span>{t('settings.sections.income')}</span>
+                    {/* Categories List Column */}
+                    <div className="lg:col-span-7 space-y-6">
+                        {/* Expenses Categories */}
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                                    Categorías de Gasto ({expenseCategories.length})
+                                </h4>
                             </div>
-                            <span className="text-[10px] bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-1 rounded-full">{categories.filter(c => c.type === 'INCOME').length}</span>
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {categories.filter(c => c.type === 'INCOME').map(cat => (
-                                <div key={cat.id} className="group bg-white dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60 hover:border-primary/20 p-4 rounded-2xl flex items-center justify-between transition-all hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-4 h-4 rounded-full shadow-inner" style={{ backgroundColor: cat.color }} />
-                                        <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">{cat.name}</span>
-                                    </div>
-                                    <button
-                                        onClick={() => handleDelete(cat.id)}
-                                        className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0"
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                {expenseCategories.map((category) => (
+                                    <div
+                                        key={category.id}
+                                        className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 group hover:border-primary/40 transition-colors"
                                     >
-                                        <span className="material-icons-round text-lg">delete</span>
-                                    </button>
-                                </div>
-                            ))}
-                            {categories.filter(c => c.type === 'INCOME').length === 0 && (
-                                <div className="col-span-full py-12 text-center text-slate-400 font-bold border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
-                                    {t('settings.sections.noIncome')}
-                                </div>
-                            )}
+                                        <div className="flex items-center gap-2.5 truncate">
+                                            <span
+                                                className="w-3.5 h-3.5 rounded-full flex-shrink-0 shadow-sm"
+                                                style={{ backgroundColor: category.color }}
+                                            />
+                                            <span className="text-xs font-bold text-slate-800 truncate">
+                                                {category.name}
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDelete(category.id)}
+                                            className="p-1 text-slate-300 hover:text-rose-600 transition-colors opacity-0 group-hover:opacity-100"
+                                            title="Eliminar categoría"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                ))}
+                                {expenseCategories.length === 0 && (
+                                    <p className="col-span-full py-4 text-center text-xs text-slate-400">
+                                        No hay categorías de gasto creadas.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Income Categories */}
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    Categorías de Ingreso ({incomeCategories.length})
+                                </h4>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                {incomeCategories.map((category) => (
+                                    <div
+                                        key={category.id}
+                                        className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 group hover:border-primary/40 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-2.5 truncate">
+                                            <span
+                                                className="w-3.5 h-3.5 rounded-full flex-shrink-0 shadow-sm"
+                                                style={{ backgroundColor: category.color }}
+                                            />
+                                            <span className="text-xs font-bold text-slate-800 truncate">
+                                                {category.name}
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDelete(category.id)}
+                                            className="p-1 text-slate-300 hover:text-rose-600 transition-colors opacity-0 group-hover:opacity-100"
+                                            title="Eliminar categoría"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                ))}
+                                {incomeCategories.length === 0 && (
+                                    <p className="col-span-full py-4 text-center text-xs text-slate-400">
+                                        No hay categorías de ingreso creadas.
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
+
+            {/* TAB: Budgets */}
+            {activeTab === 'budgets' && (
+                <div className="space-y-6">
+                    <BudgetManager />
+                </div>
+            )}
+
+            {/* TAB: Alerts */}
+            {activeTab === 'alerts' && (
+                <div className="space-y-6">
+                    <AlertManager />
+                </div>
+            )}
         </div>
     );
 };

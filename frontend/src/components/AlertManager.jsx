@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react';
 import api from '../api/client';
-import { Card } from './Card';
+import { useEntity } from '../context/EntityContext';
+import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import {
+    Bell,
+    BellOff,
+    Check,
+    X,
+    AlertTriangle,
+    Info
+} from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
-export const AlertManager = ({ entityId }) => {
+export const AlertManager = ({ entityId: propEntityId }) => {
+    const { selectedEntity } = useEntity();
+    const { formatCurrency, formatNumber, currencySymbol } = useAuth();
+    const entityId = propEntityId || selectedEntity?.id;
     const { t } = useTranslation();
     const [accounts, setAccounts] = useState([]);
     const [alerts, setAlerts] = useState([]);
@@ -52,8 +65,10 @@ export const AlertManager = ({ entityId }) => {
             setEditingAccountId(null);
             setThreshold('');
             fetchData();
+            toast.success('Umbral de alerta guardado');
         } catch (error) {
             console.error('Error saving alert', error);
+            toast.error('Error al guardar alerta');
         }
     };
 
@@ -61,99 +76,141 @@ export const AlertManager = ({ entityId }) => {
         try {
             await api.patch(`/alerts/${alertId}`, { enabled: !currentStatus });
             fetchData();
+            toast.success(!currentStatus ? 'Alerta activada' : 'Alerta desactivada');
         } catch (error) {
             console.error('Error toggling alert', error);
+            toast.error('Error al cambiar estado de alerta');
         }
     };
 
     return (
         <div className="space-y-6">
-            <h3 className="text-lg font-black flex items-center gap-3 text-amber-500 uppercase tracking-tight">
-                <span className="material-icons-round">notifications_active</span>
-                Configuración de Alertas
-            </h3>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                    <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                        <Bell className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                        <h3 className="text-base font-extrabold text-slate-800">
+                            Alertas de Saldo Mínimo por Cuenta
+                        </h3>
+                        <p className="text-xs text-slate-500 font-medium">
+                            Recibe avisos inmediatos cuando el saldo bancario o efectivo caiga por debajo de tu límite de seguridad
+                        </p>
+                    </div>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {accounts.map(account => {
-                    const alertRule = alerts.find(a => a.accountId === account.id && a.type === 'LOW_BALANCE');
-                    const isEditing = editingAccountId === account.id;
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {accounts.map(account => {
+                        const alertRule = alerts.find(a => a.accountId === account.id && a.type === 'LOW_BALANCE');
+                        const isEditing = editingAccountId === account.id;
 
-                    return (
-                        <Card key={account.id} className="p-6 border-none shadow-sm hover:translate-y-[-2px] transition-all group">
-                            <div className="flex items-start justify-between mb-6">
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-colors ${alertRule?.enabled ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
-                                        <span className="material-icons-round text-2xl">
-                                            {alertRule?.enabled ? 'notifications_active' : 'notifications_off'}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-black text-slate-800 dark:text-white leading-tight">{account.name}</h4>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Saldo: {account.balance} {account.currency}</p>
-                                    </div>
-                                </div>
-                                {alertRule && (
-                                    <button
-                                        onClick={() => toggleAlert(alertRule.id, alertRule.enabled)}
-                                        className={`px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-sm ${alertRule.enabled ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}
-                                    >
-                                        {alertRule.enabled ? 'Activa' : 'Inactiva'}
-                                    </button>
-                                )}
-                            </div>
-
-                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-transparent group-hover:border-amber-500/10 transition-all">
-                                <div className="flex items-center justify-between gap-4">
-                                    <div className="flex-1">
-                                        <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest flex items-center gap-1.5 font-black">
-                                            <span className="material-icons-round text-base">settings</span>
-                                            Umbral de saldo bajo
-                                        </p>
-                                        {isEditing ? (
-                                            <input
-                                                type="number"
-                                                value={threshold}
-                                                onChange={e => setThreshold(e.target.value)}
-                                                className="w-full bg-white dark:bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-1.5 text-sm font-black focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
-                                                autoFocus
-                                            />
-                                        ) : (
-                                            <p className="text-sm font-black text-slate-700 dark:text-slate-200">
-                                                {alertRule ? `${alertRule.threshold} ${account.currency}` : 'No configurado'}
-                                            </p>
-                                        )}
-                                    </div>
-                                    {isEditing ? (
-                                        <div className="flex gap-2">
-                                            <button onClick={() => handleSaveThreshold(account.id)} className="p-2 bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/20 hover:scale-110 active:scale-95 transition-all">
-                                                <span className="material-icons-round text-lg">check</span>
-                                            </button>
-                                            <button onClick={() => setEditingAccountId(null)} className="p-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl hover:scale-110 active:scale-95 transition-all">
-                                                <span className="material-icons-round text-lg">close</span>
-                                            </button>
+                        return (
+                            <div
+                                key={account.id}
+                                className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-amber-500/30 transition-all space-y-4"
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-colors ${alertRule?.enabled
+                                            ? 'bg-amber-500/15 text-amber-600'
+                                            : 'bg-slate-200 text-slate-400'
+                                            }`}>
+                                            {alertRule?.enabled ? (
+                                                <Bell className="w-5 h-5" />
+                                            ) : (
+                                                <BellOff className="w-5 h-5" />
+                                            )}
                                         </div>
-                                    ) : (
+                                        <div>
+                                            <h4 className="font-extrabold text-sm text-slate-800 leading-tight">
+                                                {account.name}
+                                            </h4>
+                                            <p className="text-[11px] font-semibold text-slate-400 mt-0.5">
+                                                Saldo: {formatCurrency(account.balance)}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {alertRule && (
                                         <button
-                                            onClick={() => {
-                                                setEditingAccountId(account.id);
-                                                setThreshold(alertRule?.threshold || '');
-                                            }}
-                                            className="text-[10px] font-black text-primary uppercase tracking-widest hover:text-orange-400 transition-colors"
+                                            onClick={() => toggleAlert(alertRule.id, alertRule.enabled)}
+                                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm ${alertRule.enabled
+                                                ? 'bg-emerald-500 text-white shadow-emerald-500/20'
+                                                : 'bg-slate-200 text-slate-600'
+                                                }`}
                                         >
-                                            Configurar
+                                            {alertRule.enabled ? 'Activa' : 'Inactiva'}
                                         </button>
                                     )}
                                 </div>
+
+                                <div className="bg-white rounded-xl p-3 border border-slate-200">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div className="flex-1">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                                <AlertTriangle className="w-3 h-3 text-amber-500" />
+                                                Umbral de saldo crítico
+                                            </p>
+                                            {isEditing ? (
+                                                <input
+                                                    type="number"
+                                                    value={threshold}
+                                                    onChange={e => setThreshold(e.target.value)}
+                                                    className="w-full bg-slate-50 border border-amber-500/40 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                                                    autoFocus
+                                                />
+                                            ) : (
+                                                <p className="text-xs font-extrabold text-slate-800">
+                                                    {alertRule ? formatCurrency(alertRule.threshold) : 'No configurado'}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {isEditing ? (
+                                            <div className="flex gap-1.5">
+                                                <button
+                                                    onClick={() => handleSaveThreshold(account.id)}
+                                                    className="p-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+                                                >
+                                                    <Check className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => setEditingAccountId(null)}
+                                                    className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300 transition-colors"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => {
+                                                    setEditingAccountId(account.id);
+                                                    setThreshold(alertRule?.threshold || '');
+                                                }}
+                                                className="text-xs font-bold text-primary hover:text-orange-600 transition-colors px-2 py-1 rounded-lg hover:bg-primary/5"
+                                            >
+                                                Configurar
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                        </Card>
-                    );
-                })}
+                        );
+                    })}
+
+                    {accounts.length === 0 && (
+                        <div className="col-span-full py-8 text-center text-xs text-slate-400">
+                            No hay cuentas disponibles en la entidad activa para configurar alertas.
+                        </div>
+                    )}
+                </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-primary/5 border border-primary/10 rounded-2xl">
-                <span className="material-icons-round text-primary">info</span>
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Las alertas de presupuesto se configuran automáticamente desde la sección de <span className="text-primary">Presupuestos</span> (vía umbral porcentual).
+            <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/10 rounded-2xl text-xs text-slate-600 font-medium">
+                <Info className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <p>
+                    Las alertas de presupuesto por categoría se configuran automáticamente desde la pestaña <span className="font-bold text-primary">Presupuestos</span> y se disparan al superar el 80% del límite fijado.
                 </p>
             </div>
         </div>

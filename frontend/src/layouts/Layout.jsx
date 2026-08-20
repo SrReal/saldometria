@@ -77,7 +77,7 @@ export const Layout = ({ children }) => {
     };
 
     return (
-        <div className="bg-[#f8fafc]">
+        <div className="min-h-screen bg-[#f8fafc] flex">
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-slate-200 z-50 flex flex-col">
                 <div className="p-6">
@@ -97,7 +97,7 @@ export const Layout = ({ children }) => {
                                 : 'flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-all group'
                                 }`}
                         >
-                            <item.icon className={`material-icons-round ${!isActive(item.path) ? 'group-hover:text-primary' : ''}`} />
+                            <item.icon className={`w-5 h-5 flex-shrink-0 ${!isActive(item.path) ? 'group-hover:text-primary' : ''}`} />
                             {item.label}
                         </Link>
                     ))}
@@ -214,7 +214,7 @@ export const Layout = ({ children }) => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 ml-64 p-8 pb-32 relative">
+            <main className="flex-1 ml-64 p-8 pb-32 min-h-screen relative flex flex-col bg-[#f8fafc]">
                 {children}
             </main>
         </div>

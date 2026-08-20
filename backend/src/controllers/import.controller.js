@@ -115,26 +115,42 @@ exports.uploadCsv = async (req, res) => {
 
         // Update Account Balance
         // Find the transaction with the latest date that has a balance
-        // Valid for Santander: The file comes sorted? Usually yes.
-        // Let's sort finalTransactions by date descending just to be sure
         const sortedWithBalance = [...finalTransactions].filter(t => t.balance != null).sort((a, b) => new Date(b.date) - new Date(a.date));
         
         if (sortedWithBalance.length > 0) {
             const latestTx = sortedWithBalance[0];
-            // Update account
-             await Account.update({ balance: latestTx.balance }, { where: { id: accountId } });
+            await Account.update({ balance: latestTx.balance }, { where: { id: accountId } });
+        } else {
+            // Fallback: If no explicit balance column exists, update account balance by net delta of imported transactions
+            const netDelta = finalTransactions.reduce((acc, t) => {
+                const amt = parseFloat(t.amount);
+                return t.type === 'INCOME' ? acc + amt : acc - amt;
+            }, 0);
+            const currentAcc = await Account.findByPk(accountId);
+            if (currentAcc) {
+                await currentAcc.update({ balance: parseFloat(currentAcc.balance || 0) + netDelta });
+            }
         }
 
-        // Trigger Alert Checks
+        // Trigger Alert Checks & Recalculations
         const alertService = require('../services/alert.service');
-        // Check balance alert
+        const logger = require('../utils/logger');
+
+        // 1. Check account balance alert
         await alertService.checkAccountBalance(accountId);
         
-        // Check budget alerts for all unique categories in this import
+        // 2. Check budget alerts for all unique expense categories in this import
         const uniqueCatIds = [...new Set(finalTransactions.filter(t => t.categoryId && t.type === 'EXPENSE').map(t => t.categoryId))];
         for (const catId of uniqueCatIds) {
             await alertService.checkBudgetAlerts(entityId, catId);
         }
+
+        // 3. Check large transaction alerts for all imported transactions
+        for (const tx of finalTransactions) {
+            await alertService.checkLargeTransaction(tx);
+        }
+
+        logger.info(`Import completed: ${finalTransactions.length} imported, ${transactionsToCreate.length - finalTransactions.length} duplicates skipped for account ${accountId}`);
 
         // Clean up uploaded file
         if (fs.existsSync(req.file.path)) {
@@ -143,8 +159,9 @@ exports.uploadCsv = async (req, res) => {
 
         res.status(201).json({
             message: 'Import successful',
-            count: transactionsToCreate.length,
-            preview: transactionsToCreate.slice(0, 5)
+            count: finalTransactions.length,
+            duplicates: transactionsToCreate.length - finalTransactions.length,
+            preview: finalTransactions.slice(0, 5)
         });
 
     } catch (error) {
@@ -152,7 +169,8 @@ exports.uploadCsv = async (req, res) => {
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
         }
-        console.error('Import error:', error);
+        const logger = require('../utils/logger');
+        logger.error(`Import error: ${error.message}`);
         res.status(500).json({ message: 'Import failed: ' + error.message });
     }
 };

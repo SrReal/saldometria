@@ -1,11 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useEntity } from '../context/EntityContext';
 import api from '../api/client';
-import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useTranslation } from 'react-i18next';
 import { FullScreenLoader } from '../components/FullScreenLoader';
+import {
+    Sparkles,
+    Brain,
+    RotateCcw,
+    Plus,
+    Pencil,
+    Trash2,
+    Check,
+    X,
+    ArrowRight,
+    Tag,
+    ListFilter
+} from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export const Rules = () => {
     const { selectedEntity } = useEntity();
@@ -54,6 +67,7 @@ export const Rules = () => {
                 });
                 setRules(rules.map(r => r.id === editingRule.id ? res.data : r));
                 setEditingRule(null);
+                toast.success('Regla actualizada');
             } else {
                 const res = await api.post('/rules', {
                     entityId: selectedEntity.id,
@@ -61,6 +75,7 @@ export const Rules = () => {
                     categoryId: selectedCategoryId
                 });
                 setRules([res.data, ...rules]);
+                toast.success('Regla creada con éxito');
             }
 
             setPattern('');
@@ -68,6 +83,7 @@ export const Rules = () => {
             setEditingRule(null);
         } catch (error) {
             console.error('Error saving rule', error);
+            toast.error('Error al guardar la regla');
         }
     };
 
@@ -87,218 +103,267 @@ export const Rules = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm(t('rules.confirm.delete'))) return;
+        if (!confirm(t('rules.confirm.delete') || '¿Deseas eliminar esta regla?')) return;
         try {
             await api.delete(`/rules/${id}`);
             setRules(rules.filter(r => r.id !== id));
             if (editingRule?.id === id) cancelEditing();
+            toast.success('Regla eliminada');
         } catch (error) {
             console.error('Error deleting rule', error);
+            toast.error('Error al eliminar la regla');
         }
     };
 
     const handleApplyRetroactive = async () => {
-        if (!confirm(t('rules.confirm.retroactive'))) return;
+        if (!confirm(t('rules.confirm.retroactive') || '¿Deseas aplicar todas las reglas activas a los movimientos históricos?')) return;
 
         setLoading(true);
         try {
             const res = await api.post('/rules/apply', { entityId: selectedEntity.id });
-            alert(t('rules.alert.retroactiveSuccess', { count: res.data.count }));
+            toast.success(t('rules.alert.retroactiveSuccess', { count: res.data.count }) || `Reglas aplicadas a ${res.data.count} movimientos`);
         } catch (error) {
             console.error('Error applying rules', error);
-            alert(t('rules.alert.retroactiveError'));
+            toast.error(t('rules.alert.retroactiveError') || 'Error al aplicar reglas retroactivas');
         } finally {
             setLoading(false);
         }
     };
 
     const handleApplyAI = async () => {
-        if (!confirm(t('rules.confirm.ai'))) return;
+        if (!confirm(t('rules.confirm.ai') || '¿Deseas categorizar automáticamente con IA las transacciones pendientes?')) return;
 
         setLoading(true);
         try {
             const res = await api.post('/stats/ai-categorize', { entityId: selectedEntity.id });
             if (res.data.success) {
-                alert(t('rules.alert.aiSuccess', { count: res.data.count }));
+                toast.success(t('rules.alert.aiSuccess', { count: res.data.count }) || `Categorizadas ${res.data.count} transacciones con IA`);
             } else {
-                alert(t('rules.alert.aiError') + ': ' + (res.data.message || ''));
+                toast.error(res.data.message || 'Error en categorización por IA');
             }
         } catch (error) {
             console.error('Error in AI categorization', error);
-            alert(t('rules.alert.aiError'));
+            toast.error(t('rules.alert.aiError') || 'Error al conectar con el servicio de IA');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
-            {loading && <FullScreenLoader message="Cargando reglas..." />}
+        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300">
+            {loading && <FullScreenLoader message="Procesando reglas de categorización..." />}
 
-            <header className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Page Header */}
+            <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
                 <div>
-                    <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                        <span className="material-icons-round text-primary text-4xl">auto_awesome</span>
-                        {t('rules.title')}
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800 flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                            <Sparkles className="w-6 h-6 text-primary" />
+                        </div>
+                        {t('rules.title') || 'Reglas de Auto-Categorización'}
                     </h2>
-                    <p className="text-slate-500 font-bold dark:text-slate-400 mt-1">{t('rules.subtitle')}</p>
+                    <p className="text-xs sm:text-sm font-medium text-slate-500 mt-1">
+                        {t('rules.subtitle') || 'Asigna categorías automáticamente según palabras clave en la descripción bancaria'}
+                    </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                     <Button
                         onClick={handleApplyAI}
-                        variant="ghost"
-                        className="text-primary hover:bg-primary/10 border border-primary/20"
+                        variant="secondary"
                     >
-                        <span className="material-icons-round text-lg">psychology</span>
-                        {t('rules.applyAI')}
+                        <Brain className="w-4 h-4 text-primary" />
+                        <span>{t('rules.applyAI')}</span>
                     </Button>
                     <Button
                         onClick={handleApplyRetroactive}
                         variant="secondary"
                     >
-                        <span className="material-icons-round text-lg">settings_backup_restore</span>
-                        {t('rules.applyRetroactive')}
+                        <RotateCcw className="w-4 h-4" />
+                        <span>{t('rules.applyRetroactive')}</span>
                     </Button>
                 </div>
             </header>
 
-            {/* Create Rule Form */}
-            <Card className="p-8 border-none shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+            {/* Create / Edit Rule Card */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 relative overflow-hidden">
+                <div className="h-1 w-full bg-gradient-to-r from-primary to-orange-500 absolute top-0 left-0"></div>
 
-                <form onSubmit={handleCreateOrUpdate} className="flex flex-col md:flex-row gap-6 items-end">
-                    <div className="flex-1 w-full translate-y-[-2px]">
+                <h3 className="text-base font-extrabold text-slate-800 mb-6 flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-primary" />
+                    <span>{editingRule ? 'Editar Regla de Asignación' : 'Crear Nueva Regla Automática'}</span>
+                </h3>
+
+                <form onSubmit={handleCreateOrUpdate} className="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+                    {/* Pattern Input */}
+                    <div className="md:col-span-5">
                         <Input
-                            label={editingRule ? t('rules.form.editPatternLabel') : t('rules.form.patternLabel')}
+                            label={editingRule ? t('rules.form.editPatternLabel') || 'Patrón / Texto en descripción' : t('rules.form.patternLabel') || 'Si la descripción contiene'}
                             value={pattern}
                             onChange={(e) => setPattern(e.target.value)}
-                            placeholder={t('rules.form.placeholder')}
+                            placeholder={t('rules.form.placeholder') || 'Ej: Netflix, Uber, Mercadona, Nómina...'}
                             required
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1.5 translate-y-[-2px]">
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('rules.form.typeLabel')}</label>
-                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl h-11 items-stretch min-w-[200px]">
+                    {/* Type Selector Toggle */}
+                    <div className="md:col-span-3">
+                        <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 ml-1">
+                            {t('rules.form.typeLabel') || 'Tipo de Movimiento'}
+                        </label>
+                        <div className="flex bg-slate-100 p-1 rounded-xl h-[42px] items-stretch border border-slate-200">
                             <button
                                 type="button"
-                                onClick={() => setSelectedType('EXPENSE')}
-                                className={`flex-1 flex items-center justify-center text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${selectedType === 'EXPENSE'
-                                    ? 'bg-white dark:bg-slate-700 text-rose-600 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                onClick={() => { setSelectedType('EXPENSE'); setSelectedCategoryId(''); }}
+                                className={`flex-1 flex items-center justify-center text-xs font-bold rounded-lg transition-all ${selectedType === 'EXPENSE'
+                                    ? 'bg-white text-rose-600 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-800'
                                     }`}
                             >
-                                {t('transactions.expense')}
+                                {t('transactions.expense') || 'Gasto'}
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setSelectedType('INCOME')}
-                                className={`flex-1 flex items-center justify-center text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${selectedType === 'INCOME'
-                                    ? 'bg-white dark:bg-slate-700 text-emerald-600 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                onClick={() => { setSelectedType('INCOME'); setSelectedCategoryId(''); }}
+                                className={`flex-1 flex items-center justify-center text-xs font-bold rounded-lg transition-all ${selectedType === 'INCOME'
+                                    ? 'bg-white text-emerald-600 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-800'
                                     }`}
                             >
-                                {t('transactions.income')}
+                                {t('transactions.income') || 'Ingreso'}
                             </button>
                         </div>
                     </div>
 
-                    <div className="md:w-1/3 w-full translate-y-[-2px]">
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider mb-1.5 block">{t('rules.form.assignCategory')}</label>
-                        <div className="relative">
-                            <select
-                                value={selectedCategoryId}
-                                onChange={(e) => setSelectedCategoryId(e.target.value)}
-                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium shadow-sm appearance-none h-11"
-                            >
-                                <option value="">{t('rules.form.select')}</option>
-                                {categories
-                                    .filter(cat => cat.type === selectedType)
-                                    .map(cat => (
-                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                    ))}
-                            </select>
-                            <span className="material-icons-round absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-base">expand_more</span>
-                        </div>
+                    {/* Category Selector */}
+                    <div className="md:col-span-4">
+                        <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 ml-1">
+                            {t('rules.form.assignCategory') || 'Asignar a Categoría'}
+                        </label>
+                        <select
+                            value={selectedCategoryId}
+                            onChange={(e) => setSelectedCategoryId(e.target.value)}
+                            required
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all h-[42px]"
+                        >
+                            <option value="">{t('rules.form.select') || 'Seleccionar Categoría...'}</option>
+                            {categories
+                                .filter(cat => cat.type === selectedType)
+                                .map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                        </select>
                     </div>
 
-                    <div className="flex gap-2">
+                    {/* Action Buttons */}
+                    <div className="md:col-span-12 flex justify-end gap-3 pt-2">
                         {editingRule && (
                             <Button
                                 type="button"
-                                variant="ghost"
+                                variant="secondary"
                                 onClick={cancelEditing}
-                                className="h-11"
                             >
-                                {t('rules.form.cancel')}
+                                <X className="w-4 h-4" />
+                                {t('rules.form.cancel') || 'Cancelar'}
                             </Button>
                         )}
                         <Button
                             type="submit"
                             disabled={!pattern || !selectedCategoryId}
-                            className="h-11 px-8"
+                            className="shadow-md shadow-primary/20"
                         >
-                            <span className="material-icons-round">
-                                {editingRule ? 'check' : 'add'}
-                            </span>
-                            {editingRule ? t('rules.form.update') : t('rules.form.create')}
+                            {editingRule ? (
+                                <>
+                                    <Check className="w-4 h-4" />
+                                    <span>{t('rules.form.update') || 'Actualizar Regla'}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Plus className="w-4 h-4" />
+                                    <span>{t('rules.form.create') || 'Añadir Regla'}</span>
+                                </>
+                            )}
                         </Button>
                     </div>
                 </form>
-            </Card>
+            </div>
 
             {/* Rules List */}
-            <div className="grid gap-4">
+            <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        Reglas Activas ({rules.length})
+                    </h3>
+                </div>
+
                 {rules.length === 0 && !loading && (
-                    <div className="py-24 text-center bg-white dark:bg-slate-900/40 rounded-3xl border-2 border-dashed border-slate-100 dark:border-slate-800">
-                        <div className="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-200 dark:text-slate-600 mx-auto mb-6">
-                            <span className="material-icons-round text-5xl">list_alt</span>
+                    <div className="py-20 text-center bg-white rounded-2xl border border-dashed border-slate-200 p-8">
+                        <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-4">
+                            <ListFilter className="w-8 h-8 text-slate-400" />
                         </div>
-                        <p className="text-slate-500 font-bold">{t('rules.list.empty')}</p>
+                        <h3 className="text-base font-bold text-slate-800">
+                            {t('rules.list.empty') || 'No hay reglas de auto-categorización definidas'}
+                        </h3>
+                        <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+                            Crea una regla introduciendo una palabra clave para que los futuros extractos bancarios se auto-clasifiquen automáticamente.
+                        </p>
                     </div>
                 )}
 
-                {rules.map(rule => (
-                    <div key={rule.id} className="group bg-white dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60 hover:border-primary/20 p-5 rounded-2xl flex items-center justify-between transition-all hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm">
-                        <div className="flex items-center gap-6">
-                            <div className="flex flex-col">
-                                <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-1">Patrón</span>
-                                <div className="px-4 py-1.5 bg-slate-100 dark:bg-slate-800/80 rounded-xl text-xs font-black text-slate-800 dark:text-slate-100 shadow-inner">
-                                    {rule.pattern}
+                <div className="grid gap-3">
+                    {rules.map(rule => (
+                        <div
+                            key={rule.id}
+                            className="group bg-white border border-slate-200 hover:border-primary/40 p-4 sm:p-5 rounded-2xl flex items-center justify-between transition-all shadow-sm"
+                        >
+                            <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">
+                                        Patrón Detectado
+                                    </span>
+                                    <div className="px-3.5 py-1 bg-slate-100 rounded-xl text-xs font-mono font-bold text-slate-800 border border-slate-200/80">
+                                        "{rule.pattern}"
+                                    </div>
+                                </div>
+
+                                <ArrowRight className="w-4 h-4 text-slate-300 hidden sm:block" />
+
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">
+                                        Categoría Asignada
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <div
+                                            className="w-3 h-3 rounded-full shadow-sm"
+                                            style={{ backgroundColor: rule.category?.color || '#94a3b8' }}
+                                        />
+                                        <span className="font-bold text-sm text-slate-800">
+                                            {rule.category?.name || t('rules.list.deletedCategory') || 'Categoría eliminada'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <span className="material-icons-round text-slate-300">arrow_forward</span>
-
-                            <div className="flex flex-col">
-                                <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-1">Categoría</span>
-                                <div className="flex items-center gap-2.5">
-                                    <div
-                                        className="w-3.5 h-3.5 rounded-full shadow-sm ring-2 ring-white/10"
-                                        style={{ backgroundColor: rule.category?.color || '#94a3b8' }}
-                                    />
-                                    <span className="font-black text-sm text-slate-700 dark:text-slate-200">{rule.category?.name || t('rules.list.deletedCategory')}</span>
-                                </div>
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={() => startEditing(rule)}
+                                    className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-xl transition-all"
+                                    title="Editar regla"
+                                >
+                                    <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(rule.id)}
+                                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                                    title="Eliminar regla"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
                             </div>
                         </div>
-
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all">
-                            <button
-                                onClick={() => startEditing(rule)}
-                                className="p-2.5 text-slate-400 hover:text-primary hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm"
-                            >
-                                <span className="material-icons-round text-xl">edit</span>
-                            </button>
-                            <button
-                                onClick={() => handleDelete(rule.id)}
-                                className="p-2.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all shadow-sm"
-                            >
-                                <span className="material-icons-round text-xl">delete</span>
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
         </div>
     );
