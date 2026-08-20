@@ -20,7 +20,9 @@
         "confirm": "¿Estás seguro?",
         "confirmDelete": "¿Estás seguro de que quieres eliminar?",
         "type": "Tipo",
-        "selectAccount": "Seleccionar cuenta"
+        "selectAccount": "Seleccionar cuenta",
+        "close": "Cerrar",
+        "requiredFields": "Por favor, completa todos los campos requeridos"
     },
     "nav": {
         "dashboard": "Panel Principal",
@@ -79,11 +81,19 @@
         "noExpensesRecorded": "No hay gastos registrados",
         "alerts": {
             "title": "Alertas Activas",
-            "lowBalance": "Alerta de saldo bajo: umbral de {{amount}}",
+            "lowBalance": "Alerta de saldo bajo",
             "budgetExceeded": "Presupuesto excedido",
             "largeTransaction": "Alerta de transacción grande: más de {{amount}}",
             "configured": "Alerta configurada",
-            "triggered": "Disparada"
+            "triggered": "Disparada",
+            "belowThreshold": "Aviso: {{amount}}",
+            "dismiss": "Descartar",
+            "noPendingAlerts": "No hay alertas pendientes",
+            "types": {
+                "LOW_BALANCE": "Saldo Bajo",
+                "BUDGET_EXCEEDED": "Presupuesto Excedido",
+                "LARGE_TRANSACTION": "Transacción Grande"
+            }
         }
     },
     "entities": {
@@ -126,7 +136,8 @@
         "category": "Categoría",
         "uncategorized": "Sin categoría",
         "saveTransaction": "Guardar Transacción",
-        "noTransactions": "No hay transacciones. Añade una para empezar.",
+        "noTransactions": "No hay transacciones",
+        "noTransactionsHint": "Añade o importa transacciones para empezar",
         "import": "Importar Excel",
         "importModal": {
             "title": "Importar Transacciones Bancarias",
@@ -155,7 +166,8 @@
                 "success": "Acción completada en {{count}} elementos",
                 "selectAll": "Seleccionar todo",
                 "deselectAll": "Deseleccionar todo",
-                "error": "Error en acción masiva"
+                "error": "Error en acción masiva",
+                "apply": "Aplicar"
             }
         }
     },
@@ -220,7 +232,18 @@
     },
     "calendar": {
         "title": "Calendario Financiero",
-        "selectDay": "Selecciona un día"
+        "selectDay": "Selecciona un día",
+        "selectDayPrompt": "Selecciona un día para ver los detalles",
+        "dailyBalance": "Balance del día",
+        "days": [
+            "LUN",
+            "MAR",
+            "MIÉ",
+            "JUE",
+            "VIE",
+            "SÁB",
+            "DOM"
+        ]
     },
     "goals": {
         "title": "Objetivos de Ahorro",
@@ -260,7 +283,8 @@
         "kpis": {
             "totalIncome": "Ingresos Totales",
             "totalExpense": "Gastos Totales",
-            "netSavings": "Ahorro Neto"
+            "netSavings": "Ahorro Neto",
+            "savingsRatio": "Ratio de ahorro"
         },
         "charts": {
             "monthlyEvolution": "Evolución Mensual",

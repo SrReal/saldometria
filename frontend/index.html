@@ -40,6 +40,24 @@
       border-radius: 10px;
     }
   </style>
+  <style type="text/tailwindcss">
+    @layer utilities {
+            .glass-modal {
+                @apply bg-white/70  backdrop-blur-2xl border border-[#ff8404]/30;
+            }
+            .glass-input {
+                @apply bg-white/50  border-[#dde3e2]  focus:border-primary focus:ring-1 focus:ring-primary transition-all;
+            }
+            .glass-panel {
+              background: rgba(255, 255, 255, 0.8);
+              backdrop-filter: blur(12px);
+              -webkit-backdrop-filter: blur(12px);
+          }
+        }
+        :root {
+            --primary-color: #ff8404;
+        }
+    </style>
 </head>
 
 <body class="bg-background-light text-slate-900 min-h-screen transition-colors duration-200 font-sans">

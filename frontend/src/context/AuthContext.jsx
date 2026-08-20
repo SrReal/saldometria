@@ -63,12 +63,15 @@ export const AuthProvider = ({ children }) => {
 
     const formatCurrency = (amount) => {
         const symbol = user?.currency || '€';
+        const numAmount = Number(amount) || 0;
+
         return new Intl.NumberFormat('es-ES', {
             style: 'currency',
-            currency: symbol === '€' ? 'EUR' : (symbol === '$' ? 'USD' : 'EUR'), // Fallback basic mapping or just use symbol appended
-            // Actually user asked for symbol selection. Let's simplfy and just return string with symbol.
-        }).format(amount).replace('EUR', '€').replace('USD', '$');
-        // Wait, simpler approach:
+            currency: 'EUR', // Usamos EUR como base para el formato numérico (1.000,00)
+            useGrouping: true,
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(numAmount).replace('€', symbol); // Reemplazamos el símbolo por el del usuario
     };
 
     // Better simpler approach requested by user "elegir moneda" usually implies symbol.

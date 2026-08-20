@@ -44,9 +44,25 @@ body {
   min-height: 100vh;
 }
 
+.rounded-xl {
+  border-radius: 1rem;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
 .no-select {
-  -webkit-user-select: none;
+  cursor: pointer;
   -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+
+  /*
+     Introduced in Internet Explorer 10.
+     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+   */
   -ms-user-select: none;
   user-select: none;
 }

@@ -24,14 +24,29 @@ exports.createAlert = async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
+        // Create the alert with ACTIVE status by default
+        let initialStatus = 'ACTIVE';
+        let initialMessage = message;
+
+        // For LOW_BALANCE alerts, check current balance immediately
+        if (type === 'LOW_BALANCE' && accountId) {
+            const account = await Account.findByPk(accountId);
+            if (account && parseFloat(account.balance) <= parseFloat(threshold)) {
+                initialStatus = 'TRIGGERED';
+                initialMessage = `Saldo bajo en ${account.name}: ${account.balance}`;
+                logger.info(`Alert TRIGGERED on creation: Low balance on account ${accountId}`);
+            }
+        }
+
         const alert = await Alert.create({
             entityId,
             type,
             threshold,
             accountId,
-            message,
-            status: 'ACTIVE',
-            enabled: true
+            message: initialMessage,
+            status: initialStatus,
+            enabled: true,
+            lastTriggeredAt: initialStatus === 'TRIGGERED' ? new Date() : null
         });
 
         res.status(201).json(alert);

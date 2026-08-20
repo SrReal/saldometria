@@ -17,7 +17,8 @@ import {
     Sparkles,
     User,
     Bell,
-    IdCardIcon
+    IdCardIcon,
+    ChevronDown
 } from 'lucide-react';
 
 export const Layout = ({ children }) => {
@@ -27,6 +28,7 @@ export const Layout = ({ children }) => {
     const location = useLocation();
     const [alerts, setAlerts] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [showEntityDropdown, setShowEntityDropdown] = useState(false);
 
     useEffect(() => {
         if (selectedEntity) {
@@ -131,20 +133,20 @@ export const Layout = ({ children }) => {
                                     <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                                         {alerts.length === 0 ? (
                                             <div className="p-4 text-center text-xs text-slate-500 italic">
-                                                No hay alertas pendientes
+                                                {t('dashboard.alerts.noPendingAlerts')}
                                             </div>
                                         ) : (
                                             alerts.map(alert => (
                                                 <div key={alert.id} className="p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
                                                     <p className="text-xs font-bold text-amber-500 mb-1">
-                                                        {alert.type.replace(/_/g, ' ')}
+                                                        {t(`dashboard.alerts.types.${alert.type}`) || alert.type.replace(/_/g, ' ')}
                                                     </p>
                                                     <p className="text-[11px] text-slate-600 mb-2 leading-tight">{alert.message}</p>
                                                     <button
                                                         onClick={() => dismissAlert(alert.id)}
                                                         className="text-[10px] text-primary hover:underline font-bold uppercase tracking-wider"
                                                     >
-                                                        Descartar
+                                                        {t('dashboard.alerts.dismiss')}
                                                     </button>
                                                 </div>
                                             ))
@@ -155,21 +157,38 @@ export const Layout = ({ children }) => {
                         </div>
                     </div>
 
-                    {/* Entity Selector */}
-                    <div className="relative group px-2">
-                        <div className="w-full relative">
-                            <select
-                                value={selectedEntity?.id || ''}
-                                onChange={(e) => switchEntity(e.target.value)}
-                                className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none cursor-pointer text-sm font-medium text-slate-700 transition-all"
-                            >
-                                {entities.map(entity => (
-                                    <option key={entity.id} value={entity.id}>
-                                        {entity.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                    {/* Entity Selector - Custom Dropdown */}
+                    <div className="relative px-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowEntityDropdown(!showEntityDropdown)}
+                            className="w-full flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none cursor-pointer text-sm font-medium text-slate-700 transition-all hover:border-primary/50"
+                        >
+                            <span>{selectedEntity?.name || t('nav.selectEntity')}</span>
+                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${showEntityDropdown ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {showEntityDropdown && (
+                            <div className="absolute bottom-full left-2 right-2 mb-2 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden z-50">
+                                <div className="max-h-48 overflow-y-auto custom-scrollbar">
+                                    {entities.map(entity => (
+                                        <button
+                                            key={entity.id}
+                                            onClick={() => {
+                                                switchEntity(entity.id);
+                                                setShowEntityDropdown(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${selectedEntity?.id === entity.id
+                                                ? 'bg-primary/10 text-primary'
+                                                : 'text-slate-700 hover:bg-slate-50'
+                                                }`}
+                                        >
+                                            {entity.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* User Profile & Logout */}
@@ -195,7 +214,7 @@ export const Layout = ({ children }) => {
             </aside>
 
             {/* Main Content */}
-            <main className="ml-64 p-8">
+            <main className="flex-1 ml-64 p-8 pb-32 relative">
                 {children}
             </main>
         </div>

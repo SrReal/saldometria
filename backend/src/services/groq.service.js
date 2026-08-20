@@ -59,7 +59,7 @@ exports.categorizeEntityTransactions = async (entityId) => {
             
             REGLAS:
             1. Solo usa IDs de la lista de categorías proporcionada.
-            2. Si no estás seguro, usa el ID que mejor encaje.
+            2. Si no estás seguro, no asocies ninguna categoría.
             3. Ten en cuenta que el Tipo (INCOME/EXPENSE) de la transacción debe coincidir con el Tipo de la categoría si es posible.
             4. Responde ÚNICAMENTE en formato JSON puro, sin texto adicional, siguiendo esta estructura exacta:
             [

@@ -27,6 +27,19 @@ export const Dashboard = () => {
     const [incomeData, setIncomeData] = useState([]);
     const [forecast, setForecast] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+    const [selectedFilter, setSelectedFilter] = useState('THIS_MONTH');
+
+    // Cerrar dropdown al hacer clic fuera
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('[data-dropdown]')) {
+                setShowFilterDropdown(false);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
 
     const locale = i18n.language.startsWith('es') ? es : enUS;
 
@@ -89,9 +102,10 @@ export const Dashboard = () => {
         }
     };
 
-    const handleFilterChange = (e) => {
-        const val = e.target.value;
+    const handleFilterChange = (val) => {
         const now = new Date();
+        setSelectedFilter(val);
+        setShowFilterDropdown(false);
 
         if (val === 'PREV_MONTH') {
             setFilterMode('MONTH');
@@ -140,7 +154,7 @@ export const Dashboard = () => {
             {/* Header & Navigation */}
             <header className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center bg-white border border-slate-200 rounded-lg px-2 py-1">
+                    <div className="flex items-center bg-white border border-slate-200 rounded-lg">
                         <button
                             onClick={() => navigateDate('prev')}
                             className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-primary"
@@ -155,21 +169,52 @@ export const Dashboard = () => {
                             <ChevronRight className="material-icons-round text-lg" />
                         </button>
                     </div>
-                    <div className="relative">
-                        <select
-                            onChange={handleFilterChange}
-                            defaultValue="THIS_MONTH"
-                            className="appearance-none bg-none border border-slate-200 rounded-lg px-4 py-3 pr-10 focus:ring-2 focus:ring-primary focus:border-primary cursor-pointer text-sm font-medium"
+                    <div className="relative" data-dropdown>
+                        <button
+                            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                            className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all min-w-[140px] justify-between"
                         >
-                            <option value="THIS_MONTH">{t('dashboard.filters.thisMonth')}</option>
-                            <option value="PREV_MONTH">{t('dashboard.filters.prevMonth')}</option>
-                            <option value="Q1">{t('dashboard.filters.q1')}</option>
-                            <option value="Q2">{t('dashboard.filters.q2')}</option>
-                            <option value="Q3">{t('dashboard.filters.q3')}</option>
-                            <option value="Q4">{t('dashboard.filters.q4')}</option>
-                            <option value="YEAR">{t('dashboard.filters.year')}</option>
-                        </select>
-                        <ChevronDown className="material-icons-round absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-base" />
+                            <span>
+                                {selectedFilter === 'THIS_MONTH' && t('dashboard.filters.thisMonth')}
+                                {selectedFilter === 'PREV_MONTH' && t('dashboard.filters.prevMonth')}
+                                {selectedFilter === 'Q1' && t('dashboard.filters.q1')}
+                                {selectedFilter === 'Q2' && t('dashboard.filters.q2')}
+                                {selectedFilter === 'Q3' && t('dashboard.filters.q3')}
+                                {selectedFilter === 'Q4' && t('dashboard.filters.q4')}
+                                {selectedFilter === 'YEAR' && t('dashboard.filters.year')}
+                            </span>
+                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${showFilterDropdown ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {showFilterDropdown && (
+                            <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden z-50">
+                                <div className="py-1">
+                                    <button onClick={() => handleFilterChange('THIS_MONTH')} className={`w-full text-left px-4 py-2 text-sm transition-colors ${selectedFilter === 'THIS_MONTH' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                        {t('dashboard.filters.thisMonth')}
+                                    </button>
+                                    <button onClick={() => handleFilterChange('PREV_MONTH')} className={`w-full text-left px-4 py-2 text-sm transition-colors ${selectedFilter === 'PREV_MONTH' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                        {t('dashboard.filters.prevMonth')}
+                                    </button>
+                                    <div className="h-px bg-slate-100 my-1" />
+                                    <button onClick={() => handleFilterChange('Q1')} className={`w-full text-left px-4 py-2 text-sm transition-colors ${selectedFilter === 'Q1' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                        {t('dashboard.filters.q1')}
+                                    </button>
+                                    <button onClick={() => handleFilterChange('Q2')} className={`w-full text-left px-4 py-2 text-sm transition-colors ${selectedFilter === 'Q2' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                        {t('dashboard.filters.q2')}
+                                    </button>
+                                    <button onClick={() => handleFilterChange('Q3')} className={`w-full text-left px-4 py-2 text-sm transition-colors ${selectedFilter === 'Q3' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                        {t('dashboard.filters.q3')}
+                                    </button>
+                                    <button onClick={() => handleFilterChange('Q4')} className={`w-full text-left px-4 py-2 text-sm transition-colors ${selectedFilter === 'Q4' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                        {t('dashboard.filters.q4')}
+                                    </button>
+                                    <div className="h-px bg-slate-100 my-1" />
+                                    <button onClick={() => handleFilterChange('YEAR')} className={`w-full text-left px-4 py-2 text-sm transition-colors ${selectedFilter === 'YEAR' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                        {t('dashboard.filters.year')}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </header>
@@ -305,12 +350,16 @@ export const Dashboard = () => {
                             </h3>
                             <div className="w-full space-y-3">
                                 {summary.activeAlerts.slice(0, 3).map(alert => {
-                                    // Generar mensaje si no existe
+                                    // Generar mensaje si no existe o formatearlo
                                     const getMessage = () => {
+                                        // Para LOW_BALANCE, generar mensaje con saldo formateado
+                                        if (alert.type === 'LOW_BALANCE' && alert.account?.balance !== undefined) {
+                                            return `${t('dashboard.alerts.lowBalance')}: ${formatCurrency(alert.account.balance)}`;
+                                        }
                                         if (alert.message) return alert.message;
                                         switch (alert.type) {
                                             case 'LOW_BALANCE':
-                                                return t('dashboard.alerts.lowBalance', { amount: formatCurrency(alert.threshold) });
+                                                return t('dashboard.alerts.lowBalance');
                                             case 'BUDGET_EXCEEDED':
                                                 return t('dashboard.alerts.budgetExceeded');
                                             case 'LARGE_TRANSACTION':
@@ -330,17 +379,25 @@ export const Dashboard = () => {
                                         <div key={alert.id} className="flex items-start gap-3 text-sm text-slate-600 bg-amber-50 p-3 rounded-xl">
                                             {alert.status === 'TRIGGERED' ? <OctagonX className={`material-icons-round text-sm mt-0.5 ${alert.status === 'TRIGGERED' ? 'text-rose-500' : 'text-amber-500'}`} /> : <MessageCircleWarning className={`material-icons-round text-sm mt-0.5 ${alert.status === 'TRIGGERED' ? 'text-rose-500' : 'text-amber-500'}`} />}
                                             <div className="flex-1">
-                                                <div className="flex items-center justify-between gap-2">
-                                                    <p className="font-medium">{getMessage()}</p>
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <p className="font-medium">{getMessage()}
+                                                        {alert.status === 'TRIGGERED' && (
+                                                            <p className="text-rose-500 text-xs mt-1 flex items-center gap-1"><BellRing className="w-3 h-3" /> {t('dashboard.alerts.triggered')}</p>
+                                                        )}
+                                                    </p>
                                                     {context && (
-                                                        <span className={`text-sm ${alert.status === 'TRIGGERED' ? 'bg-rose-500' : 'bg-amber-500'} text-white px-2 py-0.5 rounded-full`}>
-                                                            {context}
-                                                        </span>
+                                                        <div className="text-right">
+                                                            <span className={`text-sm ${alert.status === 'TRIGGERED' ? 'bg-rose-500' : 'bg-amber-500'} text-white px-2 py-0.5 rounded-full`}>
+                                                                {context}
+                                                            </span>
+                                                            {alert.type === 'LOW_BALANCE' && alert.threshold && (
+                                                                <p className="text-[10px] text-slate-400 mt-1">
+                                                                    {t('dashboard.alerts.belowThreshold', { amount: formatCurrency(alert.threshold) })}
+                                                                </p>
+                                                            )}
+                                                        </div>
                                                     )}
                                                 </div>
-                                                {alert.status !== 'TRIGGERED' && (
-                                                    <p className="text-rose-500 text-xs mt-1 flex items-center gap-1"><BellRing className="w-3 h-3" /> {t('dashboard.alerts.triggered')}</p>
-                                                )}
                                             </div>
                                         </div>
                                     );

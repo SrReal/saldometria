@@ -20,7 +20,9 @@
         "confirm": "Are you sure?",
         "confirmDelete": "Are you sure you want to delete?",
         "type": "Type",
-        "selectAccount": "Select account"
+        "selectAccount": "Select account",
+        "close": "Close",
+        "requiredFields": "Please fill in all required fields"
     },
     "nav": {
         "dashboard": "Dashboard",
@@ -78,11 +80,19 @@
         "noExpensesRecorded": "No expenses recorded",
         "alerts": {
             "title": "Active Alerts",
-            "lowBalance": "Low balance alert: threshold of {{amount}}",
+            "lowBalance": "Low balance alert",
             "budgetExceeded": "Budget exceeded",
             "largeTransaction": "Large transaction alert: over {{amount}}",
             "configured": "Alert configured",
-            "triggered": "Triggered"
+            "triggered": "Triggered",
+            "belowThreshold": "Threshold: {{amount}}",
+            "dismiss": "Dismiss",
+            "noPendingAlerts": "No pending alerts",
+            "types": {
+                "LOW_BALANCE": "Low Balance",
+                "BUDGET_EXCEEDED": "Budget Exceeded",
+                "LARGE_TRANSACTION": "Large Transaction"
+            }
         }
     },
     "entities": {
@@ -125,7 +135,8 @@
         "category": "Category",
         "uncategorized": "Uncategorized",
         "saveTransaction": "Save Transaction",
-        "noTransactions": "No transactions found. Add one to get started.",
+        "noTransactions": "No transactions found",
+        "noTransactionsHint": "Add or import transactions to get started",
         "import": "Import Excel",
         "importModal": {
             "title": "Import Bank Transactions",
@@ -154,7 +165,8 @@
                 "success": "Action completed on {{count}} items",
                 "selectAll": "Select All",
                 "deselectAll": "Deselect All",
-                "error": "Bulk action error"
+                "error": "Bulk action error",
+                "apply": "Apply"
             }
         }
     },
@@ -223,7 +235,18 @@
     },
     "calendar": {
         "title": "Financial Calendar",
-        "selectDay": "Select a day"
+        "selectDay": "Select a day",
+        "selectDayPrompt": "Select a day to view details",
+        "dailyBalance": "Daily Balance",
+        "days": [
+            "MON",
+            "TUE",
+            "WED",
+            "THU",
+            "FRI",
+            "SAT",
+            "SUN"
+        ]
     },
     "goals": {
         "title": "Savings Goals",
@@ -263,7 +286,8 @@
         "kpis": {
             "totalIncome": "Total Income",
             "totalExpense": "Total Expenses",
-            "netSavings": "Net Savings"
+            "netSavings": "Net Savings",
+            "savingsRatio": "Savings Ratio"
         },
         "charts": {
             "monthlyEvolution": "Monthly Evolution",

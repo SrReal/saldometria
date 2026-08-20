@@ -82,18 +82,45 @@ exports.getSummary = async (req, res) => {
         const prevTotals = calculateTotals(prevTransactions);
 
         // Fetch Active Alerts (configured or triggered) with related data
-        const activeAlerts = await Alert.findAll({
+        const alerts = await Alert.findAll({
             where: { 
                 entityId, 
                 status: { [Op.in]: ['ACTIVE', 'TRIGGERED'] },
                 enabled: true
             },
             include: [
-                { model: require('../models').Account, as: 'account', attributes: ['name'] },
+                { model: require('../models').Account, as: 'account', attributes: ['id', 'name', 'balance'] },
                 { model: require('../models').Category, as: 'category', attributes: ['name'] }
             ],
             limit: 5
         });
+
+        // Evaluate LOW_BALANCE alerts dynamically based on current account balance
+        const activeAlerts = [];
+        for (const alert of alerts) {
+            if (alert.type === 'LOW_BALANCE' && alert.account) {
+                const currentBalance = parseFloat(alert.account.balance);
+                const threshold = parseFloat(alert.threshold);
+                
+                if (currentBalance <= threshold && alert.status !== 'TRIGGERED') {
+                    // Should be triggered - update and add
+                    await alert.update({
+                        status: 'TRIGGERED',
+                        message: `Saldo bajo en ${alert.account.name}: ${currentBalance.toFixed(2)}`,
+                        lastTriggeredAt: new Date()
+                    });
+                    alert.status = 'TRIGGERED';
+                } else if (currentBalance > threshold && alert.status === 'TRIGGERED') {
+                    // Condition no longer met - reset to ACTIVE
+                    await alert.update({
+                        status: 'ACTIVE',
+                        message: null
+                    });
+                    alert.status = 'ACTIVE';
+                }
+            }
+            activeAlerts.push(alert);
+        }
 
         res.json({
             income: currentTotals.income,

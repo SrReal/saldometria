@@ -2,14 +2,17 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { useEntity } from '../context/EntityContext';
+import { useAuth } from '../context/AuthContext';
 import { Card } from '../components/Card';
 import { FullScreenLoader } from '../components/FullScreenLoader';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameDay, getDay } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
+import { ChevronLeft, ChevronRight, CalendarIcon, TrendingUp, TrendingDown } from 'lucide-react';
 
 export const Calendar = () => {
     const { t, i18n } = useTranslation();
     const { selectedEntity } = useEntity();
+    const { formatCurrency } = useAuth();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -43,10 +46,6 @@ export const Calendar = () => {
         setCurrentDate(prev => dir === 'next' ? addMonths(prev, 1) : subMonths(prev, 1));
     };
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'EUR' }).format(amount);
-    };
-
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
     const startDayOfWeek = getDay(monthStart);
@@ -71,126 +70,136 @@ export const Calendar = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+        <div className="flex-1 overflow-y-auto space-y-6">
             {loading && <FullScreenLoader message="Cargando calendario..." />}
 
             {/* Header Area */}
-            <header className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div>
-                    <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                        <span className="material-icons-round text-primary text-4xl">calendar_month</span>
-                        {t('calendar.title') || 'Calendario Financiero'}
+            <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-slate-800 capitalize tracking-wide">{format(currentDate, 'MMMM yyyy', { locale })}
                     </h2>
-                    <p className="text-slate-500 font-bold dark:text-slate-400 mt-1 capitalize">{format(currentDate, 'MMMM yyyy', { locale })}</p>
                 </div>
-
-                <div className="flex bg-slate-100 dark:bg-slate-800 rounded-2xl p-1.5 shadow-sm">
-                    <button
-                        onClick={() => navigateMonth('prev')}
-                        className="p-2.5 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all text-slate-600 dark:text-slate-300 active:scale-95"
-                    >
-                        <span className="material-icons-round">chevron_left</span>
+                <div class="flex items-center gap-1">
+                    <button class="p-2 hover:bg-slate-100 rounded-full text-primary flex items-center justify-center transition-all"
+                        onClick={() => navigateMonth('prev')}>
+                        <ChevronLeft />
                     </button>
-                    <button
-                        onClick={() => navigateMonth('next')}
-                        className="p-2.5 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all text-slate-600 dark:text-slate-300 active:scale-95"
-                    >
-                        <span className="material-icons-round">chevron_right</span>
+                    <button class="p-2 hover:bg-slate-100 rounded-full text-primary flex items-center justify-center transition-all"
+                        onClick={() => navigateMonth('next')}>
+                        <ChevronRight />
                     </button>
                 </div>
-            </header>
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 {/* Calendar Card */}
-                <Card className="lg:col-span-3 p-6 shadow-sm border-none">
-                    <div className="grid grid-cols-7 mb-6 text-center">
-                        {['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'].map(d => (
-                            <div key={d} className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{d}</div>
-                        ))}
-                    </div>
+                <div className="calendar-grid border-b border-slate-200 bg-slate-50">
+                    {(t('calendar.days', { returnObjects: true }) || ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM']).map(d => (
+                        <div key={d} className="py-3 text-center text-xs font-bold text-slate-400">{d}</div>
+                    ))}
+                </div>
 
-                    <div className="grid grid-cols-7 gap-3">
-                        {blanks.map(i => (
-                            <div key={`blank-${i}`} className="aspect-square bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl opacity-30" />
-                        ))}
+                <div className="calendar-grid min-h-[500px]">
+                    {blanks.map(i => (
+                        <div key={`blank-${i}`} className="p-2 border-r border-b border-slate-100 bg-slate-50/30" />
+                    ))}
 
-                        {daysInMonth.map(day => {
-                            const dayEvents = getEventsForDay(day);
-                            const income = dayEvents.filter(e => e.type === 'INCOME').reduce((sum, e) => sum + e.amount, 0);
-                            const expense = dayEvents.filter(e => e.type !== 'INCOME').reduce((sum, e) => sum + e.amount, 0);
-                            const hasRecurring = dayEvents.some(e => e.type === 'RECURRING_EXPENSE');
-                            const isToday = isSameDay(new Date(), new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
-                            const isSelected = selectedDay && selectedDay.day === day;
+                    {daysInMonth.map(day => {
+                        const dayEvents = getEventsForDay(day);
+                        const income = dayEvents.filter(e => e.type === 'INCOME').reduce((sum, e) => sum + e.amount, 0);
+                        const expense = dayEvents.filter(e => e.type !== 'INCOME').reduce((sum, e) => sum + e.amount, 0);
+                        const hasRecurring = dayEvents.some(e => e.type === 'RECURRING_EXPENSE');
+                        const isToday = isSameDay(new Date(), new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
+                        const isSelected = selectedDay && selectedDay.day === day;
 
-                            return (
-                                <div
-                                    key={day}
-                                    onClick={() => handleDayClick(day)}
-                                    className={`
-                                        aspect-square p-3 rounded-2xl transition-all cursor-pointer relative group flex flex-col justify-between border-2
-                                        ${isSelected ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-slate-50/30 dark:bg-slate-800/30'}
-                                        ${isToday ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
-                                    `}
-                                >
-                                    <span className={`text-sm font-black ${isToday ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}`}>
-                                        {day}
-                                    </span>
+                        return (
+                            <div
+                                key={day}
+                                onClick={() => handleDayClick(day)}
+                                className={`p-2 ${isToday ? 'border border-primary hover:bg-slate-50 bg-slate-50/30' :
+                                    isSelected ? 'border border-primary bg-primary/5' : 'border-r border-b border-slate-100 min-h-[100px] hover:bg-slate-50 bg-slate-50/30'}`}
+                            >
+                                <span className={`text-xs font-medium ${isToday ? 'text-primary' : 'text-slate-500'}`}>
+                                    {day}
+                                </span>
 
-                                    <div className="space-y-0.5 text-[10px] text-right font-black flex flex-col items-end">
-                                        {income > 0 && <div className="text-emerald-500">+{Math.round(income)}€</div>}
-                                        {expense > 0 && <div className="text-rose-500">-{Math.round(expense)}€</div>}
-                                    </div>
-
-                                    {hasRecurring && (
-                                        <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-primary shadow-lg shadow-primary/50" />
-                                    )}
+                                <div className="space-y-0.5 text-[10px] text-right font-black flex flex-col items-end">
+                                    {income > 0 && <div className="text-[10px] font-bold text-emerald-500">+{Math.round(income)}€</div>}
+                                    {expense > 0 && <div className="text-[10px] font-bold text-rose-500">-{Math.round(expense)}€</div>}
                                 </div>
-                            );
-                        })}
-                    </div>
-                </Card>
 
-                {/* Sidebar Details */}
-                <Card className="lg:col-span-1 p-6 border-none shadow-sm flex flex-col h-fit">
-                    <h3 className="text-sm font-black mb-8 border-b border-primary/10 pb-4 uppercase tracking-wider text-slate-500">
+                                {hasRecurring && (
+                                    <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-primary shadow-lg shadow-primary/50" />
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Sidebar Details */}
+            <Card className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="p-6 border-b border-slate-200 bg-slate-50/50">
+                    <h3 className="text-lg font-bold text-slate-800 capitalize">
                         {selectedDay
                             ? format(new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDay.day), 'EEEE d MMM', { locale })
                             : t('calendar.selectDay') || 'Detalles del día'}
                     </h3>
+                </div>
 
-                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                        {selectedDay ? (
-                            selectedDay.events.map((ev, idx) => (
-                                <div key={idx} className="flex flex-col p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-transparent hover:border-primary/20 transition-all hover:translate-x-1">
-                                    <div className="flex justify-between items-start gap-4">
-                                        <span className="text-xs font-black text-slate-800 dark:text-slate-100 line-clamp-2">{ev.description}</span>
-                                        <span className={`text-sm font-black whitespace-nowrap ${ev.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                <div className="divide-y divide-slate-100">
+                    {selectedDay ?
+                        (<>
+                            {selectedDay.events.map((ev, idx) => (
+                                <div key={idx} className="p-4 flex items-center justify-between group hover:bg-slate-50 transition-colors no-select">
+                                    <div className="flex items-center gap-4">
+                                        <div class={`w-10 h-10 rounded-full ${ev.type === 'INCOME' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'} flex items-center justify-center`}>
+                                            {ev.type === 'INCOME' ?
+                                                <TrendingUp className="text-2xl" /> :
+                                                <TrendingDown className="text-2xl" />}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-slate-800">{ev.description}</p>
+                                            <div class="flex items-center gap-2 mt-0.5">
+                                                <span class={`text-xs text-slate-500 ${ev.status === 'PROJECTED' ? 'bg-blue-100 text-blue-600' : ''}`}>{ev.status === 'PROJECTED' ? 'Estimado' : 'Real'}</span>
+                                                <span class="text-xs text-slate-400">•</span>
+                                                <span class="text-xs text-slate-500">{ev.type === 'RECURRING_EXPENSE' ? 'Recurrente' : 'Unico'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className={`text-sm font-bold ${ev.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
                                             {ev.type === 'INCOME' ? '+' : '-'}{formatCurrency(ev.amount)}
                                         </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-3">
-                                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider shadow-sm
-                                            ${ev.status === 'PROJECTED' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'}
-                                        `}>
-                                            {ev.status === 'PROJECTED' ? 'Estimado' : 'Real'}
-                                        </span>
-                                        {ev.type === 'RECURRING_EXPENSE' && (
-                                            <span className="text-[9px] font-black bg-primary/10 text-primary px-2 py-0.5 rounded-lg uppercase tracking-wider shadow-sm border border-primary/5">Recurrente</span>
-                                        )}
+
                                     </div>
                                 </div>
-                            ))
-                        ) : (
+                            ))}
+                            <div className="p-4 bg-slate-50/30 flex justify-end">
+                                <div className="text-right">
+                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{t('calendar.dailyBalance')}</p>
+                                    {(() => {
+                                        const income = selectedDay.events.filter(e => e.type === 'INCOME').reduce((sum, e) => sum + e.amount, 0);
+                                        const expense = selectedDay.events.filter(e => e.type !== 'INCOME').reduce((sum, e) => sum + e.amount, 0);
+                                        const balance = income - expense;
+                                        return (
+                                            <p className={`text-lg font-bold ${balance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                {balance > 0 ? '+' : ''}{formatCurrency(balance)}
+                                            </p>
+                                        );
+                                    })()}
+                                </div>
+                            </div>
+                        </>) : (
                             <div className="text-center py-20 flex flex-col items-center">
-                                <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-200 dark:text-slate-700 mb-4 ring-8 ring-slate-50/50 dark:ring-slate-800/50">
-                                    <span className="material-icons-round text-4xl">event_note</span>
+                                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white mb-4 ring-8 ring-primary/50">
+                                    <CalendarIcon className="text-4xl" />
                                 </div>
-                                <p className="text-slate-400 font-bold text-xs">{t('calendar.selectDayPrompt') || 'Selecciona un día para ver los detalles'}</p>
+                                <p className="text-slate-400 font-bold text-sm">{t('calendar.selectDayPrompt') || 'Selecciona un día para ver los detalles'}</p>
                             </div>
                         )}
-                    </div>
-                </Card>
-            </div>
+                </div>
+            </Card>
         </div>
     );
 };

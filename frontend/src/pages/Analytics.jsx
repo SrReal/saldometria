@@ -18,6 +18,7 @@ import {
     Pie,
     Cell
 } from 'recharts';
+import { ChevronDown, ArrowUp, ArrowDown, ChartNoAxesColumn, ChartPie } from 'lucide-react';
 
 const COLORS = ['#ff8404', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1'];
 
@@ -35,6 +36,18 @@ export const Analytics = () => {
     const [customFrom, setCustomFrom] = useState('');
     const [customTo, setCustomTo] = useState('');
     const [selectedAccounts, setSelectedAccounts] = useState([]);
+    const [showDateDropdown, setShowDateDropdown] = useState(false);
+
+    // Cerrar dropdown al hacer clic fuera
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('[data-dropdown]')) {
+                setShowDateDropdown(false);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
 
 
     useEffect(() => {
@@ -106,69 +119,116 @@ export const Analytics = () => {
     const kpiSavings = kpiTotalIncome - kpiTotalExpense;
     const kpiSavingsRate = kpiTotalIncome > 0 ? (kpiSavings / kpiTotalIncome) * 100 : 0;
 
+    const calculateTrend = (data, key) => {
+        if (data.length < 2) return { value: 0, direction: 'neutral' };
+        const last = data[data.length - 1][key];
+        const prev = data[data.length - 2][key];
+
+        if (prev === 0) {
+            if (last === 0) return { value: 0, direction: 'neutral' };
+            return { value: 100, direction: 'up', isPositive: true };
+        }
+
+        const diff = ((last - prev) / prev) * 100;
+        return {
+            value: Math.abs(diff).toFixed(1),
+            direction: diff > 0 ? 'down' : diff < 0 ? 'up' : 'neutral',
+            isPositive: diff > 0
+        };
+    };
+
+    const incomeTrend = calculateTrend(evolutionData, 'income');
+    const expenseTrend = calculateTrend(evolutionData, 'expense');
+
     return (
-        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+        <div>
             {loading && <FullScreenLoader />}
 
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                        <span className="material-icons-round text-primary text-4xl">trending_up</span>
-                        {t('analytics.title') || 'Análisis Financiero'}
-                    </h2>
-                    <p className="text-slate-500 font-bold dark:text-slate-400 mt-1">{t('analytics.subtitle') || 'Visión detallada de tu evolución'}</p>
-                </div>
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
+                <p className="text-slate-500 mt-1">{t('analytics.subtitle') || 'Visión detallada de tu evolución'}.</p>
             </header>
 
             {/* Filters Cards */}
-            <Card className="border-primary/10">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-2">
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('analytics.filters.dateRange') || 'Rango de Fechas'}</label>
-                        <div className="relative">
-                            <select
-                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium appearance-none"
-                                value={dateRange}
-                                onChange={(e) => setDateRange(e.target.value)}
+            <Card className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{t('analytics.filters.dateRange') || 'Rango de Fechas'}</label>
+                        <div className="relative" data-dropdown>
+                            <button
+                                onClick={() => setShowDateDropdown(!showDateDropdown)}
+                                className="w-full flex items-center justify-between bg-slate-50 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-700 transition-all"
                             >
-                                <option value="year">Este Año</option>
-                                <option value="6months">Últimos 6 Meses</option>
-                                <option value="all">Todo el historial</option>
-                                <option value="custom">Personalizado</option>
-                            </select>
-                            <span className="material-icons-round absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-base">expand_more</span>
+                                <span>
+                                    {dateRange === 'year' && t('analytics.filters.thisYear')}
+                                    {dateRange === '6months' && t('analytics.filters.last6Months')}
+                                    {dateRange === 'all' && t('analytics.filters.allHistory')}
+                                    {dateRange === 'custom' && t('analytics.filters.custom')}
+                                </span>
+                                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${showDateDropdown ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {showDateDropdown && (
+                                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50">
+                                    <div className="py-1">
+                                        <button
+                                            onClick={() => { setDateRange('year'); setShowDateDropdown(false); }}
+                                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${dateRange === 'year' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}
+                                        >
+                                            {t('analytics.filters.thisYear')}
+                                        </button>
+                                        <button
+                                            onClick={() => { setDateRange('6months'); setShowDateDropdown(false); }}
+                                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${dateRange === '6months' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}
+                                        >
+                                            {t('analytics.filters.last6Months')}
+                                        </button>
+                                        <button
+                                            onClick={() => { setDateRange('all'); setShowDateDropdown(false); }}
+                                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${dateRange === 'all' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}
+                                        >
+                                            {t('analytics.filters.allHistory')}
+                                        </button>
+                                        <button
+                                            onClick={() => { setDateRange('custom'); setShowDateDropdown(false); }}
+                                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${dateRange === 'custom' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'}`}
+                                        >
+                                            {t('analytics.filters.custom')}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     {dateRange === 'custom' && (
-                        <>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">Desde</label>
+                        <div className="flex gap-4 col-span-2">
+                            <div className="flex-1">
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Desde</label>
                                 <input
                                     type="date"
-                                    className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium"
+                                    className="w-full bg-slate-50 border-none rounded-lg focus:ring-2 py-2.5 focus:ring-primary text-sm"
                                     value={customFrom}
                                     onChange={e => setCustomFrom(e.target.value)}
                                 />
                             </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">Hasta</label>
+                            <div className="flex-1">
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Hasta</label>
                                 <input
                                     type="date"
-                                    className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all dark:text-white font-medium"
+                                    className="w-full bg-slate-50 border-none rounded-lg focus:ring-2 py-2.5 focus:ring-primary text-sm"
                                     value={customTo}
                                     onChange={e => setCustomTo(e.target.value)}
                                 />
                             </div>
-                        </>
+                        </div>
                     )}
 
-                    <div className={dateRange === 'custom' ? "md:col-span-1" : "md:col-span-3"}>
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1 uppercase tracking-wider">{t('analytics.filters.accounts')}</label>
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{t('analytics.filters.accounts')}</label>
                         <div className="flex flex-wrap gap-2 mt-1.5">
                             <button
                                 onClick={() => setSelectedAccounts([])}
-                                className={`px-4 py-1.5 text-xs font-black rounded-xl transition-all ${selectedAccounts.length === 0 ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary'}`}
+                                className={`px-4 py-1.5 text-xs font-black rounded-xl transition-all ${selectedAccounts.length === 0 ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500 hover:text-primary'}`}
                             >
                                 {t('analytics.filters.allAccounts')}
                             </button>
@@ -176,7 +236,7 @@ export const Analytics = () => {
                                 <button
                                     key={acc.id}
                                     onClick={() => toggleAccount(acc.id)}
-                                    className={`px-4 py-1.5 text-xs font-black rounded-xl transition-all ${selectedAccounts.includes(acc.id) ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary'}`}
+                                    className={`px-4 py-1.5 text-xs font-black rounded-xl transition-all ${selectedAccounts.includes(acc.id) ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500 hover:text-primary'}`}
                                 >
                                     {acc.name}
                                 </button>
@@ -188,45 +248,49 @@ export const Analytics = () => {
 
             {/* KPIs Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="p-6 border-none shadow-sm">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-xl">
-                            <span className="material-icons-round">trending_up</span>
-                        </div>
-                        <span className="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider">{t('analytics.kpis.totalIncome')}</span>
+                <Card className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">{t('analytics.kpis.totalIncome')}</p>
+                    <div className="mt-4 flex items-end gap-2">
+                        <span className="text-3xl font-bold text-emerald-500">{formatCurrency(kpiTotalIncome)}</span>
+                        {incomeTrend.direction !== 'neutral' && (
+                            <span className={`text-xs font-bold px-2 py-1 rounded-md mb-1.5 flex items-center gap-1 ${incomeTrend.direction === 'up' ? 'text-emerald-700 bg-emerald-100' : 'text-rose-700 bg-rose-100'}`}>
+                                {incomeTrend.direction === 'up' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                                {incomeTrend.value}%
+                            </span>
+                        )}
                     </div>
-                    <p className="text-3xl font-black text-slate-900 dark:text-white">{formatCurrency(kpiTotalIncome)}</p>
                 </Card>
-                <Card className="p-6 border-none shadow-sm">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-2.5 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-xl">
-                            <span className="material-icons-round">trending_down</span>
-                        </div>
-                        <span className="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider">{t('analytics.kpis.totalExpense')}</span>
+                <Card className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">{t('analytics.kpis.totalExpense')}</p>
+                    <div className="mt-4 flex items-end gap-2">
+                        <span className="text-3xl font-bold text-rose-500">{formatCurrency(kpiTotalExpense)}</span>
+                        {expenseTrend.direction !== 'neutral' && (
+                            <span className={`text-xs font-bold px-2 py-1 rounded-md mb-1.5 flex items-center gap-1 ${expenseTrend.direction === 'down' ? 'text-emerald-700 bg-emerald-100' : 'text-rose-700 bg-rose-100'}`}>
+                                {expenseTrend.direction === 'up' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                                {expenseTrend.value}%
+                            </span>
+                        )}
                     </div>
-                    <p className="text-3xl font-black text-slate-900 dark:text-white">{formatCurrency(kpiTotalExpense)}</p>
                 </Card>
-                <Card className="p-6 bg-primary border-none shadow-xl shadow-primary/20">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-2.5 bg-white/20 text-white rounded-xl">
-                            <span className="material-icons-round">savings</span>
-                        </div>
-                        <span className="text-white/80 text-sm font-bold uppercase tracking-wider">{t('analytics.kpis.netSavings')}</span>
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                        <p className="text-3xl font-black text-white">{formatCurrency(kpiSavings)}</p>
-                        <span className="text-sm font-black text-white/70">({kpiSavingsRate.toFixed(1)}%)</span>
+                <Card className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">{t('analytics.kpis.netSavings')}</p>
+                    <div className="mt-4 flex flex-col gap-1">
+                        <span className="text-3xl font-bold text-primary">{formatCurrency(kpiSavings)}</span>
+                        <span className="text-sm font-medium text-slate-400">{t('analytics.kpis.savingsRatio')}: <span className="text-primary font-bold">{kpiSavingsRate.toFixed(1)}%</span></span>
                     </div>
                 </Card>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Evolution Chart */}
-                <Card className="lg:col-span-2 p-8 shadow-sm">
-                    <h3 className="text-lg font-black mb-8 flex items-center gap-2">
-                        <span className="material-icons-round text-primary">bar_chart</span>
-                        {t('analytics.charts.monthlyEvolution')}
-                    </h3>
+                <Card className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-2">
+                            <ChartNoAxesColumn className="w-4 h-4 text-primary" />
+                            <h2 class="text-xl font-bold">{t('analytics.charts.monthlyEvolution')}</h2>
+                        </div>
+                    </div>
+
                     <div className="h-[350px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={evolutionData}>
@@ -268,11 +332,11 @@ export const Analytics = () => {
                 </Card>
 
                 {/* Categories Chart */}
-                <Card className="p-8 shadow-sm flex flex-col">
-                    <h3 className="text-lg font-black mb-8 flex items-center gap-2">
-                        <span className="material-icons-round text-primary">pie_chart</span>
-                        {t('analytics.charts.categoryBreakdown')}
-                    </h3>
+                <Card className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div className="flex items-center gap-2 mb-8">
+                        <ChartPie className="w-4 h-4 text-primary" />
+                        <h2 className="text-xl font-bold">{t('analytics.charts.categoryBreakdown')}</h2>
+                    </div>
                     <div className="flex-1 flex flex-col justify-center">
                         {categoryData.length > 0 ? (
                             <ResponsiveContainer width="100%" height={260}>
@@ -319,9 +383,9 @@ export const Analytics = () => {
                                     <div key={idx} className="flex items-center justify-between text-xs font-bold">
                                         <div className="flex items-center gap-2">
                                             <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color || COLORS[idx % COLORS.length] }} />
-                                            <span className="text-slate-600 dark:text-slate-400 capitalize">{item.category}</span>
+                                            <span className="text-sm font-medium text-slate-600">{item.category}</span>
                                         </div>
-                                        <span className="text-slate-900 dark:text-white">{formatCurrency(item.total)}</span>
+                                        <span className="text-sm font-bold ml-2">{formatCurrency(item.total)}</span>
                                     </div>
                                 ))}
                             </div>

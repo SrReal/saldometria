@@ -8,7 +8,7 @@ const verifyEntityOwnership = async (entityId, userId) => {
 
 exports.getAll = async (req, res, next) => {
   try {
-    const { entityId, startDate, endDate, accountId, type, categoryId } = req.query;
+    const { entityId, startDate, endDate, accountId, type, categoryId, page, limit } = req.query;
 
     if (!entityId) {
       return res.status(400).json({ message: 'entityId is required' });
@@ -36,16 +36,28 @@ exports.getAll = async (req, res, next) => {
         }
     }
 
-    const transactions = await Transaction.findAll({
+    // Paginación
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * limitNum;
+
+    const { count, rows } = await Transaction.findAndCountAll({
       where,
       include: [
           { model: Category, as: 'category' },
           { model: Account, as: 'account' }
       ],
       order: [['date', 'DESC']],
+      limit: limitNum,
+      offset
     });
 
-    res.json(transactions);
+    res.json({
+      data: rows,
+      total: count,
+      page: pageNum,
+      totalPages: Math.ceil(count / limitNum)
+    });
   } catch (error) {
     next(error);
   }

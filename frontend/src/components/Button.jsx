@@ -1,3 +1,5 @@
+import { Loader2 } from 'lucide-react';
+
 export const Button = ({ children, variant = 'primary', className = '', loading = false, ...props }) => {
     const variants = {
         primary: 'bg-primary hover:bg-orange-600 text-white shadow-lg shadow-primary/20',
@@ -8,12 +10,12 @@ export const Button = ({ children, variant = 'primary', className = '', loading 
 
     return (
         <button
-            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 ${variants[variant] || variants.primary} ${className}`}
+            className={className === '' ? `px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 ${variants[variant] || variants.primary}` : className}
             disabled={loading}
             {...props}
         >
             {loading ? (
-                <span className="material-icons-round text-lg animate-spin">sync</span>
+                <Loader2 className="w-4 h-4 animate-spin" />
             ) : children}
         </button>
     );
