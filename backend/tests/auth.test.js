@@ -64,7 +64,8 @@ describe('Authentication Flow (/api/auth)', () => {
                 .send({
                     email: 'Test@example.com ',
                     password: 'password123',
-                    name: 'Test User'
+                    name: 'Test User',
+                    invitationCode: process.env.INVITATION_CODE || 'SALDOMETRIA2026'
                 });
 
             expect(response.status).toBe(201);
@@ -80,23 +81,56 @@ describe('Authentication Flow (/api/auth)', () => {
                 .post('/api/auth/register')
                 .send({
                     email: 'test@example.com',
-                    password: 'password123'
+                    password: 'password123',
+                    invitationCode: process.env.INVITATION_CODE || 'SALDOMETRIA2026'
                 });
 
             expect(response.status).toBe(409);
             expect(response.body.message).toMatch(/already exists/i);
         });
 
-        test('should reject registration with short password', async () => {
+        test('should reject registration if invitation code is required and invalid', async () => {
+            const originalCode = process.env.INVITATION_CODE;
+            process.env.INVITATION_CODE = 'SECRET_VIP';
+
             const response = await request(app)
                 .post('/api/auth/register')
                 .send({
-                    email: 'test@example.com',
-                    password: '123'
+                    email: 'vip@example.com',
+                    password: 'password123',
+                    invitationCode: 'WRONG_CODE'
                 });
 
-            expect(response.status).toBe(400);
-            expect(response.body.message).toMatch(/at least 6 characters/i);
+            expect(response.status).toBe(403);
+            expect(response.body.message).toMatch(/invitación/i);
+
+            process.env.INVITATION_CODE = originalCode;
+        });
+
+        test('should accept registration with valid invitation code when required', async () => {
+            const originalCode = process.env.INVITATION_CODE;
+            process.env.INVITATION_CODE = 'SECRET_VIP';
+
+            User.findOne.mockResolvedValue(null);
+            User.create.mockResolvedValue({
+                id: 2,
+                email: 'vip@example.com',
+                name: 'VIP User',
+                currency: 'EUR'
+            });
+
+            const response = await request(app)
+                .post('/api/auth/register')
+                .send({
+                    email: 'vip@example.com',
+                    password: 'password123',
+                    invitationCode: 'SECRET_VIP'
+                });
+
+            expect(response.status).toBe(201);
+            expect(response.body.ok).toBe(true);
+
+            process.env.INVITATION_CODE = originalCode;
         });
     });
 

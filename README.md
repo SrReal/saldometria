@@ -135,6 +135,9 @@ DB_PASSWORD=tu_password
 JWT_SECRET=tu_clave_secreta_jwt_muy_larga_y_segura
 CORS_ORIGIN=http://localhost:5173
 
+# Código de invitación para el registro de nuevos usuarios
+INVITATION_CODE=SALDOMETRIA2026
+
 # Opcional: Groq AI
 GROQ_API_KEY=gsk_tu_clave_de_groq
 GROQ_MODEL=openai/gpt-oss-120b

@@ -10,7 +10,17 @@ const generateToken = (userId) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const { email, password, name, currency } = req.body;
+    const { email, password, name, currency, invitationCode } = req.body;
+
+    // Validación de Código de Invitación (Configurado en .env)
+    const requiredInvitationCode = process.env.INVITATION_CODE;
+    if (requiredInvitationCode && requiredInvitationCode.trim() !== '') {
+      if (!invitationCode || invitationCode.trim() !== requiredInvitationCode.trim()) {
+        return res.status(403).json({
+          message: 'Código de invitación inválido o no proporcionado'
+        });
+      }
+    }
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password required' });
