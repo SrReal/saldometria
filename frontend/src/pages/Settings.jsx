@@ -18,6 +18,7 @@ import {
     Palette
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { showConfirm } from '../utils/swal';
 
 export const Settings = () => {
     const { selectedEntity } = useEntity();
@@ -72,7 +73,16 @@ export const Settings = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm(t('settings.confirm.delete') || '¿Deseas eliminar esta categoría?')) return;
+        const confirmed = await showConfirm({
+            title: t('settings.confirm.delete') || '¿Eliminar categoría?',
+            text: 'Las transacciones asociadas pasarán a estar sin categorizar.',
+            confirmButtonText: t('common.delete') || 'Eliminar',
+            cancelButtonText: t('common.cancel') || 'Cancelar',
+            icon: 'warning',
+            isDanger: true,
+        });
+        if (!confirmed) return;
+
         try {
             await api.delete(`/categories/${id}`);
             setCategories(categories.filter(c => c.id !== id));

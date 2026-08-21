@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronLeft, ChevronRight, Plus, CheckCircle2, X, TrendingUp, TrendingDown, FileUp, SearchX, Calendar1, Landmark, Trash, Trash2 } from 'lucide-react';
+import { showConfirm, showAlert } from '../utils/swal';
 
 export const Transactions = () => {
     const { selectedEntity } = useEntity();
@@ -171,12 +172,26 @@ export const Transactions = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm(t('common.delete') + '?')) return;
+        const confirmed = await showConfirm({
+            title: t('common.delete') + '?',
+            text: t('common.deleteConfirm') || 'Esta acción no se puede deshacer.',
+            confirmButtonText: t('common.delete') || 'Eliminar',
+            cancelButtonText: t('common.cancel') || 'Cancelar',
+            icon: 'warning',
+            isDanger: true,
+        });
+        if (!confirmed) return;
+
         try {
             await api.delete(`/transactions/${id}`);
             await fetchTransactions();
         } catch (error) {
             console.error('Failed to delete transaction', error);
+            await showAlert({
+                title: 'Error',
+                text: 'No se pudo eliminar el movimiento.',
+                icon: 'error',
+            });
         }
     };
 
@@ -186,9 +201,16 @@ export const Transactions = () => {
     const [importMessage, setImportMessage] = useState({ type: '', text: '' });
 
     const handleBulkAction = async (action, payload = {}) => {
-        if (!window.confirm(t('common.confirm'))) return;
+        const confirmed = await showConfirm({
+            title: t('common.confirm') || '¿Confirmar acción masiva?',
+            text: `Se aplicará a ${selectedIds.size} transacciones seleccionadas.`,
+            confirmButtonText: 'Aplicar',
+            cancelButtonText: t('common.cancel') || 'Cancelar',
+        });
+        if (!confirmed) return;
 
         setIsBulkActionLoading(true);
+        const count = selectedIds.size;
         try {
             await api.post('/transactions/bulk-action', {
                 ids: Array.from(selectedIds),
@@ -197,10 +219,18 @@ export const Transactions = () => {
             });
             setSelectedIds(new Set());
             await fetchTransactions();
-            alert(t('transactions.table.bulkActions.success', { count: selectedIds.size }));
+            await showAlert({
+                title: 'Operación completada',
+                text: t('transactions.table.bulkActions.success', { count }),
+                icon: 'success',
+            });
         } catch (error) {
             console.error('Bulk action failed', error);
-            alert(t('transactions.table.bulkActions.error'));
+            await showAlert({
+                title: 'Error',
+                text: t('transactions.table.bulkActions.error') || 'Error al ejecutar la acción masiva',
+                icon: 'error',
+            });
         } finally {
             setIsBulkActionLoading(false);
         }

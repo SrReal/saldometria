@@ -8,6 +8,7 @@ router.use(requireAuth);
 router.get('/', rulesController.getRules);
 router.post('/', rulesController.createRule);
 router.post('/apply', rulesController.applyRules);
+router.post('/bulk-delete', rulesController.bulkDeleteRules);
 router.put('/:id', rulesController.updateRule);
 router.delete('/:id', rulesController.deleteRule);
 

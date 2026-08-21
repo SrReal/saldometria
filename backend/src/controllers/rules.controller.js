@@ -72,6 +72,24 @@ exports.deleteRule = async (req, res) => {
     }
 };
 
+exports.bulkDeleteRules = async (req, res) => {
+    try {
+        const { ids, entityId } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ message: 'Array of ids is required' });
+        }
+
+        const whereClause = { id: ids };
+        if (entityId) whereClause.entityId = entityId;
+
+        const deletedCount = await Rule.destroy({ where: whereClause });
+        res.json({ message: `${deletedCount} rules deleted successfully`, count: deletedCount });
+    } catch (error) {
+        console.error('Error in bulk deleting rules:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 exports.updateRule = async (req, res) => {
     try {
         const { id } = req.params;

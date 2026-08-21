@@ -7,6 +7,7 @@ import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { FullScreenLoader } from '../components/FullScreenLoader';
 import { toast } from 'react-hot-toast';
+import { showConfirm } from '../utils/swal';
 import {
     Target,
     Plus,
@@ -76,7 +77,16 @@ export const Goals = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm(t('common.deleteConfirm') || '¿Estás seguro de que deseas eliminar este objetivo?')) return;
+        const confirmed = await showConfirm({
+            title: t('common.deleteConfirm') || '¿Eliminar objetivo?',
+            text: 'Se eliminará el seguimiento y ahorro acumulado para esta meta.',
+            confirmButtonText: t('common.delete') || 'Eliminar',
+            cancelButtonText: t('common.cancel') || 'Cancelar',
+            icon: 'warning',
+            isDanger: true,
+        });
+        if (!confirmed) return;
+
         try {
             await api.delete(`/goals/${id}`);
             toast.success('Objetivo eliminado');

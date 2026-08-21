@@ -12,7 +12,7 @@ import { ChevronLeft, ChevronRight, CalendarIcon, TrendingUp, TrendingDown } fro
 export const Calendar = () => {
     const { t, i18n } = useTranslation();
     const { selectedEntity } = useEntity();
-    const { formatCurrency } = useAuth();
+    const { formatCurrency, formatNumber, currencySymbol } = useAuth();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false);

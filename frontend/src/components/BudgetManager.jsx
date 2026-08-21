@@ -5,6 +5,7 @@ import api from '../api/client';
 import { useEntity } from '../context/EntityContext';
 import { Sliders, Trash2, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { showConfirm } from '../utils/swal';
 
 export const BudgetManager = () => {
     const { t } = useTranslation();
@@ -57,7 +58,16 @@ export const BudgetManager = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm(t('settings.budgets.confirmDelete') || '¿Deseas eliminar este límite de presupuesto?')) return;
+        const confirmed = await showConfirm({
+            title: t('settings.budgets.confirmDelete') || '¿Eliminar límite de presupuesto?',
+            text: 'Dejará de haber un límite establecido para esta categoría.',
+            confirmButtonText: t('common.delete') || 'Eliminar',
+            cancelButtonText: t('common.cancel') || 'Cancelar',
+            icon: 'warning',
+            isDanger: true,
+        });
+        if (!confirmed) return;
+
         try {
             await api.delete(`/budgets/${id}`);
             fetchData();

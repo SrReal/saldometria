@@ -22,6 +22,7 @@ import {
     Save
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { showConfirm } from '../utils/swal';
 
 export const Entities = () => {
     const { entities, fetchEntities, selectedEntity, switchEntity } = useEntity();
@@ -76,7 +77,16 @@ export const Entities = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm(t('entities.deleteConfirm') || '¿Estás seguro de que deseas eliminar esta entidad y todos sus movimientos asociados?')) return;
+        const confirmed = await showConfirm({
+            title: '¿Eliminar entidad?',
+            text: t('entities.deleteConfirm') || 'Esta acción eliminará todas las cuentas y movimientos asociados a esta entidad.',
+            confirmButtonText: t('common.delete') || 'Eliminar',
+            cancelButtonText: t('common.cancel') || 'Cancelar',
+            icon: 'warning',
+            isDanger: true,
+        });
+        if (!confirmed) return;
+
         setLoading(true);
         try {
             await api.delete(`/entities/${id}`);
@@ -131,7 +141,16 @@ export const Entities = () => {
     };
 
     const handleDeleteAccount = async (accountId) => {
-        if (!window.confirm('¿Seguro que deseas eliminar esta cuenta?')) return;
+        const confirmed = await showConfirm({
+            title: '¿Eliminar cuenta bancaria?',
+            text: 'Se desvincularán los saldos asociados a esta cuenta.',
+            confirmButtonText: t('common.delete') || 'Eliminar',
+            cancelButtonText: t('common.cancel') || 'Cancelar',
+            icon: 'warning',
+            isDanger: true,
+        });
+        if (!confirmed) return;
+
         try {
             await api.delete(`/accounts/${accountId}`);
             await fetchAccounts(expandedEntityId);
