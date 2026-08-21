@@ -2,33 +2,46 @@ const dotenv = require('dotenv');
 dotenv.config();
 const logger = require('../utils/logger');
 
+let dbConfig = {
+  dialect: 'mysql',
+  pool: {
+    max: 10,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  },
+  logging: process.env.NODE_ENV === 'development' ? (msg) => logger.debug(msg) : false,
+};
+
 const dbUrl = process.env.DATABASE_URL;
-let dbConfig = {};
 
 if (dbUrl) {
-  // Parse mysql connection string: mysql://user:pass@host:port/db
-  const regex = /mysql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/;
-  const match = dbUrl.match(regex);
-  if (match) {
-    dbConfig = {
-      username: match[1],
-      password: match[2],
-      host: match[3],
-      port: match[4],
-      database: match[5],
-      dialect: 'mysql',
-      logging: process.env.NODE_ENV === 'development' ? (msg) => logger.debug(msg) : false,
-    };
+  try {
+    const parsed = new URL(dbUrl);
+    dbConfig.username = decodeURIComponent(parsed.username);
+    dbConfig.password = decodeURIComponent(parsed.password);
+    dbConfig.host = parsed.hostname;
+    dbConfig.port = parsed.port ? parseInt(parsed.port, 10) : 3306;
+    dbConfig.database = parsed.pathname.replace(/^\//, '');
+  } catch (err) {
+    // Regex fallback if URL parsing fails on custom schemes
+    const regex = /mysql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/;
+    const match = dbUrl.match(regex);
+    if (match) {
+      dbConfig.username = match[1];
+      dbConfig.password = match[2];
+      dbConfig.host = match[3];
+      dbConfig.port = parseInt(match[4], 10);
+      dbConfig.database = match[5];
+    }
   }
 } else {
-  // Fallback defaults
-  dbConfig = {
-    username: 'root',
-    password: null,
-    database: 'saldometria',
-    host: '127.0.0.1',
-    dialect: 'mysql',
-  };
+  // Read individual environment variables
+  dbConfig.username = process.env.DB_USER || process.env.DB_USERNAME || 'root';
+  dbConfig.password = process.env.DB_PASSWORD || process.env.DB_PASS || null;
+  dbConfig.database = process.env.DB_NAME || process.env.DB_DATABASE || 'saldometria';
+  dbConfig.host = process.env.DB_HOST || '127.0.0.1';
+  dbConfig.port = parseInt(process.env.DB_PORT, 10) || 3306;
 }
 
 module.exports = {

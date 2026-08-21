@@ -38,6 +38,7 @@ build/
 out/
 .cache/
 .parcel-cache/
+deploy/
 
 # Pruebas y cobertura
 coverage/
