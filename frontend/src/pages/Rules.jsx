@@ -566,9 +566,111 @@ export const Rules = () => {
                 )}
             </div>
 
-            {/* Table Card */}
+            {/* Rules Content: Mobile Cards + Desktop Table */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden w-full max-w-full">
-                <div className="overflow-x-auto w-full max-w-full custom-scrollbar">
+                
+                {/* Mobile View: Cards List (< 640px) */}
+                <div className="block sm:hidden divide-y divide-slate-100">
+                    {/* Mobile Header with Select All */}
+                    {paginatedRules.length > 0 && (
+                        <div className="p-3 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+                            <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+                                <input
+                                    type="checkbox"
+                                    checked={isAllPageSelected}
+                                    ref={el => { if (el) el.indeterminate = isSomePageSelected; }}
+                                    onChange={toggleSelectAllPage}
+                                    className="w-4 h-4 rounded text-primary focus:ring-primary/20 border-slate-300 cursor-pointer"
+                                />
+                                <span>Seleccionar todo ({paginatedRules.length})</span>
+                            </label>
+                            <span className="text-[11px] font-semibold text-slate-400">Pág {currentPage} de {totalPages}</span>
+                        </div>
+                    )}
+
+                    {paginatedRules.length === 0 ? (
+                        <div className="py-12 text-center text-slate-400 px-4">
+                            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-3">
+                                <ListFilter className="w-6 h-6" />
+                            </div>
+                            <p className="font-bold text-slate-700 text-sm">No se encontraron reglas</p>
+                            <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                                {rules.length === 0
+                                    ? 'No tienes reglas creadas. Puedes crear una nueva o categorizar automáticamente con IA.'
+                                    : 'Ninguna regla coincide con los filtros aplicados.'}
+                            </p>
+                        </div>
+                    ) : (
+                        paginatedRules.map(rule => {
+                            const isSelected = selectedRuleIds.has(rule.id);
+                            const isExpense = rule.category?.type === 'EXPENSE';
+
+                            return (
+                                <div
+                                    key={`mobile-${rule.id}`}
+                                    className={`p-3.5 flex flex-col gap-2.5 transition-colors ${
+                                        isSelected ? 'bg-primary/5' : 'hover:bg-slate-50/50'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between gap-2">
+                                        <label className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={isSelected}
+                                                onChange={() => toggleSelectRule(rule.id)}
+                                                className="w-4 h-4 rounded text-primary focus:ring-primary/20 border-slate-300 cursor-pointer flex-shrink-0"
+                                            />
+                                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 border border-slate-200/80 rounded-lg text-xs font-mono font-bold text-slate-800 truncate max-w-[200px]">
+                                                "{rule.pattern}"
+                                            </div>
+                                        </label>
+
+                                        <div className="flex items-center gap-1 flex-shrink-0">
+                                            <button
+                                                onClick={() => startEditing(rule)}
+                                                className="p-1.5 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
+                                                title="Editar regla"
+                                            >
+                                                <Pencil className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(rule.id)}
+                                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                                title="Eliminar regla"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-2 pl-6">
+                                        <div className="flex items-center gap-1.5 min-w-0">
+                                            <span
+                                                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                                                style={{ backgroundColor: rule.category?.color || '#cbd5e1' }}
+                                            />
+                                            <span className="text-xs font-bold text-slate-700 truncate">
+                                                {rule.category?.name || 'Sin categoría'}
+                                            </span>
+                                        </div>
+
+                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0 ${
+                                            isExpense
+                                                ? 'bg-rose-50 text-rose-700 border border-rose-200/60'
+                                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                                        }`}>
+                                            {isExpense ? <TrendingDown className="w-3 h-3 text-rose-500" /> : <TrendingUp className="w-3 h-3 text-emerald-500" />}
+                                            {isExpense ? 'Gasto' : 'Ingreso'}
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
+
+                {/* Desktop View: Full Data Table (>= 640px) */}
+                <div className="hidden sm:block overflow-x-auto w-full max-w-full custom-scrollbar">
                     <table className="w-full min-w-[640px] text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
