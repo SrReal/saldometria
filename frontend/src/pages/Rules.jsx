@@ -567,9 +567,9 @@ export const Rules = () => {
             </div>
 
             {/* Table Card */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden w-full max-w-full">
+                <div className="overflow-x-auto w-full max-w-full custom-scrollbar">
+                    <table className="w-full min-w-[640px] text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
                                 <th className="py-3.5 px-4 w-12 text-center">

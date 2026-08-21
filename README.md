@@ -1,400 +1,200 @@
-# SaldoMetria (personal) — Agregación bancaria + cash + previsión de saldo (Node + React + Plaid)
+# 💳 SaldoMetria — Control Financiero Inteligente & Multi-Entidad
 
-## 1. Objetivo del proyecto
-**SaldoMetria** es una aplicación personal (uso privado) para:
-- Conectar cuentas bancarias (varios bancos) mediante **Plaid**.
-- Importar automáticamente **ingresos y gastos** (transacciones).
-- Añadir **gastos/ingresos en efectivo** (cash) de forma manual.
-- Visualizar:
-  - Resumen mensual (ingresos, gastos, ahorro).
-  - Evolución por categorías y comercios.
-  - Proyección anual (“si sigues así…”).
-  - **Previsión de saldo por fecha** (cuánto dinero debería haber disponible para cubrir gastos previstos).
+<p align="center">
+  <img src="frontend/public/vite.svg" alt="SaldoMetria Logo" width="90" height="90" />
+</p>
 
-### Requisito clave: multi-entidad con un solo login
-Con un único usuario (login), el sistema debe permitir organizar la información por **Entidad** (tenancy lógico):
-- **Entidad personal**: cuentas y movimientos particulares.
-- **Entidad empresarial**: cuentas y movimientos de empresa.
+<p align="center">
+  <strong>Plataforma moderna de agregación, gestión financiera personal/empresarial y auto-categorización con Inteligencia Artificial.</strong>
+</p>
 
-La aplicación debe permitir:
-- Ver datos **separados por banco/cuenta**.
-- Ver datos **separados por entidad**.
-- Ver una vista **global consolidada** (todo junto), con filtros.
-
-Además, debe existir un proceso de sincronización:
-- **Automático diario** (scheduler).
-- **Manual desde la web** (botón “Sincronizar ahora”).
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-v18%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/TailwindCSS-v3-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="TailwindCSS" />
+  <img src="https://img.shields.io/badge/MySQL-Sequelize-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL" />
+  <img src="https://img.shields.io/badge/AI-Groq%20LLM-f55036?style=flat-square&logo=openai&logoColor=white" alt="Groq" />
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License" />
+</p>
 
 ---
 
-## 2. Alcance (MVP)
-### 2.1 Funcionalidades incluidas
-1) **Gestión de Entidades (mínimo)**
-- Crear entidades (Personal / Empresarial).
-- Asignar conexiones bancarias y transacciones a una entidad.
-- Selector global en UI: “Entidad: Personal / Empresarial / Todas”.
+## 🌟 Características Principales
 
-2) **Conexión bancaria con Plaid (por entidad)**
-- Link flow (conectar banco)
-- Guardado de “items/connections” vinculados a una **entidad**
-- Listado de cuentas por conexión
+### 🏢 1. Aislamiento Multi-Entidad (Multi-Tenancy)
+* Gestiona finanzas **personales**, **familiares** y de **empresas/proyectos** bajo una misma cuenta.
+* Aislamiento estricto de transacciones, cuentas, presupuestos y reglas por entidad seleccionada.
+* Cambio instantáneo de entidad desde el selector de la cabecera.
 
-3) **Sincronización de transacciones**
-- Proceso idempotente (no duplica)
-- Deduplicación por `externalId`
-- Sincronización por rango: últimos **60–90 días** (configurable) para absorber ajustes/correcciones del banco
-- Sync por entidad (sincroniza todas las conexiones de una entidad, o todas las entidades)
+### 🤖 2. Auto-Categorización Inteligente con IA (Groq LLM)
+* Clasificación automática de extractos bancarios usando modelos LLM ultrarrápidos (ej. `openai/gpt-oss-120b`, `llama-3.3`).
+* **Creación Dinámica de Categorías:** Si la IA detecta movimientos que no encajan en las categorías existentes, crea automáticamente las categorías necesarias con colores personalizados.
+* **Generación Automática de Reglas:** Extrae patrones de comercios recurrentes (ej. *Mercadona, Repsol, Amazon, AliExpress*) y genera reglas reutilizables.
+* **Aplicación Retroactiva:** Aplica las nuevas reglas a todo el historial de movimientos pendientes al instante.
 
-4) **Transacciones manuales**
-- Añadir gasto/ingreso en efectivo
-- (Opcional) Añadir ajustes manuales
-- Siempre asociadas a una entidad
+### ⚡ 3. Motor de Reglas Avanzado
+* Tabla interactiva de gestión con búsqueda semántica en tiempo real.
+* Filtros por Tipo (*Ingresos / Gastos*) y por Categoría asignada.
+* Selección múltiple por checkboxes y **borrado masivo**.
+* Activación/pausa de reglas sin eliminarlas.
 
-5) **Dashboard y analítica básica**
-- Totales por mes
-- Ahorro mensual
-- Gastos por categoría
-- Filtros: entidad, “todas las cuentas”, por banco/cuenta, “cash”
+### 📥 4. Importación Bancaria Inteligente (CSV / Excel)
+* Importador modular con adaptadores para entidades bancarias (Banco Santander, extractos genéricos, etc.).
+* **Detección inteligente de duplicados** por fecha, importe y tipo.
+* Aplicación de reglas y auto-clasificación en el momento de la importación.
 
-6) **Previsión (versión MVP)**
-- Basada en:
-  - Promedios de gasto/ingreso recientes
-  - Recurrentes simples (si se implementa)
-- Objetivo: “Saldo recomendado en fecha X” con margen de seguridad
+### 📊 5. Analítica & Previsión Financiera (Forecast)
+* Dashboard interactivo con gráficos de evolución, ahorro mensual y distribución por categorías.
+* **Calendario Financiero:** Visualización día a día de cobros, pagos y saldo disponible.
+* **Metas de Ahorro:** Planificación de objetivos con barras de progreso y cálculo de aportaciones periódicas.
+* **Presupuestos Mensuales:** Seguimiento de límites de gasto por categoría con barras de alerta.
+* **Sistema de Alertas de Saldo:** Notificaciones ante riesgo de descubierto o saldos mínimos.
 
-7) **Ejecución del Sync**
-- Automático diario (cron del sistema o `node-cron`)
-- Manual desde la web
+### 📱 6. Diseño 100% Responsive & Accesible
+* Interfaz fluida para **móviles, tablets y pantallas de escritorio**.
+* Menú móvil con navegación inferior (Bottom Bar) y cajón lateral táctil (Drawer).
+* Internacionalización integrada (**Español** e **Inglés**).
+* Alertas y diálogos estilizados con **SweetAlert2**.
 
 ---
 
-## 3. Tecnología y lenguajes
-### 3.1 Backend
-- **Node.js** (LTS)
-- **Express** (API REST)
-- **Prisma ORM**
-- **PostgreSQL** (recomendado por robustez y analítica)
-- **Cron del sistema** (recomendado) o `node-cron` (alternativa)
-- **JWT** para autenticación (o modo “single-user”)
+## 🛠️ Stack Tecnológico
 
-### 3.2 Frontend
-- **React**
-- Vite (recomendado por simplicidad) o Next.js
-- Cliente HTTP (fetch/Axios)
-- Librería de gráficos (Recharts/Chart.js)
-
-### 3.3 Integración bancaria
-- **Plaid** (Link + Transactions; opcional Balance)
+| Capa | Tecnologías |
+|---|---|
+| **Frontend** | React 18, Vite, Tailwind CSS, Recharts, Lucide Icons, i18next, SweetAlert2, Axios |
+| **Backend** | Node.js, Express 5, Sequelize ORM, Groq SDK, Winston Logger, Helmet CSP, Morgan, CORS |
+| **Base de Datos** | MySQL 8.0+ / MariaDB |
+| **Testing** | Jest, Supertest (100% Test Suites Passed) |
 
 ---
 
-## 4. Arquitectura
-### 4.1 Componentes
-1) **Frontend React**
-- UI: selector de entidad, dashboard, movimientos, cash manual, conexión bancos, botón de sync
+## 📂 Estructura del Proyecto
 
-2) **API Backend (Node/Express)**
-- Autenticación
-- Gestión de entidades
-- Integración Plaid (crear link token, intercambiar tokens, sincronizar)
-- CRUD de transacciones manuales
-- Endpoints de estadísticas y previsión
-
-3) **Base de datos (Postgres)**
-- Persistencia: usuarios, entidades, conexiones, cuentas, transacciones, categorías, reglas, logs
-
-4) **Scheduler**
-- Diario: ejecuta `sync.run()` para una entidad o para todas
-
-### 4.2 Principios clave
-- **Idempotencia**: ejecutar sync varias veces no duplica datos.
-- **Deduplicación**: índice único sobre las transacciones bancarias importadas.
-- **Unificación**: banco + cash + manual terminan en la misma entidad `Transaction`.
-- **Multi-entidad**: toda lectura/escritura debe estar filtrada por `entityId` (salvo vistas globales explícitas).
-
----
-
-## 5. Modelo de datos (propuesto)
-> Nombres orientativos. Se implementará con Prisma.
-
-### 5.1 Entidades
-#### `User`
-- `id`
-- `email`
-- `passwordHash`
-- `createdAt`
-
-#### `Entity`
-Representa un “contenedor” (Personal / Empresarial).
-- `id`
-- `userId`
-- `name` (ej.: “Personal”, “Empresa”)
-- `type` (PERSONAL / BUSINESS, opcional)
-- `createdAt`
-
-#### `BankConnection`
-Representa una conexión Plaid (item), vinculada a una entidad.
-- `id`
-- `userId`
-- `entityId`
-- `provider` = "plaid"
-- `plaidItemId`
-- `accessTokenEncrypted` (cifrado)
-- `institutionName`
-- `status` (ACTIVE / NEEDS_REAUTH / DISABLED)
-- `createdAt`, `updatedAt`
-
-#### `Account`
-Representa una cuenta real dentro de la conexión.
-- `id`
-- `userId`
-- `entityId`
-- `connectionId`
-- `providerAccountId` (Plaid `account_id`)
-- `name`
-- `mask` (últimos dígitos si aplica)
-- `type`, `subtype`
-- `currency`
-- `active`
-
-#### `Transaction`
-Unificación total (banco/cash/manual) y siempre vinculada a una entidad.
-- `id`
-- `userId`
-- `entityId`
-- `accountId` (nullable para cash/manual)
-- `date`
-- `amount` (positivo ingreso, negativo gasto)
-- `description`
-- `merchant` (si se obtiene)
-- `categoryId` (nullable)
-- `source` = BANK / CASH / MANUAL
-- `externalId` (nullable; obligatorio si `source=BANK`)
-- `provider` (nullable; "plaid" si BANK)
-- `createdAt`
-
-**Índices únicos recomendados**:
-- Para BANK: `(userId, provider, externalId)`
-- Alternativa (si prefieres acotar por entidad): `(entityId, provider, externalId)`
-
-#### `Category`
-- `id`
-- `userId`
-- `entityId` (si quieres categorías por entidad) **o** `entityId=null` para categorías compartidas
-- `name`
-- `createdAt`
-
-#### `Rule` (opcional, pero muy útil)
-- `id`
-- `userId`
-- `entityId`
-- `matchText` (contiene/regex)
-- `categoryId`
-
-#### `SyncRun` (log del proceso)
-- `id`
-- `userId`
-- `entityId` (nullable si el run fue “todas las entidades”)
-- `startedAt`, `finishedAt`
-- `status` (OK/ERROR)
-- `importedCount`, `skippedCount`
-- `notes` / `error`
-
----
-
-## 6. Flujos principales
-### 6.1 Selección de Entidad (UX base)
-- En la cabecera (navbar): selector **Entidad**
-  - Personal
-  - Empresa
-  - Todas
-- El selector afecta a:
-  - Dashboard
-  - Movimientos
-  - Estadísticas
-  - Conexiones bancarias
-  - Cash manual
-
-### 6.2 Conectar un banco (Plaid Link) por entidad
-1) Frontend solicita `POST /api/plaid/link-token` enviando `entityId`
-2) Backend crea link token y lo devuelve
-3) Frontend abre Plaid Link
-4) Plaid devuelve `public_token`
-5) Frontend llama `POST /api/plaid/exchange` con `public_token` + `entityId`
-6) Backend intercambia y guarda `access_token` (cifrado) + metadata + entidad
-
-### 6.3 Sincronizar transacciones
-1) Se determina ámbito:
-- una entidad concreta (`entityId`) o todas
-2) Se listan conexiones activas en ese ámbito
-3) Para cada conexión:
-- se consultan cuentas
-- se sincronizan transacciones para el rango (ej. últimos 90 días)
-4) Se hace **upsert** en `Transaction` usando `externalId`
-5) Se aplican reglas de categorización (si existen)
-6) Se registra `SyncRun`
-
-### 6.4 Añadir gasto/ingreso en efectivo
-- Frontend: formulario (entidad, fecha, importe, categoría, descripción)
-- Backend: `POST /api/transactions/cash`
-- DB: `Transaction(source=CASH, accountId=null, entityId=...)`
-
-### 6.5 Vista por bancos / global
-Filtros típicos:
-- Entidad: Personal / Empresa / Todas
-- Banco (institución) / Conexión
-- Cuenta
-- Fuente: BANK / CASH / MANUAL
-
----
-
-## 7. Endpoints (MVP)
-### 7.1 Entidades
-- `GET /api/entities`
-- `POST /api/entities` (crear)
-- `PATCH /api/entities/:id` (renombrar)
-
-### 7.2 Plaid
-- `POST /api/plaid/link-token` (requiere `entityId`)
-- `POST /api/plaid/exchange` (requiere `entityId`)
-
-### 7.3 Sync
-- `POST /api/sync/run` (opcional `entityId`; si no se envía, sincroniza todas)
-- `GET /api/sync/status?entityId=`
-- `GET /api/sync/runs?limit=20&entityId=`
-
-### 7.4 Transacciones
-- `GET /api/transactions?from=&to=&entityId=&accountId=&source=`
-- `POST /api/transactions/cash` (requiere `entityId`)
-- `PATCH /api/transactions/:id` (editar categoría, descripción)
-- `DELETE /api/transactions/:id`
-
-### 7.5 Estadísticas / Forecast
-- `GET /api/stats/summary?month=YYYY-MM&entityId=`
-- `GET /api/stats/monthly?year=YYYY&entityId=`
-- `GET /api/forecast?to=YYYY-MM-DD&entityId=`
-
----
-
-## 8. Proceso diario (scheduler)
-Se ofrece doble mecanismo:
-
-1) **Cron del sistema (recomendado)**
-- Ejecuta un script `node backend/scripts/sync.js` una vez al día (p. ej. 06:00).
-- El script puede:
-  - sincronizar todas las entidades
-  - o una entidad concreta (parámetro)
-
-2) **node-cron (alternativa)**
-- El backend programa la tarea al arrancar.
-
-Requisitos comunes:
-- **Lock** para evitar doble ejecución simultánea.
-- Registro en `SyncRun`.
-
----
-
-## 9. Seguridad y privacidad (mínimos razonables)
-- No se guardan credenciales bancarias.
-- `access_token` de Plaid:
-  - Guardado **cifrado en BD**.
-  - Clave de cifrado fuera del repositorio (variable de entorno).
-- HTTPS obligatorio en despliegue.
-- Backups cifrados del Postgres.
-- Logs sin datos sensibles (evitar tokens o payloads completos).
-
----
-
-## 10. Configuración (variables de entorno)
-Ejemplo `.env` (no subir a git):
-- `NODE_ENV=production|development`
-- `PORT=3001`
-- `DATABASE_URL=postgresql://...`
-- `JWT_SECRET=...` (si aplica)
-- `PLAID_CLIENT_ID=...`
-- `PLAID_SECRET=...`
-- `PLAID_ENV=sandbox|development|production`
-- `ENCRYPTION_KEY=...` (32 bytes base64)
-- `SYNC_LOOKBACK_DAYS=90`
-
----
-
-## 11. Estructura de repositorio (propuesta)
-```
-SaldoMetria/
-  backend/
-    src/
-      app.js
-      routes/
-      services/
-      jobs/
-      db/
-    prisma/
-      schema.prisma
-    scripts/
-      sync.js
-    package.json
-  frontend/
-    src/
-      pages/
-      components/
-      api/
-    package.json
-  README.md
+```text
+saldrometria/
+├── backend/                    # Servidor API REST
+│   ├── src/
+│   │   ├── config/             # Configuración de base de datos y logging
+│   │   ├── controllers/        # Controladores (Auth, Transacciones, Reglas, IA, etc.)
+│   │   ├── middleware/         # Autenticación JWT, Rate Limiting, Manejo de errores
+│   │   ├── models/             # Modelos Sequelize (User, Entity, Account, Transaction, Rule, etc.)
+│   │   ├── routes/             # Enrutamiento de la API (/api/...)
+│   │   ├── services/           # Lógica de negocio (Groq AI, Importadores bancarios, etc.)
+│   │   └── utils/              # Utilidades y Logger Winston
+│   ├── tests/                  # Batería de pruebas automatizadas (Jest)
+│   ├── .env.example            # Plantilla de variables de entorno del backend
+│   └── package.json
+│
+├── frontend/                   # Cliente SPA React + Vite
+│   ├── src/
+│   │   ├── api/                # Cliente Axios con interceptores JWT
+│   │   ├── components/         # Componentes UI reutilizables (Logo, Botones, Modales, etc.)
+│   │   ├── context/            # Contextos de React (AuthContext, EntityContext)
+│   │   ├── layouts/            # Layout responsivo con Sidebar y Navegación Móvil
+│   │   ├── locales/            # Traducciones i18n (es.json, en.json)
+│   │   ├── pages/              # Páginas (Dashboard, Transactions, Rules, Calendar, Goals, etc.)
+│   │   └── utils/              # Helpers y SweetAlert2 modals
+│   └── package.json
+│
+└── deploy/                     # Paquete compilado listo para desplegar en Plesk / Servidor
 ```
 
 ---
 
-## 12. Roadmap sugerido (iterativo)
-### Fase 1 — Base funcional + Entidades
-- [ ] Backend Express + Prisma + Postgres
-- [ ] CRUD de entidades (Personal/Empresa)
-- [ ] CRUD de transacciones cash/manual (siempre con `entityId`)
-- [ ] Dashboard con selector de entidad
+## 🚀 Instalación y Puesta en Marcha Local
 
-### Fase 2 — Plaid por entidad
-- [ ] Plaid Link: conectar institución (vinculado a una entidad)
-- [ ] Guardado conexión + cuentas
-- [ ] Sync inicial (90 días) + deduplicación
-- [ ] Sync manual desde web
+### Prerrequisitos
+* **Node.js** v18 o superior
+* **MySQL** v8.0 o MariaDB
+* *(Opcional)* API Key gratuita de [Groq Console](https://console.groq.com) para la categorización con IA.
 
-### Fase 3 — Automatización y calidad
-- [ ] Cron diario + lock anti doble ejecución
-- [ ] Logs `SyncRun` con ámbito (entidad / global)
-- [ ] Motor de reglas de categorización
-- [ ] Vistas: por banco/cuenta + global
+### 1. Clonar el Repositorio
+```bash
+git clone https://github.com/SrReal/saldometria.git
+cd saldometria
+```
 
-### Fase 4 — Forecast (valor diferencial)
-- [ ] Detección básica de recurrentes
-- [ ] Saldo recomendado por fecha + margen
-- [ ] Alertas simples (p. ej. “riesgo de saldo negativo”)
+### 2. Configurar el Backend
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
+
+Edita el archivo `.env` con tus credenciales de base de datos y clave secreta:
+```env
+PORT=3000
+NODE_ENV=development
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=saldometria_db
+DB_USER=root
+DB_PASSWORD=tu_password
+JWT_SECRET=tu_clave_secreta_jwt_muy_larga_y_segura
+CORS_ORIGIN=http://localhost:5173
+
+# Opcional: Groq AI
+GROQ_API_KEY=gsk_tu_clave_de_groq
+GROQ_MODEL=openai/gpt-oss-120b
+```
+
+Inicia el servidor en modo desarrollo:
+```bash
+npm run dev
+```
+
+### 3. Configurar el Frontend
+En otra terminal:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abre [http://localhost:5173](http://localhost:5173) en tu navegador para empezar.
 
 ---
 
-## 13. Necesidades previas
-- Cuenta Plaid configurada (sandbox/producción según plan).
-- Entorno local o servidor con:
-  - Node.js LTS
-  - PostgreSQL
-- Dominio/HTTPS si se despliega fuera de local.
+## 🧪 Ejecución de Tests
+
+El backend incluye una suite de pruebas automatizadas con **Jest** y **Supertest** para validar aislamiento de entidades, autenticación, cálculo de balances y salud de la base de datos:
+
+```bash
+cd backend
+npm test
+```
 
 ---
 
-## 14. Notas de diseño sobre límites de llamadas (objetivo: low-usage)
-Con un sync diario y pocas entidades:
-- 31 ejecuciones/mes
-- 2 entidades (personal/empresa)
-- 1–2 bancos por entidad
+## 🌐 Despliegue en Producción (Plesk / Nginx / PM2)
 
-Se debe optimizar el sync para minimizar llamadas:
-- Cachear cuentas/institución cuando no cambie
-- Traer transacciones por rangos eficientes
-- Evitar llamadas de balance si no son imprescindibles
+El proyecto incluye la carpeta optimizada `deploy/` lista para producción:
 
-Objetivo operativo: mantenerse dentro de límites de llamadas mensuales (si aplica a tu plan).
+1. **Compilar el frontend:**
+   ```bash
+   cd frontend
+   npm run build
+   ```
+2. **Subir al servidor:** Sube el contenido de `backend/` (con la carpeta `frontend/dist` copiada dentro de `backend/public/`).
+3. **Plesk Node.js:**
+   * **Application Startup File:** `src/server.js`
+   * **Application Mode:** `production`
+   * Configura las variables de entorno en el panel y pulsa **"NPM Install"** y **"Restart"**.
 
 ---
 
-## 15. Licencia
-Uso personal. No orientado a redistribución pública (ajustar si se publica).
+## 🔒 Seguridad
 
+* **Helmet CSP:** Configuración de cabeceras seguras con soporte para Content Security Policy.
+* **Rate Limiting:** Protección anti brute-force en endpoints de autenticación y subida de ficheros.
+* **Contraseñas:** Hashing criptográfico mediante `bcryptjs`.
+* **Tokens:** Autenticación stateless segura con JSON Web Tokens (JWT).
+* **Sanitización:** Consultas preparadas y parametrizadas para evitar inyección SQL (SQLi).
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia **MIT**. Puedes usarlo, modificarlo y distribuirlo libremente. Consulta el archivo `LICENSE` para más detalles.

@@ -14,8 +14,20 @@ const app = express();
 // Trust proxy (behind Nginx / Reverse Proxy)
 app.set('trust proxy', 1);
 
-// Security Headers
-app.use(helmet());
+// Security Headers & Content Security Policy (CSP)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.tailwindcss.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "*"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
 
 // CORS Configuration
 const allowedOrigins = process.env.CORS_ORIGIN
@@ -116,6 +128,33 @@ app.use('/api/rules', require('./routes/rules.routes'));
 app.use('/api/budgets', require('./routes/budget.routes'));
 app.use('/api/goals', require('./routes/goals.routes'));
 app.use('/api/alerts', require('./routes/alert.routes'));
+
+// Serve Frontend Static Files (SPA Support for Plesk / Production)
+const path = require('path');
+const fs = require('fs');
+
+const possibleStaticDirs = [
+  path.join(__dirname, '../public'),
+  path.join(__dirname, 'public'),
+  path.join(__dirname, '../../frontend/dist')
+];
+
+const staticDir = possibleStaticDirs.find(p => fs.existsSync(p));
+
+if (staticDir) {
+  app.use(express.static(staticDir));
+
+  // Catch-all fallback for SPA navigation (e.g. /login, /dashboard, /rules)
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api/')) {
+      const indexPath = path.join(staticDir, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+      }
+    }
+    next();
+  });
+}
 
 // Error Handler
 app.use(errorHandler);

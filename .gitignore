@@ -39,6 +39,7 @@ out/
 .cache/
 .parcel-cache/
 deploy/
+templates_view/
 
 # Pruebas y cobertura
 coverage/

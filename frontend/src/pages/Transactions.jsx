@@ -783,60 +783,63 @@ export const Transactions = () => {
             }
 
             {/* Transactions List */}
-            <div className="space-y-3">
+            <div className="space-y-3 w-full max-w-full">
                 {transactions.map(tx => (
                     <Card
                         key={tx.id}
-                        className={`group bg-white border border-slate-100 p-4 rounded-xl flex items-center justify-between gap-4 hover:shadow-md transition-shadow`}
+                        className="group bg-white border border-slate-100 p-3.5 sm:p-4 rounded-xl flex items-center justify-between gap-3 sm:gap-4 hover:shadow-md transition-shadow w-full overflow-hidden"
                     >
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2.5 sm:gap-4 flex-1 min-w-0">
                             <input
                                 type="checkbox"
-                                className="w-5 h-5 rounded-xl border-slate-300 text-primary focus:ring-primary"
+                                className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg border-slate-300 text-primary focus:ring-primary flex-shrink-0 cursor-pointer"
                                 checked={selectedIds.has(tx.id)}
                                 onChange={() => toggleSelection(tx.id)}
                             />
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${tx.type === 'INCOME' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex-shrink-0 flex items-center justify-center ${tx.type === 'INCOME' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
                                 {tx.type === 'INCOME' ?
-                                    <TrendingUp className="w-5 h-5" /> :
-                                    <TrendingDown className="w-5 h-5" />}
+                                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" /> :
+                                    <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />}
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold truncate text-slate-800">{tx.description}</h4>
-                                <div className="flex items-center gap-3 mt-1">
-                                    <span className="flex items-center gap-1 text-xs text-slate-400">
-                                        <Calendar1 className="w-3 h-3" />
+                            <div className="flex-1 min-w-0 overflow-hidden">
+                                <h4 className="font-semibold text-sm sm:text-base truncate text-slate-800" title={tx.description}>
+                                    {tx.description}
+                                </h4>
+                                <div className="flex items-center gap-1.5 sm:gap-2.5 mt-0.5 sm:mt-1 flex-wrap">
+                                    <span className="flex items-center gap-1 text-[11px] sm:text-xs text-slate-400 flex-shrink-0">
+                                        <Calendar1 className="w-3 h-3 flex-shrink-0" />
                                         {format(new Date(tx.date), 'dd MMM yyyy', { locale })}
                                     </span>
-                                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                                    <span className="flex items-center gap-1 text-xs text-slate-500">
-                                        <Landmark className="w-3 h-3" />
-                                        {tx.account?.name || 'CASH'}
+                                    <span className="w-1 h-1 rounded-full bg-slate-300 hidden sm:inline-block"></span>
+                                    <span className="flex items-center gap-1 text-[11px] sm:text-xs text-slate-500 truncate max-w-[110px] sm:max-w-[160px]">
+                                        <Landmark className="w-3 h-3 flex-shrink-0" />
+                                        <span className="truncate">{tx.account?.name || 'CASH'}</span>
                                     </span>
-                                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                                    <span className="px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                                    <span className="w-1 h-1 rounded-full bg-slate-300 hidden sm:inline-block"></span>
+                                    <span className="px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-600 uppercase tracking-tight truncate max-w-[120px] sm:max-w-[180px]">
                                         {tx.category?.name || t('transactions.uncategorized')}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="text-right flex items-center gap-6">
+                        <div className="text-right flex items-center gap-2 sm:gap-4 flex-shrink-0">
                             <div className="text-right">
-                                <p className={`text-lg font-bold ${tx.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                <p className={`text-base sm:text-lg font-bold whitespace-nowrap ${tx.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
                                     {tx.type === 'INCOME' ? '+' : '-'}{formatCurrency(tx.amount)}
                                 </p>
                                 {tx.balance !== undefined && tx.balance !== null && (
-                                    <p className="text-[10px] text-slate-400 font-medium">
+                                    <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
                                         Saldo: {formatCurrency(tx.balance)}
                                     </p>
                                 )}
                             </div>
                             <button
                                 onClick={() => handleDelete(tx.id)}
-                                className="p-2 text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                className="p-1.5 sm:p-2 text-slate-300 hover:text-rose-500 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 rounded-lg hover:bg-rose-50"
+                                title={t('common.delete')}
                             >
-                                <Trash className="w-5 h-5" />
+                                <Trash className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>
                         </div>
                     </Card>
@@ -925,8 +928,8 @@ export const Transactions = () => {
             {/* Floating Bulk Actions Bar */}
             {
                 selectedIds.size > 0 && (
-                    <div className="fixed bottom-10 left-[calc(16rem+2rem)] right-8 z-50">
-                        <div className="glass-panel border-2 border-primary/20 shadow-[0_20px_50px_rgba(255,132,4,0.15)] rounded-2xl px-8 py-4 flex items-center justify-between mx-auto max-w-6xl">
+                    <div className="fixed bottom-20 lg:bottom-10 left-3 sm:left-6 lg:left-[calc(16rem+2rem)] right-3 sm:right-6 lg:right-8 z-50">
+                        <div className="glass-panel border-2 border-primary/20 shadow-[0_20px_50px_rgba(255,132,4,0.15)] rounded-2xl px-4 sm:px-8 py-3 sm:py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mx-auto max-w-6xl">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-black shadow-lg shadow-primary/20">
                                     {selectedIds.size}

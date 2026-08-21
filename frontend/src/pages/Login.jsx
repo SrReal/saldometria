@@ -17,6 +17,8 @@ import {
     Layers
 } from 'lucide-react';
 
+import { Logo } from '../components/Logo';
+
 export const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -71,9 +73,7 @@ export const Login = () => {
                     <div className="p-8 sm:p-10">
                         {/* Brand Logo & Header */}
                         <div className="flex flex-col items-center text-center mb-8">
-                            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 border border-primary/20 shadow-sm">
-                                <Wallet className="w-8 h-8 text-primary" />
-                            </div>
+                            <Logo size="xl" showText={false} className="mb-2" />
                             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">
                                 Saldo<span className="text-primary">Metria</span>
                             </h1>
